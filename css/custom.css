@@ -1,0 +1,17 @@
+@font-face{
+    font-family:'kaihuafont' ;  /* 字体名自定义即可 */
+    src:url('/fonts/ChillReunion_Round.otf'); /* 字体文件路径 */
+    font-display : swap;
+  }
+  
+  body {
+    font-family: 'kaihuafont', sans-serif;
+  }
+
+  
+#page-header, #page-header:before {
+  background: transparent !important;
+}
+.top-img {
+  display: none !important;
+}
