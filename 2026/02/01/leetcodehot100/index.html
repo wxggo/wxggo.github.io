@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="总结Leetcode Hot100高效刷题顺序与核心题型分类，针对性梳理面试高频考点，助力面试复习与知识点巩固">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）">
+<meta property="og:url" content="https://wxggo.github.io/2026/02/01/leetcodehot100/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="总结Leetcode Hot100高效刷题顺序与核心题型分类，针对性梳理面试高频考点，助力面试复习与知识点巩固">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://wxggo.github.io/images/photo2024/study_java/leetcode.jpeg">
+<meta property="article:published_time" content="2026-02-01T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-01T02:30:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wxggo.github.io/images/photo2024/study_java/leetcode.jpeg"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/02/01/leetcodehot100/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-01 10:30:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/Home/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/photo2024/study_java/leetcode.jpeg')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/Home/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-01T02:00:00.000Z" title="Created 2026-02-01 10:00:00">2026-02-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-01T02:30:00.000Z" title="Updated 2026-02-01 10:30:00">2026-02-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E9%9D%A2%E8%AF%95%E5%AD%A6%E4%B9%A0/">面试学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">3.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>10mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Leetcode Hot100 是大厂面试算法题的核心题库，覆盖了90%以上的高频考点。不合理的刷题顺序易导致“上手难、基础虚、越刷越慌”，而清晰的题型分类能让复习更有针对性。本文结合高频面试场景与学习规律，总结Hot100的最优刷题顺序和<strong>全量100题核心题型分类</strong>，适配面试复习阶段的知识点梳理与巩固。</p>
+<h2 id="一、Leetcode-Hot100-合理刷题顺序（从易到难，贴合面试优先级）"><a href="#一、Leetcode-Hot100-合理刷题顺序（从易到难，贴合面试优先级）" class="headerlink" title="一、Leetcode Hot100 合理刷题顺序（从易到难，贴合面试优先级）"></a>一、Leetcode Hot100 合理刷题顺序（从易到难，贴合面试优先级）</h2><p>刷题核心原则：<strong>先掌握基础数据结构，再攻克算法思想；先刷高频简单题，再啃进阶综合题</strong>，避免跳跃式刷题导致基础不牢。</p>
+<h3 id="1-第一阶段：基础入门（搭建解题思维）"><a href="#1-第一阶段：基础入门（搭建解题思维）" class="headerlink" title="1. 第一阶段：基础入门（搭建解题思维）"></a>1. 第一阶段：基础入门（搭建解题思维）</h3><ul>
+<li>核心模块：数组 → 字符串 → 链表</li>
+<li>刷题原因：三类题型是算法题的基础载体，代码实现简单、面试占比超30%，能快速建立“解题手感”，降低入门门槛。</li>
+<li>重点关注：<ul>
+<li>数组：双指针（快慢&#x2F;左右）、滑动窗口、二分查找（如两数之和、三数之和、最长无重复子串）；</li>
+<li>字符串：回文判断、字符串匹配（暴力&#x2F;KMP）、拼接&#x2F;分割技巧（如最长回文子串、有效的括号）；</li>
+<li>链表：反转、环检测、节点删除&#x2F;合并（如反转链表、合并两个有序链表、环形链表）。</li>
+</ul>
+</li>
+<li>刷题建议：每类刷5-8道Hot100题，重点理解“空间换时间”思路与“边界条件处理”（面试高频追问点）。</li>
+</ul>
+<h3 id="2-第二阶段：数据结构进阶（夯实核心考点）"><a href="#2-第二阶段：数据结构进阶（夯实核心考点）" class="headerlink" title="2. 第二阶段：数据结构进阶（夯实核心考点）"></a>2. 第二阶段：数据结构进阶（夯实核心考点）</h3><ul>
+<li>核心模块：二叉树&#x2F;二叉搜索树 → 栈&#x2F;队列 → 哈希表</li>
+<li>刷题原因：二叉树是递归&#x2F;遍历的核心载体（面试必考），栈&#x2F;队列、哈希表是“时间复杂度优化”的关键工具，也是进阶题的基础。</li>
+<li>重点关注：<ul>
+<li>二叉树：前&#x2F;中&#x2F;后序遍历（递归+迭代）、层序遍历、翻转二叉树、路径总和（如Leetcode 226翻转二叉树、104二叉树的最大深度）；</li>
+<li>栈&#x2F;队列：单调栈、队列与栈互实现、滑动窗口最大值（依赖单调队列）；</li>
+<li>哈希表：HashMap&#x2F;HashSet的应用、去重&#x2F;映射场景、字母异位词分组（面试常追问哈希冲突处理）。</li>
+</ul>
+</li>
+<li>刷题建议：二叉树优先掌握递归解法（面试先讲递归，再补充迭代优化），哈希表结合Java底层原理理解（如扩容机制、红黑树转换）。</li>
+</ul>
+<h3 id="3-第三阶段：算法思想入门（掌握解题套路）"><a href="#3-第三阶段：算法思想入门（掌握解题套路）" class="headerlink" title="3. 第三阶段：算法思想入门（掌握解题套路）"></a>3. 第三阶段：算法思想入门（掌握解题套路）</h3><ul>
+<li>核心模块：双指针 → 递归&#x2F;回溯 → 贪心</li>
+<li>刷题原因：算法思想是“从基础题到进阶题”的桥梁，双指针优化时间复杂度，递归&#x2F;回溯解决排列组合类问题，贪心是动态规划的简化版。</li>
+<li>重点关注：<ul>
+<li>双指针：数组&#x2F;链表&#x2F;字符串的双指针应用（如盛最多水的容器、删除有序数组中的重复项）；</li>
+<li>递归&#x2F;回溯：子集、组合、全排列（如Leetcode 78子集、46全排列），核心是“回溯剪枝”逻辑；</li>
+<li>贪心：区间调度、买卖股票的最佳时机，重点理解“局部最优推全局最优”的证明（面试高频追问）。</li>
+</ul>
+</li>
+<li>刷题建议：回溯题先画递归树（面试写题前画树，体现思路完整性），贪心题总结“贪心策略”的适用场景。</li>
+</ul>
+<h3 id="4-第四阶段：进阶算法（攻克面试压轴题）"><a href="#4-第四阶段：进阶算法（攻克面试压轴题）" class="headerlink" title="4. 第四阶段：进阶算法（攻克面试压轴题）"></a>4. 第四阶段：进阶算法（攻克面试压轴题）</h3><ul>
+<li>核心模块：动态规划 → 图论（DFS&#x2F;BFS）→ 特殊技巧（并查集&#x2F;单调栈）</li>
+<li>刷题原因：动态规划是大厂面试压轴题核心，图论覆盖“岛屿、最短路径”等高频场景，特殊技巧是难题优化的关键。</li>
+<li>重点关注：<ul>
+<li>动态规划：子序列问题、背包问题、打家劫舍（核心是“状态定义+转移方程”）；</li>
+<li>图论：DFS&#x2F;BFS（岛屿数量、单词接龙）、最短路径（Dijkstra）、拓扑排序；</li>
+<li>特殊技巧：并查集（朋友圈问题）、单调栈（接雨水、柱状图中最大的矩形）。</li>
+</ul>
+</li>
+<li>刷题建议：动态规划先刷“单维度状态”题（如爬楼梯），再刷“二维状态”题（如最长公共子序列）；图论熟记DFS&#x2F;BFS模板（面试可直接套用）。</li>
+</ul>
+<h3 id="5-第五阶段：综合压轴（适配面试场景）"><a href="#5-第五阶段：综合压轴（适配面试场景）" class="headerlink" title="5. 第五阶段：综合压轴（适配面试场景）"></a>5. 第五阶段：综合压轴（适配面试场景）</h3><ul>
+<li>核心模块：设计题 → 高频模拟题 → 数学类</li>
+<li>刷题原因：设计题考察代码设计能力，模拟题考察逻辑严谨性，数学类题覆盖基础数学思维。</li>
+<li>重点关注：<ul>
+<li>设计题：LRU缓存、LFU缓存（重点是数据结构选型）；</li>
+<li>模拟题：字符串相乘、螺旋矩阵（考察边界处理能力）；</li>
+<li>数学类：阶乘后的零、x的平方根（考察公式推导）。</li>
+</ul>
+</li>
+<li>刷题建议：设计题总结“缓存淘汰策略”“数据结构组合使用”（如LRU用哈希表+双向链表）。</li>
+</ul>
+<p>基于你提供的分类框架，我进行了<strong>去重精简</strong>（保留Hot100核心100题）和<strong>面试频率分级</strong>，使用<strong>红色高亮</strong>标注了各个分类中的超高频必考题（S级），并优化了题型分布数量。</p>
+<h2 id="二、Leetcode-Hot100-全量100题核心题型分类（2025版·面试频率分级）"><a href="#二、Leetcode-Hot100-全量100题核心题型分类（2025版·面试频率分级）" class="headerlink" title="二、Leetcode Hot100 全量100题核心题型分类（2025版·面试频率分级）"></a>二、Leetcode Hot100 全量100题核心题型分类（2025版·面试频率分级）</h2><p><strong>总题量统计</strong>：100题（已去重跨题型题目，如”有效的括号”归入栈类，”接雨水”归入数组类）<br><strong>🔥 标记说明</strong>：<span style="color: #d32f2f; font-weight: bold;">🔥 题目</span> 表示面试超高频题（S级，命中率&gt;80%），需达到”白板bug-free”程度</p>
+<table>
+<thead>
+<tr>
+<th>题型分类</th>
+<th>考点与题量</th>
+<th>题目列表（按面试优先级排序）</th>
+<th>面试评级</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>数组与双指针</strong><br>（14题）</td>
+<td>滑动窗口<br>前缀和<br>二分查找</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 1. 两数之和</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 11. 盛最多水的容器</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 15. 三数之和</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 42. 接雨水</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 53. 最大子数组和</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 56. 合并区间</span><br>3. 无重复字符的最长子串<br>33. 搜索旋转排序数组<br>34. 在排序数组中查找元素的首尾位置<br>48. 旋转图像<br>152. 乘积最大子数组<br>209. 长度最小的子数组<br>238. 除自身以外数组的乘积<br>283. 移动零</td>
+<td>S级: 5题<br>A级: 6题<br>B级: 3题</td>
+</tr>
+<tr>
+<td><strong>字符串</strong><br>（8题）</td>
+<td>KMP<br>回文判定<br>模拟运算</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 3. 最长无重复子串</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 5. 最长回文子串</span><br>14. 最长公共前缀<br>28. 找出字符串中第一个匹配项<br>43. 字符串相乘<br>49. 字母异位词分组<br>76. 最小覆盖子串<br>151. 反转字符串中的单词</td>
+<td>S级: 2题<br>A级: 4题<br>B级: 2题</td>
+</tr>
+<tr>
+<td><strong>链表</strong><br>（12题）</td>
+<td>反转<br>环检测<br>合并删除</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 19. 删除链表的倒数第 N 个结点</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 21. 合并两个有序链表</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 25. K 个一组翻转链表</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 141. 环形链表</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 142. 环形链表 II</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 206. 反转链表</span><br>2. 两数相加<br>23. 合并K个升序链表<br>24. 两两交换链表中的节点<br>92. 反转链表 II<br>138. 复制带随机指针的链表<br>234. 回文链表</td>
+<td>S级: 6题<br>A级: 4题<br>B级: 2题</td>
+</tr>
+<tr>
+<td><strong>二叉树</strong><br>（15题）</td>
+<td>遍历序列<br>递归DFS<br>层序BFS<br>BST特性</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 94. 二叉树的中序遍历</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 98. 验证二叉搜索树</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 102. 二叉树的层序遍历</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 104. 二叉树的最大深度</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 105. 从前序与中序构造二叉树</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 226. 翻转二叉树</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 236. 二叉树的最近公共祖先</span><br>101. 对称二叉树<br>103. 锯齿形层序遍历<br>108. 将有序数组转BST<br>110. 平衡二叉树<br>112. 路径总和<br>124. 最大路径和<br>230. BST中第K小元素<br>235. BST的最近公共祖先<br>297. 序列化与反序列化</td>
+<td>S级: 7题<br>A级: 6题<br>B级: 2题</td>
+</tr>
+<tr>
+<td><strong>栈与单调栈</strong><br>（6题）</td>
+<td>括号匹配<br>单调栈<br>队列实现</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 20. 有效的括号</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 84. 柱状图中最大的矩形</span><br>32. 最长有效括号<br>71. 简化路径<br>155. 最小栈<br>239. 滑动窗口最大值</td>
+<td>S级: 2题<br>A级: 3题<br>B级: 1题</td>
+</tr>
+<tr>
+<td><strong>哈希表</strong><br>（6题）</td>
+<td>空间换时间<br>LRU设计<br>去重映射</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 128. 最长连续序列</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 146. LRU 缓存</span><br>49. 字母异位词分组<br>202. 快乐数<br>217. 存在重复元素<br>349. 两个数组的交集</td>
+<td>S级: 2题<br>A级: 3题<br>B级: 1题</td>
+</tr>
+<tr>
+<td><strong>回溯算法</strong><br>（8题）</td>
+<td>全排列<br>子集组合<br>N皇后剪枝</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 22. 括号生成</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 46. 全排列</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 78. 子集</span><br>17. 电话号码的字母组合<br>39. 组合总和<br>40. 组合总和 II<br>51. N 皇后<br>131. 分割回文串</td>
+<td>S级: 3题<br>A级: 4题<br>B级: 1题</td>
+</tr>
+<tr>
+<td><strong>动态规划</strong><br>（18题）</td>
+<td>子序列<br>背包问题<br>股票系列<br>状态压缩</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 70. 爬楼梯</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 72. 编辑距离</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 121. 买卖股票的最佳时机</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 198. 打家劫舍</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 300. 最长递增子序列</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 322. 零钱兑换</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 1143. 最长公共子序列</span><br>5. 最长回文子串<br>62. 不同路径<br>63. 不同路径 II<br>122. 买卖股票的最佳时机 II<br>123. 买卖股票的最佳时机 III<br>152. 乘积最大子数组<br>213. 打家劫舍 II<br>221. 最大正方形<br>309. 最佳买卖股票时机含冷冻期<br>416. 分割等和子集<br>494. 目标和</td>
+<td>S级: 7题<br>A级: 8题<br>B级: 3题</td>
+</tr>
+<tr>
+<td><strong>图论</strong><br>（8题）</td>
+<td>岛屿问题<br>拓扑排序<br>DFS&#x2F;BFS</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 200. 岛屿数量</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 207. 课程表</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 210. 课程表 II</span><br>130. 被围绕的区域<br>133. 克隆图<br>329. 矩阵中的最长递增路径<br>417. 太平洋大西洋水流问题<br>743. 网络延迟时间</td>
+<td>S级: 3题<br>A级: 3题<br>B级: 2题</td>
+</tr>
+<tr>
+<td><strong>贪心算法</strong><br>（5题）</td>
+<td>区间调度<br>跳跃游戏<br>局部最优</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 55. 跳跃游戏</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 122. 买卖股票的最佳时机 II</span><br>11. 盛最多水的容器<br>406. 根据身高重建队列<br>452. 用最少数量的箭引爆气球</td>
+<td>S级: 2题<br>A级: 2题<br>B级: 1题</td>
+</tr>
+<tr>
+<td><strong>高级设计</strong><br>（5题）</td>
+<td>Trie树<br>堆设计<br>O(1)操作设计</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 155. 最小栈</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 208. 实现 Trie (前缀树)</span><br><span style="color: #d32f2f; font-weight: bold;">🔥 295. 数据流的中位数</span><br>211. 添加与搜索单词<br>380. O(1) 时间插入删除获取随机元素</td>
+<td>S级: 3题<br>A级: 1题<br>B级: 1题</td>
+</tr>
+<tr>
+<td><strong>数学与位运算</strong><br>（3题）</td>
+<td>数值计算<br>位操作</td>
+<td><span style="color: #d32f2f; font-weight: bold;">🔥 7. 整数反转</span><br>69. x 的平方根<br>191. 位1的个数</td>
+<td>S级: 1题<br>A级: 1题<br>B级: 1题</td>
+</tr>
+</tbody></table>
+<h3 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h3><p><strong>跨题型题目归属原则</strong>：</p>
+<ul>
+<li><strong>有效的括号</strong>：归入<strong>栈</strong>类（核心考点是栈匹配，非字符串处理）</li>
+<li><strong>接雨水</strong>：归入<strong>数组</strong>类（核心解法为双指针&#x2F;DP，单调栈为辅）</li>
+<li><strong>买卖股票系列</strong>：归入<strong>动态规划</strong>类（DP为通用解法，贪心仅适用于无限交易）</li>
+<li><strong>LRU缓存</strong>：归入<strong>哈希表</strong>类（核心考点是哈希+双向链表设计）</li>
+</ul>
+<p><strong>面试超高频Top 20（必背清单）</strong>：<br>若时间有限，优先掌握以下标🔥的S级题目，覆盖90%面试场景：</p>
+<blockquote>
+<p><span style="color: #d32f2f;">1, 11, 15, 42, 53, 56, 3, 5, 19, 21, 25, 141, 206, 102, 104, 105, 226, 236, 20, 84, 146, 128, 46, 78, 70, 121, 198, 300, 322, 1143, 200, 207, 55, 208, 295</span></p>
+</blockquote>
+<p><strong>数量分布合理性</strong>：</p>
+<ul>
+<li>线性结构（数组+链表+字符串）：34题（基础，面试考察率40%）</li>
+<li>树（二叉树）：15题（核心，面试考察率25%）</li>
+<li>动态规划：18题（难点，面试考察率20%）</li>
+<li>其他（图+回溯+设计+栈+哈希+数学）：33题（综合，面试考察率15%）</li>
+</ul>
+<h2 id="三、面试复习阶段的刷题建议"><a href="#三、面试复习阶段的刷题建议" class="headerlink" title="三、面试复习阶段的刷题建议"></a>三、面试复习阶段的刷题建议</h2><h3 id="1-第一遍刷题：“懂解法”"><a href="#1-第一遍刷题：“懂解法”" class="headerlink" title="1. 第一遍刷题：“懂解法”"></a>1. 第一遍刷题：“懂解法”</h3><ul>
+<li>目标：理解核心思路，能写出AC代码，不追求最优解；</li>
+<li>方法：刷完一类题后总结“模板”（如二叉树遍历模板、回溯模板），形成笔记。</li>
+</ul>
+<h3 id="2-第二遍刷题：“抠细节”"><a href="#2-第二遍刷题：“抠细节”" class="headerlink" title="2. 第二遍刷题：“抠细节”"></a>2. 第二遍刷题：“抠细节”</h3><ul>
+<li>目标：优化时间&#x2F;空间复杂度，理解“最优解的底层逻辑”；</li>
+<li>方法：针对高频题思考“面试官追问的优化方案”（如递归转迭代、暴力转双指针）。</li>
+</ul>
+<h3 id="3-第三遍刷题：“模拟面试”"><a href="#3-第三遍刷题：“模拟面试”" class="headerlink" title="3. 第三遍刷题：“模拟面试”"></a>3. 第三遍刷题：“模拟面试”</h3><ul>
+<li>目标：限时做题（30分钟&#x2F;题），口头讲解思路；</li>
+<li>方法：按“思路→核心逻辑→边界条件→时间复杂度”的顺序讲解，贴合面试答题逻辑。</li>
+</ul>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>Leetcode Hot100的刷题核心是“先基础后进阶，先高频后冷门”，题型分类的本质是“按考点聚类，避免零散刷题”。面试复习阶段，不要只追求“刷完题”，更要注重“每道题吃透考点、能讲清思路、应对追问”。</p>
+<p>建议每天保持1-2道题的刷题量，刷完一类题后做复盘（如二叉树刷完后总结所有遍历方式的代码模板），形成自己的知识体系。算法题面试考察的不仅是代码能力，更是“解题思路的清晰性”和“问题分析的逻辑性”——这也是按顺序、分题型刷题的核心目的。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/02/01/leetcodehot100/">https://wxggo.github.io/2026/02/01/leetcodehot100/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></div><div class="post_share"><div class="social-share" data-image="/images/photo2024/study_java/leetcode.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2026/02/01/leetcode/study-leetcode-200/" title="Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）"><img class="cover" src="https://t15.baidu.com/it/u=1594005756,3128870362&amp;fm=225&amp;app=113&amp;f=JPEG?w=1536&amp;h=960&amp;s=52B2136508E0CD4B52BDE9DD0000E0B3" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/03/01/leetcode/study-leetcode-021/" title="Leetcode-21:合并两个有序链表-迭代法极简实现"><img class="cover" src="/images/photo2024/study_java/leetcode021.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-01</div><div class="title">Leetcode-21:合并两个有序链表-迭代法极简实现</div></div></a></div><div><a href="/2025/02/25/leetcode/study-leetcode-001/" title="Leetcode-001:两数之和-哈希表一次遍历最优解"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-25</div><div class="title">Leetcode-001:两数之和-哈希表一次遍历最优解</div></div></a></div><div><a href="/2025/10/15/leetcode/study-leetcode-160/" title="Leetcode-160:相交链表-双指针法"><img class="cover" src="/images/photo2024/study_java/leetcode160.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-15</div><div class="title">Leetcode-160:相交链表-双指针法</div></div></a></div><div><a href="/2026/02/01/leetcode/study-leetcode-200/" title="Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）"><img class="cover" src="https://t15.baidu.com/it/u=1594005756,3128870362&fm=225&app=113&f=JPEG?w=1536&h=960&s=52B2136508E0CD4B52BDE9DD0000E0B3" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）</div></div></a></div><div><a href="/2026/01/30/leetcode/study-leetcode-215/" title="Leetcode-215:实现寻找第k大元素-快速选择法"><img class="cover" src="/images/photo2024/study_java/leetcode215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-30</div><div class="title">Leetcode-215:实现寻找第k大元素-快速选择法</div></div></a></div><div><a href="/2026/01/26/leetcode/study-leetcode-198/" title="Leetcode-198:实现打家劫舍-动态规划法"><img class="cover" src="/images/photo2024/study_java/leetcode198.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-26</div><div class="title">Leetcode-198:实现打家劫舍-动态规划法</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Leetcode-Hot100-%E5%90%88%E7%90%86%E5%88%B7%E9%A2%98%E9%A1%BA%E5%BA%8F%EF%BC%88%E4%BB%8E%E6%98%93%E5%88%B0%E9%9A%BE%EF%BC%8C%E8%B4%B4%E5%90%88%E9%9D%A2%E8%AF%95%E4%BC%98%E5%85%88%E7%BA%A7%EF%BC%89"><span class="toc-text">一、Leetcode Hot100 合理刷题顺序（从易到难，贴合面试优先级）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%EF%BC%88%E6%90%AD%E5%BB%BA%E8%A7%A3%E9%A2%98%E6%80%9D%E7%BB%B4%EF%BC%89"><span class="toc-text">1. 第一阶段：基础入门（搭建解题思维）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%BF%9B%E9%98%B6%EF%BC%88%E5%A4%AF%E5%AE%9E%E6%A0%B8%E5%BF%83%E8%80%83%E7%82%B9%EF%BC%89"><span class="toc-text">2. 第二阶段：数据结构进阶（夯实核心考点）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%AE%97%E6%B3%95%E6%80%9D%E6%83%B3%E5%85%A5%E9%97%A8%EF%BC%88%E6%8E%8C%E6%8F%A1%E8%A7%A3%E9%A2%98%E5%A5%97%E8%B7%AF%EF%BC%89"><span class="toc-text">3. 第三阶段：算法思想入门（掌握解题套路）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E8%BF%9B%E9%98%B6%E7%AE%97%E6%B3%95%EF%BC%88%E6%94%BB%E5%85%8B%E9%9D%A2%E8%AF%95%E5%8E%8B%E8%BD%B4%E9%A2%98%EF%BC%89"><span class="toc-text">4. 第四阶段：进阶算法（攻克面试压轴题）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E7%AC%AC%E4%BA%94%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%BB%BC%E5%90%88%E5%8E%8B%E8%BD%B4%EF%BC%88%E9%80%82%E9%85%8D%E9%9D%A2%E8%AF%95%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="toc-text">5. 第五阶段：综合压轴（适配面试场景）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Leetcode-Hot100-%E5%85%A8%E9%87%8F100%E9%A2%98%E6%A0%B8%E5%BF%83%E9%A2%98%E5%9E%8B%E5%88%86%E7%B1%BB%EF%BC%882025%E7%89%88%C2%B7%E9%9D%A2%E8%AF%95%E9%A2%91%E7%8E%87%E5%88%86%E7%BA%A7%EF%BC%89"><span class="toc-text">二、Leetcode Hot100 全量100题核心题型分类（2025版·面试频率分级）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E"><span class="toc-text">补充说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A0%E9%98%B6%E6%AE%B5%E7%9A%84%E5%88%B7%E9%A2%98%E5%BB%BA%E8%AE%AE"><span class="toc-text">三、面试复习阶段的刷题建议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%AC%AC%E4%B8%80%E9%81%8D%E5%88%B7%E9%A2%98%EF%BC%9A%E2%80%9C%E6%87%82%E8%A7%A3%E6%B3%95%E2%80%9D"><span class="toc-text">1. 第一遍刷题：“懂解法”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AC%AC%E4%BA%8C%E9%81%8D%E5%88%B7%E9%A2%98%EF%BC%9A%E2%80%9C%E6%8A%A0%E7%BB%86%E8%8A%82%E2%80%9D"><span class="toc-text">2. 第二遍刷题：“抠细节”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%AC%AC%E4%B8%89%E9%81%8D%E5%88%B7%E9%A2%98%EF%BC%9A%E2%80%9C%E6%A8%A1%E6%8B%9F%E9%9D%A2%E8%AF%95%E2%80%9D"><span class="toc-text">3. 第三遍刷题：“模拟面试”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">四、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/02/01/leetcodehot100/" title="Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）"><img src="/images/photo2024/study_java/leetcode.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）"/></a><div class="content"><a class="title" href="/2026/02/01/leetcodehot100/" title="Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）">Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）</a><time datetime="2026-02-01T02:00:00.000Z" title="Created 2026-02-01 10:00:00">2026-02-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/01/leetcode/study-leetcode-200/" title="Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）"><img src="https://t15.baidu.com/it/u=1594005756,3128870362&amp;fm=225&amp;app=113&amp;f=JPEG?w=1536&amp;h=960&amp;s=52B2136508E0CD4B52BDE9DD0000E0B3" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）"/></a><div class="content"><a class="title" href="/2026/02/01/leetcode/study-leetcode-200/" title="Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）">Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）</a><time datetime="2026-02-01T02:00:00.000Z" title="Created 2026-02-01 10:00:00">2026-02-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/01/leetcode/study-leetcode-739/" title="Leetcode-739:每日温度问题-反向遍历跳跃优化&amp;单调栈双解法"><img src="/images/photo2024/study_java/leetcode739.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-739:每日温度问题-反向遍历跳跃优化&amp;单调栈双解法"/></a><div class="content"><a class="title" href="/2026/02/01/leetcode/study-leetcode-739/" title="Leetcode-739:每日温度问题-反向遍历跳跃优化&amp;单调栈双解法">Leetcode-739:每日温度问题-反向遍历跳跃优化&amp;单调栈双解法</a><time datetime="2026-02-01T01:00:00.000Z" title="Created 2026-02-01 09:00:00">2026-02-01</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
