@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode-094:二叉树的中序遍历-递归极简实现（附先序/后序/迭代写法） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解Leetcode94二叉树中序遍历的递归极简实现，核心剖析中序遍历「左根右」核心逻辑，顺带梳理先序&#x2F;后序遍历的递归写法差异，简要讲解迭代遍历的栈实现思路，适配二叉树入门与面试复习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode-094:二叉树的中序遍历-递归极简实现（附先序&#x2F;后序&#x2F;迭代写法）">
+<meta property="og:url" content="https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/study-leetcode-094/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="详解Leetcode94二叉树中序遍历的递归极简实现，核心剖析中序遍历「左根右」核心逻辑，顺带梳理先序&#x2F;后序遍历的递归写法差异，简要讲解迭代遍历的栈实现思路，适配二叉树入门与面试复习">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/17/51b7e278b47e3782.jpg">
+<meta property="article:published_time" content="2026-02-02T09:21:00.000Z">
+<meta property="article:modified_time" content="2026-02-02T09:21:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="二叉树">
+<meta property="article:tag" content="递归">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/17/51b7e278b47e3782.jpg"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/study-leetcode-094/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode-094:二叉树的中序遍历-递归极简实现（附先序/后序/迭代写法）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-02 17:21:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/Home/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/17/51b7e278b47e3782.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/Home/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode-094:二叉树的中序遍历-递归极简实现（附先序/后序/迭代写法）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-02T09:21:00.000Z" title="Created 2026-02-02 17:21:00">2026-02-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-02T09:21:00.000Z" title="Updated 2026-02-02 17:21:00">2026-02-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Java学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Leetcode-Hot100/">Leetcode Hot100</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">2.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>8mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode-094:二叉树的中序遍历-递归极简实现（附先序/后序/迭代写法）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>二叉树的<strong>中序、先序、后序遍历</strong>是二叉树模块的入门基础，也是Leetcode和面试的高频考点，其中<strong>中序遍历</strong>是最常用的遍历方式（如二叉搜索树的中序遍历为升序序列）。递归遍历是三种遍历的<strong>最简实现方式</strong>，仅需调整节点处理顺序，即可实现中序、先序、后序的切换，代码量极少且易理解；迭代遍历则基于<strong>栈</strong>模拟递归调用过程，是面试中递归解法的常见追问点。本文以Leetcode94二叉树的中序遍历为核心，详解递归实现，顺带梳理先序&#x2F;后序的递归写法，简要讲解迭代遍历的核心思路，夯实二叉树遍历基础。</p>
+<h2 id="1、题目"><a href="#1、题目" class="headerlink" title="1、题目"></a>1、题目</h2><p>给你一棵二叉树的根节点 <code>root</code>，返回其节点值的<strong>中序遍历</strong>结果。</p>
+<h3 id="中序遍历定义"><a href="#中序遍历定义" class="headerlink" title="中序遍历定义"></a>中序遍历定义</h3><p>二叉树的中序遍历遵循<strong>左子树 → 根节点 → 右子树</strong>的顺序，即先遍历当前节点的左子树，再访问当前节点，最后遍历右子树（深度优先遍历DFS）。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>示例 1：<br>输入：root &#x3D; [1,null,2,3]<br>输出：[1,3,2]<br>解释：先遍历1的左子树（空），访问1；再遍历1的右子树2，先遍历2的左子树3（访问3），再访问2，最终顺序1→3→2。</p>
+<p>示例 2：<br>输入：root &#x3D; []<br>输出：[]</p>
+<p>示例 3：<br>输入：root &#x3D; [1]<br>输出：[1]</p>
+<h3 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h3><ul>
+<li>树中节点数目在范围 <code>[0, 100]</code> 内</li>
+<li><code>-100 &lt;= Node.val &lt;= 100</code></li>
+</ul>
+<h2 id="2、分析"><a href="#2、分析" class="headerlink" title="2、分析"></a>2、分析</h2><h3 id="2-1-问题核心"><a href="#2-1-问题核心" class="headerlink" title="2.1 问题核心"></a>2.1 问题核心</h3><p>中序遍历的核心是严格遵循<strong>左根右</strong>的遍历顺序，递归实现的底层是<strong>分治思想</strong>和<strong>递归栈</strong>：将原问题拆分为「遍历左子树」「访问根节点」「遍历右子树」三个子问题，每个子问题继续递归拆分，直到遇到空节点（递归终止条件）。</p>
+<h3 id="2-2-递归遍历的核心优势"><a href="#2-2-递归遍历的核心优势" class="headerlink" title="2.2 递归遍历的核心优势"></a>2.2 递归遍历的核心优势</h3><p>递归是实现二叉树遍历的<strong>首选方式</strong>，尤其适合面试快速书写，核心优势：</p>
+<ol>
+<li>代码极简，逻辑直观，仅需数行代码即可实现，不易出错；</li>
+<li>完全贴合遍历的定义，无需额外数据结构辅助；</li>
+<li>先序、后序遍历仅需调整<strong>根节点的处理时机</strong>，即可快速切换，复用性极强。</li>
+</ol>
+<h3 id="2-3-递归核心思路"><a href="#2-3-递归核心思路" class="headerlink" title="2.3 递归核心思路"></a>2.3 递归核心思路</h3><ol>
+<li><strong>递归终止条件</strong>：当当前节点为<code>null</code>时，直接返回，无需处理（空树无节点可遍历）；</li>
+<li><strong>分治处理</strong>：严格遵循左根右顺序，依次执行「递归遍历左子树」→「将当前节点值加入结果集」→「递归遍历右子树」；</li>
+<li><strong>结果集存储</strong>：用全局&#x2F;成员变量列表存储遍历结果，避免递归过程中频繁创建列表，提升效率。</li>
+</ol>
+<h2 id="3、程序：中序遍历递归实现"><a href="#3、程序：中序遍历递归实现" class="headerlink" title="3、程序：中序遍历递归实现"></a>3、程序：中序遍历递归实现</h2><h3 id="3-1-完整代码"><a href="#3-1-完整代码" class="headerlink" title="3.1 完整代码"></a>3.1 完整代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val, TreeNode left, TreeNode right) &#123;</span></span><br><span class="line"><span class="comment"> *         this.val = val;</span></span><br><span class="line"><span class="comment"> *         this.left = left;</span></span><br><span class="line"><span class="comment"> *         this.right = right;</span></span><br><span class="line"><span class="comment"> *     &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">// 全局结果集，存储遍历的节点值</span></span><br><span class="line">    List&lt;Integer&gt; ans = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 主方法：入口调用递归遍历</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;Integer&gt; <span class="title function_">inorderTraversal</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">        inorder(root); <span class="comment">// 调用递归方法</span></span><br><span class="line">        <span class="keyword">return</span> ans;    <span class="comment">// 返回遍历结果</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有递归方法：实现中序遍历核心逻辑</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">inorder</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (root == <span class="literal">null</span>) &#123; <span class="comment">// 递归终止条件：空节点直接返回</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        inorder(root.left);  <span class="comment">// 1. 递归遍历左子树（左）</span></span><br><span class="line">        ans.add(root.val);   <span class="comment">// 2. 访问当前根节点，加入结果集（根）</span></span><br><span class="line">        inorder(root.right); <span class="comment">// 3. 递归遍历右子树（右）</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-代码核心点逐行解释"><a href="#3-2-代码核心点逐行解释" class="headerlink" title="3.2 代码核心点逐行解释"></a>3.2 代码核心点逐行解释</h3><ol>
+<li><strong>全局结果集<code>ans</code></strong> ：定义为成员变量，避免递归方法每次调用都传递列表，减少参数冗余，且递归过程中可持续向列表中添加元素；</li>
+<li><strong>递归终止条件<code>if (root == null)</code></strong> ：二叉树的遍历最终都会走到空节点，此时无节点可处理，直接返回，是递归的「出口」；</li>
+<li><strong>中序核心顺序</strong> ：<code>inorder(root.left)</code> → <code>ans.add(root.val)</code> → <code>inorder(root.right)</code>，严格遵循「左根右」，这是中序遍历的唯一关键；</li>
+<li><strong>私有递归方法<code>inorder</code></strong> ：将遍历逻辑封装为私有方法，主方法仅做入口调用，代码结构更清晰，符合工程编码规范。</li>
+</ol>
+<h2 id="4、拓展1：先序-后序遍历的递归写法（仅调整根节点位置）"><a href="#4、拓展1：先序-后序遍历的递归写法（仅调整根节点位置）" class="headerlink" title="4、拓展1：先序&#x2F;后序遍历的递归写法（仅调整根节点位置）"></a>4、拓展1：先序&#x2F;后序遍历的递归写法（仅调整根节点位置）</h2><p>二叉树的先序、中序、后序遍历，<strong>递归实现的唯一差异就是根节点的处理时机</strong>，左子树始终优先于右子树遍历，只需调整<code>ans.add(root.val)</code>的位置，即可实现三种遍历的快速切换，代码复用率100%。</p>
+<h3 id="4-1-先序遍历（根-→-左-→-右）"><a href="#4-1-先序遍历（根-→-左-→-右）" class="headerlink" title="4.1 先序遍历（根 → 左 → 右）"></a>4.1 先序遍历（根 → 左 → 右）</h3><p>先访问根节点，再遍历左子树，最后遍历右子树，仅需将<code>ans.add(root.val)</code>移至最前面：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 先序遍历递归方法</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">preorder</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (root == <span class="literal">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    ans.add(root.val);   <span class="comment">// 1. 先访问根节点（根）</span></span><br><span class="line">    preorder(root.left); <span class="comment">// 2. 递归遍历左子树（左）</span></span><br><span class="line">    preorder(root.right);<span class="comment">// 3. 递归遍历右子树（右）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-后序遍历（左-→-右-→-根）"><a href="#4-2-后序遍历（左-→-右-→-根）" class="headerlink" title="4.2 后序遍历（左 → 右 → 根）"></a>4.2 后序遍历（左 → 右 → 根）</h3><p>先遍历左子树，再遍历右子树，最后访问根节点，仅需将<code>ans.add(root.val)</code>移至最后面：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 后序遍历递归方法</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">postorder</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (root == <span class="literal">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    postorder(root.left);  <span class="comment">// 1. 递归遍历左子树（左）</span></span><br><span class="line">    postorder(root.right); <span class="comment">// 2. 递归遍历右子树（右）</span></span><br><span class="line">    ans.add(root.val);     <span class="comment">// 3. 最后访问根节点（根）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="核心总结"><a href="#核心总结" class="headerlink" title="核心总结"></a>核心总结</h3><table>
+<thead>
+<tr>
+<th>遍历方式</th>
+<th>核心顺序</th>
+<th>递归代码唯一变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>先序遍历</td>
+<td>根→左→右</td>
+<td><code>ans.add</code> 放在最前</td>
+</tr>
+<tr>
+<td>中序遍历</td>
+<td>左→根→右</td>
+<td><code>ans.add</code> 放在中间</td>
+</tr>
+<tr>
+<td>后序遍历</td>
+<td>左→右→根</td>
+<td><code>ans.add</code> 放在最后</td>
+</tr>
+</tbody></table>
+<h2 id="5、拓展2：中序遍历的迭代实现（栈模拟递归，面试追问点）"><a href="#5、拓展2：中序遍历的迭代实现（栈模拟递归，面试追问点）" class="headerlink" title="5、拓展2：中序遍历的迭代实现（栈模拟递归，面试追问点）"></a>5、拓展2：中序遍历的迭代实现（栈模拟递归，面试追问点）</h2><p>递归的底层是JVM的<strong>方法调用栈</strong>，迭代遍历则通过<strong>显式创建栈</strong>模拟递归栈的执行过程，手动控制节点的入栈、出栈顺序，实现非递归的遍历。迭代写法是面试中递归解法的常见追问，核心思路是<strong>先遍历到左子树最底层，依次入栈所有左节点；出栈时处理根节点，再处理右子树</strong>。</p>
+<h3 id="5-1-中序遍历迭代实现代码"><a href="#5-1-中序遍历迭代实现代码" class="headerlink" title="5.1 中序遍历迭代实现代码"></a>5.1 中序遍历迭代实现代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;Integer&gt; <span class="title function_">inorderTraversal</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">    List&lt;Integer&gt; ans = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    Stack&lt;TreeNode&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;(); <span class="comment">// 显式栈存储节点</span></span><br><span class="line">    <span class="type">TreeNode</span> <span class="variable">cur</span> <span class="operator">=</span> root; <span class="comment">// 遍历指针，初始指向根节点</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (cur != <span class="literal">null</span> || !stack.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">// 第一步：遍历到左子树最底层，所有左节点依次入栈</span></span><br><span class="line">        <span class="keyword">while</span> (cur != <span class="literal">null</span>) &#123;</span><br><span class="line">            stack.push(cur);</span><br><span class="line">            cur = cur.left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 第二步：出栈，处理当前根节点</span></span><br><span class="line">        cur = stack.pop();</span><br><span class="line">        ans.add(cur.val);</span><br><span class="line">        <span class="comment">// 第三步：处理右子树</span></span><br><span class="line">        cur = cur.right;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-迭代核心思路简要解释"><a href="#5-2-迭代核心思路简要解释" class="headerlink" title="5.2 迭代核心思路简要解释"></a>5.2 迭代核心思路简要解释</h3><ol>
+<li><strong>栈的作用</strong>：存储待处理的根节点，保证出栈顺序符合「左根右」；</li>
+<li><strong>双层循环</strong>：外层循环控制遍历终止（指针为空且栈空），内层循环负责将左子树所有节点入栈；</li>
+<li><strong>节点处理顺序</strong>：出栈节点即为「当前根节点」，处理后将指针指向其右子树，重复左入栈、出栈、处理右的过程；</li>
+<li><strong>先序&#x2F;后序迭代</strong>：仅需调整<strong>节点入栈&#x2F;出栈的时机</strong>和<strong>根节点的处理时机</strong>，核心都是利用栈模拟递归，其中后序遍历的迭代写法稍复杂（可借助两个栈或标记法）。</li>
+</ol>
+<h2 id="6、算法性能分析"><a href="#6、算法性能分析" class="headerlink" title="6、算法性能分析"></a>6、算法性能分析</h2><p>无论是<strong>递归遍历</strong>还是<strong>迭代遍历</strong>，二叉树的中序&#x2F;先序&#x2F;后序遍历性能一致，因为每个节点都会被<strong>访问且仅访问一次</strong>，栈&#x2F;递归栈的空间开销与树的高度相关。</p>
+<h3 id="6-1-时间复杂度"><a href="#6-1-时间复杂度" class="headerlink" title="6.1 时间复杂度"></a>6.1 时间复杂度</h3><p><strong>O(n)</strong> ，<code>n</code>为二叉树的节点数。每个节点入栈&#x2F;出栈各一次，或递归访问一次，无重复计算，时间复杂度为线性级别。</p>
+<h3 id="6-2-空间复杂度"><a href="#6-2-空间复杂度" class="headerlink" title="6.2 空间复杂度"></a>6.2 空间复杂度</h3><p><strong>O(h)</strong> ，<code>h</code>为二叉树的高度。</p>
+<ul>
+<li>递归遍历：空间开销为<strong>递归调用栈</strong>，栈的深度等于树的高度；</li>
+<li>迭代遍历：空间开销为<strong>显式栈</strong>，栈中存储的节点数最多为树的高度。</li>
+<li>最坏情况：二叉树退化为单链表（斜树），<code>h=n</code>，空间复杂度为**O(n)**；</li>
+<li>最好情况：满二叉树&#x2F;完全二叉树，<code>h=logn</code>，空间复杂度为**O(logn)**。</li>
+</ul>
+<h2 id="7、关键边界情况处理"><a href="#7、关键边界情况处理" class="headerlink" title="7、关键边界情况处理"></a>7、关键边界情况处理</h2><p>本文的递归和迭代代码均<strong>天然适配所有边界情况</strong>，无需额外判断：</p>
+<ol>
+<li><strong>空树（root&#x3D;null）</strong>：递归直接返回，迭代栈为空，结果集为空，返回<code>[]</code>；</li>
+<li><strong>单节点树</strong>：仅根节点，递归遍历左（空）→ 处理根 → 遍历右（空），结果集为<code>[val]</code>；</li>
+<li><strong>斜树（全左&#x2F;全右节点）</strong>：严格遵循左根右顺序，遍历结果符合预期。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文以Leetcode94二叉树中序遍历为核心，详解了<strong>递归极简实现</strong>，并梳理了二叉树遍历的核心知识点，关键总结如下：</p>
+<ol>
+<li>中序遍历的核心是<strong>左根右</strong>，递归实现的关键是递归终止条件+分治处理，代码极简，面试首选；</li>
+<li>先序&#x2F;后序遍历的递归写法<strong>仅需调整根节点的处理时机</strong>，先序「根左右」、后序「左右根」，可快速切换；</li>
+<li>迭代遍历的核心是<strong>用显式栈模拟递归栈</strong>，中序迭代遵循「左入栈→出栈处理根→处理右」的逻辑，是面试递归解法的常见追问点；</li>
+<li>三种遍历的时间复杂度均为O(n)，空间复杂度均为O(h)，与树的高度相关。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/study-leetcode-094/">https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/study-leetcode-094/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><a class="post-meta__tags" href="/tags/%E9%80%92%E5%BD%92/">递归</a></div><div class="post_share"><div class="social-share" data-image="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/17/51b7e278b47e3782.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/02/leetcode/leetcodehot100/study-leetcode-070/" title="Leetcode-070:爬楼梯-动态规划入门经典实现（附空间优化版）"><img class="cover" src="https://t14.baidu.com/it/u=18281547745966252672,41438930649600220&amp;fm=3008&amp;app=3011&amp;f=JPEG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Leetcode-070:爬楼梯-动态规划入门经典实现（附空间优化版）</div></div></a></div><div class="next-post pull-right"><a href="/2026/02/02/leetcode/leetcodehot100/study-leetcode-015/" title="Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）"><img class="cover" src="https://t14.baidu.com/it/u=1808636192,4221427548&amp;fm=225&amp;app=113&amp;f=JPEG?w=1024&amp;h=640&amp;s=4AA43462034A4D4F484D7CDA0000C0B0" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/11/15/leetcode/leetcodehot100/study-leetcode-226/" title="Leetcode-226:翻转二叉树-递归后序遍历法（经典二叉树操作）"><img class="cover" src="/images/photo2024/study_java/leetcode226.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-15</div><div class="title">Leetcode-226:翻转二叉树-递归后序遍历法（经典二叉树操作）</div></div></a></div><div><a href="/2026/01/31/leetcode/leetcodehot100/study-leetcode-236/" title="Leetcode-236:二叉树的最近公共祖先-递归后序遍历法"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Leetcode-236:二叉树的最近公共祖先-递归后序遍历法</div></div></a></div><div><a href="/2026/02/01/leetcode/leetcodehot100/study-leetcode-200/" title="Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）"><img class="cover" src="https://t15.baidu.com/it/u=1594005756,3128870362&fm=225&app=113&f=JPEG?w=1536&h=960&s=52B2136508E0CD4B52BDE9DD0000E0B3" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Leetcode-200:实现岛屿数量统计-深度优先搜索（DFS）</div></div></a></div><div><a href="/2026/01/30/leetcode/leetcodehot100/study-leetcode-215/" title="Leetcode-215:实现寻找第k大元素-快速选择法"><img class="cover" src="/images/photo2024/study_java/leetcode215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-30</div><div class="title">Leetcode-215:实现寻找第k大元素-快速选择法</div></div></a></div><div><a href="/2026/02/01/leetcodehot100/" title="Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）</div></div></a></div><div><a href="/2024/09/30/leetcode/study-leetcode-026/" title="Leetcode-026&amp;027：双指针法搞定数组原地修改"><img class="cover" src="/images/photo2024/study_python/python001.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-30</div><div class="title">Leetcode-026&amp;027：双指针法搞定数组原地修改</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%A2%98%E7%9B%AE"><span class="toc-text">1、题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%E5%AE%9A%E4%B9%89"><span class="toc-text">中序遍历定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E7%A4%BA"><span class="toc-text">提示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-text">2、分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%97%AE%E9%A2%98%E6%A0%B8%E5%BF%83"><span class="toc-text">2.1 问题核心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E9%80%92%E5%BD%92%E9%81%8D%E5%8E%86%E7%9A%84%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="toc-text">2.2 递归遍历的核心优势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E9%80%92%E5%BD%92%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-text">2.3 递归核心思路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%A8%8B%E5%BA%8F%EF%BC%9A%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0"><span class="toc-text">3、程序：中序遍历递归实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="toc-text">3.1 完整代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%BB%A3%E7%A0%81%E6%A0%B8%E5%BF%83%E7%82%B9%E9%80%90%E8%A1%8C%E8%A7%A3%E9%87%8A"><span class="toc-text">3.2 代码核心点逐行解释</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%8B%93%E5%B1%951%EF%BC%9A%E5%85%88%E5%BA%8F-%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%E7%9A%84%E9%80%92%E5%BD%92%E5%86%99%E6%B3%95%EF%BC%88%E4%BB%85%E8%B0%83%E6%95%B4%E6%A0%B9%E8%8A%82%E7%82%B9%E4%BD%8D%E7%BD%AE%EF%BC%89"><span class="toc-text">4、拓展1：先序&#x2F;后序遍历的递归写法（仅调整根节点位置）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%85%88%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88%E6%A0%B9-%E2%86%92-%E5%B7%A6-%E2%86%92-%E5%8F%B3%EF%BC%89"><span class="toc-text">4.1 先序遍历（根 → 左 → 右）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88%E5%B7%A6-%E2%86%92-%E5%8F%B3-%E2%86%92-%E6%A0%B9%EF%BC%89"><span class="toc-text">4.2 后序遍历（左 → 右 → 根）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%BB%E7%BB%93"><span class="toc-text">核心总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%8B%93%E5%B1%952%EF%BC%9A%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%A0%88%E6%A8%A1%E6%8B%9F%E9%80%92%E5%BD%92%EF%BC%8C%E9%9D%A2%E8%AF%95%E8%BF%BD%E9%97%AE%E7%82%B9%EF%BC%89"><span class="toc-text">5、拓展2：中序遍历的迭代实现（栈模拟递归，面试追问点）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%E8%BF%AD%E4%BB%A3%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="toc-text">5.1 中序遍历迭代实现代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E8%BF%AD%E4%BB%A3%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF%E7%AE%80%E8%A6%81%E8%A7%A3%E9%87%8A"><span class="toc-text">5.2 迭代核心思路简要解释</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E7%AE%97%E6%B3%95%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-text">6、算法性能分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-text">6.1 时间复杂度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-text">6.2 空间复杂度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81%E5%85%B3%E9%94%AE%E8%BE%B9%E7%95%8C%E6%83%85%E5%86%B5%E5%A4%84%E7%90%86"><span class="toc-text">7、关键边界情况处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/02/03/leetcode/leetcodehot100/study-leetcode-019/" title="Leetcode-19:移除链表倒数第N个节点-双指针法"><img src="https://t13.baidu.com/it/u=14984170171212616652,6173430104495768090&amp;fm=3008&amp;app=3011&amp;f=JPEG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-19:移除链表倒数第N个节点-双指针法"/></a><div class="content"><a class="title" href="/2026/02/03/leetcode/leetcodehot100/study-leetcode-019/" title="Leetcode-19:移除链表倒数第N个节点-双指针法">Leetcode-19:移除链表倒数第N个节点-双指针法</a><time datetime="2026-02-03T10:00:00.000Z" title="Created 2026-02-03 18:00:00">2026-02-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/03/leetcode/leetcodehot100/study-leetcode-053/" title="Leetcode-53:实现最大子数组和-前缀和优化（附动态规划对比）"><img src="/images/photo2024/study_java/leetcode.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-53:实现最大子数组和-前缀和优化（附动态规划对比）"/></a><div class="content"><a class="title" href="/2026/02/03/leetcode/leetcodehot100/study-leetcode-053/" title="Leetcode-53:实现最大子数组和-前缀和优化（附动态规划对比）">Leetcode-53:实现最大子数组和-前缀和优化（附动态规划对比）</a><time datetime="2026-02-03T09:00:00.000Z" title="Created 2026-02-03 17:00:00">2026-02-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/03/leetcode/leetcodehot100/study-leetcode-042/" title="Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-03/16/2abcfae0a4bc9628.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）"/></a><div class="content"><a class="title" href="/2026/02/03/leetcode/leetcodehot100/study-leetcode-042/" title="Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）">Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）</a><time datetime="2026-02-03T08:00:00.000Z" title="Created 2026-02-03 16:00:00">2026-02-03</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
