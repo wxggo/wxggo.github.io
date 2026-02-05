@@ -1,0 +1,380 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="系统梳理HTTP性能优化面试高频考点，从网络层（DNS&#x2F;CDN&#x2F;TCP）、协议层（HTTP1.1~3）、应用层（前端&#x2F;服务端）三维度拆解优化手段，附面试核心问答与易错点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络&#x2F;协议&#x2F;应用层）">
+<meta property="og:url" content="https://wxggo.github.io/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="系统梳理HTTP性能优化面试高频考点，从网络层（DNS&#x2F;CDN&#x2F;TCP）、协议层（HTTP1.1~3）、应用层（前端&#x2F;服务端）三维度拆解优化手段，附面试核心问答与易错点">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png">
+<meta property="article:published_time" content="2026-02-05T11:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-05T11:45:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="面试">
+<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="HTTP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-05 19:45:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-05T11:00:00.000Z" title="Created 2026-02-05 19:00:00">2026-02-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-05T11:45:00.000Z" title="Updated 2026-02-05 19:45:00">2026-02-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E9%9D%A2%E8%AF%95%E5%AD%A6%E4%B9%A0/">面试学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">3.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>12mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="1、前言"><a href="#1、前言" class="headerlink" title="1、前言"></a>1、前言</h2><p>“如何优化HTTP请求性能？”、”CDN的核心原理是什么？”、”HTTP&#x2F;2相比1.1在性能上有哪些提升？”——这是<strong>计算机网络面试中考察工程实践能力的核心题</strong>。不同于基础概念记忆，性能优化更侧重”<strong>维度拆解+落地手段+原理理解</strong>“，能否讲清”优化手段-底层原理-适用场景”的对应关系，直接体现候选人的实战能力。</p>
+<p>本文基于小林coding的HTTP优化知识点梳理，从<strong>网络层、协议层、应用层（前端+服务端）</strong> 四大维度，系统拆解HTTP性能优化的核心手段，标注面试高频考点与易错陷阱，助你在面试中清晰阐述优化思路。</p>
+<hr>
+<h2 id="2、核心知识体系总览"><a href="#2、核心知识体系总览" class="headerlink" title="2、核心知识体系总览"></a>2、核心知识体系总览</h2><p>HTTP性能优化的面试考察核心是”<strong>分层优化思想</strong>“，需掌握各层优化手段的原理、落地方式及优缺点，以下为核心知识模块梳理：</p>
+<table>
+<thead>
+<tr>
+<th>知识模块</th>
+<th>核心考点</th>
+<th>面试热度</th>
+<th>易错点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>网络层优化</strong></td>
+<td>DNS缓存&#x2F;预解析、CDN就近访问、TCP参数调优（慢启动&#x2F;拥塞控制）</td>
+<td>⭐⭐⭐⭐</td>
+<td>CDN缓存失效场景、TCP慢启动对首屏的影响</td>
+</tr>
+<tr>
+<td><strong>协议层优化</strong></td>
+<td>HTTP&#x2F;1.1（Keep-Alive）、HTTP&#x2F;2（多路复用&#x2F;头部压缩）、HTTP&#x2F;3（QUIC）</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>HTTP&#x2F;2的TCP队头阻塞、QUIC的可靠性保障</td>
+</tr>
+<tr>
+<td><strong>前端应用层</strong></td>
+<td>强缓存&#x2F;协商缓存、资源压缩（Gzip&#x2F;Brotli）、预加载&#x2F;懒加载、雪碧图</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>预加载滥用导致带宽浪费、Gzip对图片无效</td>
+</tr>
+<tr>
+<td><strong>服务端应用层</strong></td>
+<td>接口批量请求、数据压缩、服务端缓存（Redis）、并发处理</td>
+<td>⭐⭐⭐⭐</td>
+<td>缓存穿透&#x2F;击穿&#x2F;雪崩、批量接口的幂等性</td>
+</tr>
+<tr>
+<td><strong>其他</strong></td>
+<td>跨域优化、Cookie优化、连接复用</td>
+<td>⭐⭐⭐</td>
+<td>跨域预检请求（OPTIONS）性能损耗、Cookie过大影响请求头</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3、分模块详解（含面试高频考点）"><a href="#3、分模块详解（含面试高频考点）" class="headerlink" title="3、分模块详解（含面试高频考点）"></a>3、分模块详解（含面试高频考点）</h2><h3 id="3-1-网络层优化：从”连接建立”降低延迟"><a href="#3-1-网络层优化：从”连接建立”降低延迟" class="headerlink" title="3.1 网络层优化：从”连接建立”降低延迟"></a>3.1 网络层优化：从”连接建立”降低延迟</h3><p>网络层优化的核心是<strong>减少DNS解析耗时、缩短数据传输距离、优化TCP连接效率</strong>，是HTTP性能优化的”第一道关卡”。</p>
+<h4 id="3-1-1-DNS优化（减少域名解析耗时）"><a href="#3-1-1-DNS优化（减少域名解析耗时）" class="headerlink" title="3.1.1 DNS优化（减少域名解析耗时）"></a>3.1.1 DNS优化（减少域名解析耗时）</h4><p>DNS解析是URL→IP的必经步骤，单次解析耗时可达10~100ms，优化手段：</p>
+<ul>
+<li><strong>DNS缓存</strong>：浏览器（本地缓存）、操作系统、本地DNS服务器三级缓存，减少递归查询次数。</li>
+<li><strong>DNS预解析</strong>：通过<code>&lt;link rel=&quot;dns-prefetch&quot; href=&quot;https://xxx.com&quot;&gt;</code>提前解析域名，避免后续请求阻塞。</li>
+<li><strong>域名分片</strong>：HTTP&#x2F;1.1浏览器同域名仅6~8个并发连接，拆分域名（如img1.xxx.com、img2.xxx.com）提升并发，但需控制数量（避免DNS解析开销过高）。</li>
+</ul>
+<h4 id="3-1-2-CDN优化（缩短传输距离）"><a href="#3-1-2-CDN优化（缩短传输距离）" class="headerlink" title="3.1.2 CDN优化（缩短传输距离）"></a>3.1.2 CDN优化（缩短传输距离）</h4><p>CDN（内容分发网络）核心是”<strong>就近访问</strong>“，解决跨地域传输延迟问题：</p>
+<ul>
+<li><strong>核心原理</strong>：将静态资源（JS&#x2F;CSS&#x2F;图片）缓存到各地边缘节点，用户请求时由离用户最近的节点响应。</li>
+<li><strong>缓存策略</strong>：针对不同资源设置缓存过期时间（静态资源长期缓存，动态资源不缓存）。</li>
+<li><strong>面试考点</strong>：CDN回源机制（边缘节点无缓存时，向源站请求并缓存）、缓存失效问题（资源更新后需主动刷新CDN缓存）。</li>
+</ul>
+<h4 id="3-1-3-TCP优化（提升连接效率）"><a href="#3-1-3-TCP优化（提升连接效率）" class="headerlink" title="3.1.3 TCP优化（提升连接效率）"></a>3.1.3 TCP优化（提升连接效率）</h4><p>TCP是HTTP的传输层基础，优化核心是<strong>减少握手耗时、规避慢启动、降低丢包影响</strong>：</p>
+<ul>
+<li><strong>TCP复用（Keep-Alive）</strong>：HTTP&#x2F;1.1默认开启，单个TCP连接复用多个请求，减少三次握手&#x2F;四次挥手开销。</li>
+<li><strong>TCP慢启动优化</strong>：服务端调整初始拥塞窗口（cwnd），避免小窗口导致的传输速度慢（如初始cwnd从10个报文段提升至14个）。</li>
+<li><strong>TCP Fast Open（TFO）</strong>：首次连接后缓存Cookie，后续连接可跳过三次握手的SYN+ACK阶段，减少1个RTT。</li>
+<li><strong>QUIC协议（HTTP&#x2F;3）</strong>：基于UDP实现可靠传输，无TCP队头阻塞，且支持0-RTT重连（详见3.2.3）。</li>
+</ul>
+<h4 id="面试考点"><a href="#面试考点" class="headerlink" title="面试考点"></a>面试考点</h4><ul>
+<li><strong>问</strong>：DNS预解析和DNS缓存的区别？</li>
+<li><strong>答</strong>：缓存是复用已有解析结果，预解析是提前解析未来可能用到的域名；缓存是被动复用，预解析是主动提前处理。</li>
+<li><strong>问</strong>：CDN能优化动态资源吗？为什么？</li>
+<li><strong>答</strong>：不能（或效果差），动态资源需实时从源站获取，CDN仅适用于静态资源（内容不随请求变化）。</li>
+</ul>
+<h3 id="3-2-协议层优化：利用HTTP版本特性提升效率"><a href="#3-2-协议层优化：利用HTTP版本特性提升效率" class="headerlink" title="3.2 协议层优化：利用HTTP版本特性提升效率"></a>3.2 协议层优化：利用HTTP版本特性提升效率</h3><p>协议层优化的核心是<strong>解决队头阻塞、提升连接利用率、减少请求头开销</strong>，不同HTTP版本的优化特性是面试重中之重。</p>
+<h4 id="3-2-1-HTTP-1-1核心优化（基础版）"><a href="#3-2-1-HTTP-1-1核心优化（基础版）" class="headerlink" title="3.2.1 HTTP&#x2F;1.1核心优化（基础版）"></a>3.2.1 HTTP&#x2F;1.1核心优化（基础版）</h4><p>HTTP&#x2F;1.1相比1.0的核心改进是<strong>解决连接复用问题</strong>，但仍有局限：</p>
+<ul>
+<li><strong>持久连接（Keep-Alive）</strong>：替代短连接，单个TCP连接处理多个请求，降低连接建立开销。</li>
+<li><strong>管道化（Pipelining）</strong>：客户端可连续发送多个请求（无需等待响应），但服务端需按序响应，仍存在应用层队头阻塞。</li>
+<li><strong>面试考点</strong>：HTTP&#x2F;1.1的队头阻塞是”应用层串行响应”导致，而非TCP层问题。</li>
+</ul>
+<h4 id="3-2-2-HTTP-2核心优化（革命性提升）"><a href="#3-2-2-HTTP-2核心优化（革命性提升）" class="headerlink" title="3.2.2 HTTP&#x2F;2核心优化（革命性提升）"></a>3.2.2 HTTP&#x2F;2核心优化（革命性提升）</h4><p>HTTP&#x2F;2针对HTTP&#x2F;1.1的痛点做了根本性优化，面试需掌握<strong>核心特性与性能提升逻辑</strong>：</p>
+<ul>
+<li><strong>多路复用</strong>：单一TCP连接上并行传输多个Stream（请求&#x2F;响应），帧可乱序发送、按Stream ID重组，彻底解决HTTP层队头阻塞。</li>
+<li><strong>头部压缩（HPACK）</strong>：客户端&#x2F;服务端维护静态&#x2F;动态表，重复Header（如Cookie、User-Agent）用索引代替字符串，减少请求头体积（如Cookie从数百B降至几B）。</li>
+<li><strong>服务器推送</strong>：服务端主动推送静态资源（如HTML引用的CSS&#x2F;JS），无需等待客户端请求，减少RTT。</li>
+<li><strong>易错点</strong>：HTTP&#x2F;2仍存在TCP层队头阻塞（单连接丢包会阻塞所有Stream），高丢包场景（如移动网络）性能可能不如HTTP&#x2F;1.1多连接。</li>
+</ul>
+<h4 id="3-2-3-HTTP-3核心优化（终极版）"><a href="#3-2-3-HTTP-3核心优化（终极版）" class="headerlink" title="3.2.3 HTTP&#x2F;3核心优化（终极版）"></a>3.2.3 HTTP&#x2F;3核心优化（终极版）</h4><p>HTTP&#x2F;3基于QUIC协议，解决TCP层本质缺陷：</p>
+<ul>
+<li><strong>基于UDP</strong>：无TCP的队头阻塞，单个Stream丢包仅阻塞自身，不影响其他Stream。</li>
+<li><strong>0-RTT&#x2F;1-RTT握手</strong>：首次连接1个RTT，重连0个RTT，大幅降低握手延迟。</li>
+<li><strong>连接迁移</strong>：基于Connection ID而非IP+Port，网络切换（WiFi→4G）无需重连。</li>
+<li><strong>面试考点</strong>：QUIC在应用层实现了TCP的可靠传输（拥塞控制、重传、有序传输），兼顾UDP的灵活性和TCP的可靠性。</li>
+</ul>
+<h3 id="3-3-前端应用层优化：从”请求发送”减少开销"><a href="#3-3-前端应用层优化：从”请求发送”减少开销" class="headerlink" title="3.3 前端应用层优化：从”请求发送”减少开销"></a>3.3 前端应用层优化：从”请求发送”减少开销</h3><p>前端侧优化是面试高频考点，核心是<strong>减少请求数、减小请求体积、利用缓存</strong>。</p>
+<h4 id="3-3-1-缓存优化（核心中的核心）"><a href="#3-3-1-缓存优化（核心中的核心）" class="headerlink" title="3.3.1 缓存优化（核心中的核心）"></a>3.3.1 缓存优化（核心中的核心）</h4><p>复用本地缓存，彻底避免网络请求：</p>
+<ul>
+<li><strong>强缓存优先</strong>：通过<code>Cache-Control: max-age=86400</code>设置相对过期时间（优先级高于Expires），有效期内直接使用本地缓存（200 from cache）。</li>
+<li><strong>协商缓存兜底</strong>：强缓存过期后，通过ETag&#x2F;Last-Modified验证资源是否修改，未修改则返回304（无响应体）。</li>
+<li><strong>面试考点</strong>：静态资源加版本号（如<code>app.js?v=202602</code>），更新资源时仅需修改版本号，既保证长期缓存又能及时更新。</li>
+</ul>
+<h4 id="3-3-2-资源压缩与合并"><a href="#3-3-2-资源压缩与合并" class="headerlink" title="3.3.2 资源压缩与合并"></a>3.3.2 资源压缩与合并</h4><p>减小请求体体积，提升传输速度：</p>
+<ul>
+<li><strong>文本压缩</strong>：Gzip（通用）、Brotli（比Gzip压缩率高10~20%），服务端开启后对JS&#x2F;CSS&#x2F;HTML压缩（图片无需压缩，已自带压缩算法）。</li>
+<li><strong>资源合并</strong>：将多个小JS&#x2F;CSS合并为一个文件，减少请求数（HTTP&#x2F;2多路复用后可适当放宽，避免单文件过大）。</li>
+<li><strong>雪碧图</strong>：将多个小图标合并为一张图片，通过CSS定位显示，减少图片请求数。</li>
+</ul>
+<h4 id="3-3-3-加载策略优化"><a href="#3-3-3-加载策略优化" class="headerlink" title="3.3.3 加载策略优化"></a>3.3.3 加载策略优化</h4><p>按需加载资源，避免首屏阻塞：</p>
+<ul>
+<li><strong>懒加载</strong>：图片&#x2F;视频等资源仅在进入视口时加载（<code>loading=&quot;lazy&quot;</code>），减少首屏请求数。</li>
+<li><strong>预加载&#x2F;预连接</strong>：<ul>
+<li>预加载：<code>&lt;link rel=&quot;preload&quot; href=&quot;xxx.js&quot;&gt;</code>提前加载关键资源（如首屏JS）。</li>
+<li>预连接：<code>&lt;link rel=&quot;preconnect&quot; href=&quot;https://xxx.com&quot;&gt;</code>提前建立TCP+TLS连接，减少后续请求的握手耗时。</li>
+</ul>
+</li>
+<li><strong>面试易错点</strong>：预加载滥用会导致带宽浪费，仅用于核心资源；懒加载需注意SEO（爬虫可能无法识别动态加载的图片）。</li>
+</ul>
+<h3 id="3-4-服务端应用层优化：从”响应处理”提升效率"><a href="#3-4-服务端应用层优化：从”响应处理”提升效率" class="headerlink" title="3.4 服务端应用层优化：从”响应处理”提升效率"></a>3.4 服务端应用层优化：从”响应处理”提升效率</h3><p>服务端侧优化核心是<strong>减少处理耗时、降低数据传输量、提升并发能力</strong>。</p>
+<h4 id="3-4-1-接口优化"><a href="#3-4-1-接口优化" class="headerlink" title="3.4.1 接口优化"></a>3.4.1 接口优化</h4><ul>
+<li><strong>批量请求</strong>：将多个小请求合并为一个（如批量查询商品信息），减少HTTP请求数。</li>
+<li><strong>分页&#x2F;分段传输</strong>：大数据返回时分页（如列表接口<code>page=1&amp;size=20</code>），或用Range实现断点续传。</li>
+<li><strong>减少预检请求</strong>：跨域接口设置<code>Access-Control-Max-Age</code>缓存预检结果，避免每次请求触发OPTIONS预检。</li>
+</ul>
+<h4 id="3-4-2-数据优化"><a href="#3-4-2-数据优化" class="headerlink" title="3.4.2 数据优化"></a>3.4.2 数据优化</h4><ul>
+<li><strong>数据压缩</strong>：服务端开启Gzip&#x2F;Brotli，对响应体压缩（如JSON数据压缩率可达70%）。</li>
+<li><strong>精简响应体</strong>：只返回前端需要的字段（避免冗余数据），如接口仅返回<code>id/name/price</code>而非全量字段。</li>
+<li><strong>Cookie优化</strong>：减小Cookie体积（仅存必要信息），非必要Cookie设置<code>path=/xxx</code>缩小作用域，避免所有请求携带。</li>
+</ul>
+<h4 id="3-4-3-服务端缓存与并发"><a href="#3-4-3-服务端缓存与并发" class="headerlink" title="3.4.3 服务端缓存与并发"></a>3.4.3 服务端缓存与并发</h4><ul>
+<li><strong>多级缓存</strong>：利用Redis缓存热点数据（如商品详情），避免频繁查询数据库。</li>
+<li><strong>并发处理</strong>：使用线程池&#x2F;协程（如Go协程、Java线程池）提升服务端并发处理能力，避免请求排队。</li>
+<li><strong>面试考点</strong>：缓存异常处理（穿透：缓存无+数据库无；击穿：缓存过期+数据库有；雪崩：大量缓存同时过期），需掌握对应的解决手段（布隆过滤器、互斥锁、缓存过期时间随机化）。</li>
+</ul>
+<hr>
+<h2 id="4、核心概念对比表（面试速查）"><a href="#4、核心概念对比表（面试速查）" class="headerlink" title="4、核心概念对比表（面试速查）"></a>4、核心概念对比表（面试速查）</h2><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>候选A</th>
+<th>候选B</th>
+<th>核心差异点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>DNS优化</strong></td>
+<td>DNS缓存</td>
+<td>DNS预解析</td>
+<td>缓存复用已有结果，预解析提前处理未来域名</td>
+</tr>
+<tr>
+<td><strong>压缩算法</strong></td>
+<td>Gzip</td>
+<td>Brotli</td>
+<td>Gzip兼容性好，Brotli压缩率更高（需HTTPS）</td>
+</tr>
+<tr>
+<td><strong>加载策略</strong></td>
+<td>预加载</td>
+<td>懒加载</td>
+<td>预加载提前加载核心资源，懒加载按需加载非首屏资源</td>
+</tr>
+<tr>
+<td><strong>HTTP版本</strong></td>
+<td>HTTP&#x2F;2</td>
+<td>HTTP&#x2F;3</td>
+<td>HTTP&#x2F;2基于TCP（有队头阻塞），HTTP&#x2F;3基于QUIC（无队头阻塞）</td>
+</tr>
+<tr>
+<td><strong>缓存类型</strong></td>
+<td>强缓存</td>
+<td>协商缓存</td>
+<td>强缓存不发请求，协商缓存发请求但无响应体</td>
+</tr>
+<tr>
+<td><strong>TCP优化</strong></td>
+<td>短连接</td>
+<td>长连接（Keep-Alive）</td>
+<td>短连接每次请求握手，长连接复用TCP连接</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="5、面试高频考点汇总（直接背诵）"><a href="#5、面试高频考点汇总（直接背诵）" class="headerlink" title="5、面试高频考点汇总（直接背诵）"></a>5、面试高频考点汇总（直接背诵）</h2><h3 id="5-1-核心问答（必背）"><a href="#5-1-核心问答（必背）" class="headerlink" title="5.1 核心问答（必背）"></a>5.1 核心问答（必背）</h3><p><strong>Q1：从分层角度，说说HTTP性能优化的核心手段？</strong></p>
+<ul>
+<li><strong>网络层</strong>：DNS缓存&#x2F;预解析、CDN就近访问、TCP Keep-Alive&#x2F;TFO。</li>
+<li><strong>协议层</strong>：HTTP&#x2F;2多路复用&#x2F;头部压缩、HTTP&#x2F;3 QUIC无队头阻塞。</li>
+<li><strong>前端应用层</strong>：缓存策略、资源压缩&#x2F;合并、懒加载&#x2F;预加载。</li>
+<li><strong>服务端应用层</strong>：接口批量请求、数据压缩、Redis缓存、并发优化。</li>
+</ul>
+<p><strong>Q2：CDN的核心原理和适用场景？</strong></p>
+<ul>
+<li><strong>原理</strong>：将静态资源缓存到边缘节点，用户请求时就近响应，减少跨地域传输延迟。</li>
+<li><strong>场景</strong>：静态资源（JS&#x2F;CSS&#x2F;图片&#x2F;视频），不适用于动态资源（如接口返回的JSON）。</li>
+</ul>
+<p><strong>Q3：HTTP&#x2F;2的多路复用解决了什么问题？为什么还需要HTTP&#x2F;3？</strong></p>
+<ul>
+<li>多路复用解决了HTTP&#x2F;1.1的应用层队头阻塞（单连接并行处理多个请求）；</li>
+<li>HTTP&#x2F;2基于TCP，仍存在TCP层队头阻塞（单连接丢包阻塞所有Stream），HTTP&#x2F;3基于QUIC（UDP）解决了TCP层队头阻塞。</li>
+</ul>
+<p><strong>Q4：前端如何利用缓存优化性能？</strong></p>
+<ul>
+<li>强缓存：设置<code>Cache-Control: max-age</code>长期缓存静态资源（加版本号）；</li>
+<li>协商缓存：通过ETag&#x2F;Last-Modified验证资源是否更新，命中则返回304；</li>
+<li>避免缓存穿透：对静态资源设置合理的缓存过期时间。</li>
+</ul>
+<p><strong>Q5：TCP慢启动对HTTP性能有什么影响？如何优化？</strong></p>
+<ul>
+<li>影响：TCP初始拥塞窗口小，数据传输速度慢，首屏加载延迟高；</li>
+<li>优化：服务端调大初始拥塞窗口、使用TCP Fast Open、复用长连接（避免重复慢启动）。</li>
+</ul>
+<h3 id="5-2-易错点提醒（避坑）"><a href="#5-2-易错点提醒（避坑）" class="headerlink" title="5.2 易错点提醒（避坑）"></a>5.2 易错点提醒（避坑）</h3><ol>
+<li><strong>CDN误区</strong>：CDN不能优化动态资源，且资源更新后需主动刷新CDN缓存，否则用户会访问旧资源。</li>
+<li><strong>HTTP&#x2F;2误区</strong>：HTTP&#x2F;2在高丢包场景（如移动网络）性能可能不如HTTP&#x2F;1.1（多连接可规避单连接丢包）。</li>
+<li><strong>压缩误区</strong>：Gzip&#x2F;Brotli对图片（JPG&#x2F;PNG&#x2F;WebP）无效，图片需用专用压缩算法（如WebP格式）。</li>
+<li><strong>预加载误区</strong>：预加载仅用于首屏核心资源，滥用会导致带宽浪费和首屏加载延迟。</li>
+<li><strong>缓存误区</strong>：304状态码是协商缓存命中，不是重定向，无响应体，仅告知客户端用本地缓存。</li>
+</ol>
+<hr>
+<h2 id="6、总结"><a href="#6、总结" class="headerlink" title="6、总结"></a>6、总结</h2><p>HTTP性能优化是面试中”基础+实战”的综合考察点，核心复习路径：</p>
+<ol>
+<li><strong>先分层</strong>：牢记网络层→协议层→应用层（前端+服务端）的优化框架，避免回答散乱。</li>
+<li><strong>抓核心</strong>：死磕HTTP&#x2F;2多路复用、CDN原理、缓存策略（强&#x2F;协商）、TCP Keep-Alive这4个高频考点。</li>
+<li><strong>避陷阱</strong>：理解每个优化手段的适用场景（如Gzip不适合图片、预加载不适合非核心资源），避免”一刀切”的优化思路。</li>
+</ol>
+<p>面试中回答优化问题时，需体现”<strong>原理+手段+场景</strong>“的逻辑：先说明优化的底层原理，再讲具体落地手段，最后补充适用场景和注意事项——这是区分”背答案”和”真理解”的关键。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/">https://wxggo.github.io/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><a class="post-meta__tags" href="/tags/HTTP/">HTTP</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</div></div></a></div><div class="next-post pull-right"><a href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"><img class="cover" src="https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/02/01/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C04_http1/" title="Interview-计算机网络04：HTTP面试八股文解析（状态码&#x2F;缓存&#x2F;HTTPS&#x2F;演进）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/HTTP/5-%E8%AF%B7%E6%B1%82%E5%BA%94%E7%AD%94.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Interview-计算机网络04：HTTP面试八股文解析（状态码&#x2F;缓存&#x2F;HTTPS&#x2F;演进）</div></div></a></div><div><a href="/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C02/" title="Interview-计算机网络02:键入网址到网页显示，期间发生了什么？"><img class="cover" src="https://gcore.jsdelivr.net/gh/CNhuazhu/Image/ComputerNetworksCover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Interview-计算机网络02:键入网址到网页显示，期间发生了什么？</div></div></a></div><div><a href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-05</div><div class="title">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</div></div></a></div><div><a href="/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C01/" title="Interview-计算机网络01:TCP&#x2F;IP模型（四层架构）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/tcpip%E5%8F%82%E8%80%83%E6%A8%A1%E5%9E%8B.drawio.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Interview-计算机网络01:TCP&#x2F;IP模型（四层架构）</div></div></a></div><div><a href="/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C03/" title="Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost3@main/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%B5%AE%E7%82%B9/%E5%8D%8F%E8%AE%AE%E6%A0%88.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用）</div></div></a></div><div><a href="/2026/02/01/leetcodehot100/" title="Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E4%BD%93%E7%B3%BB%E6%80%BB%E8%A7%88"><span class="toc-text">2、核心知识体系总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%88%86%E6%A8%A1%E5%9D%97%E8%AF%A6%E8%A7%A3%EF%BC%88%E5%90%AB%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%EF%BC%89"><span class="toc-text">3、分模块详解（含面试高频考点）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%BD%91%E7%BB%9C%E5%B1%82%E4%BC%98%E5%8C%96%EF%BC%9A%E4%BB%8E%E2%80%9D%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E2%80%9D%E9%99%8D%E4%BD%8E%E5%BB%B6%E8%BF%9F"><span class="toc-text">3.1 网络层优化：从”连接建立”降低延迟</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-1-DNS%E4%BC%98%E5%8C%96%EF%BC%88%E5%87%8F%E5%B0%91%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E8%80%97%E6%97%B6%EF%BC%89"><span class="toc-text">3.1.1 DNS优化（减少域名解析耗时）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-2-CDN%E4%BC%98%E5%8C%96%EF%BC%88%E7%BC%A9%E7%9F%AD%E4%BC%A0%E8%BE%93%E8%B7%9D%E7%A6%BB%EF%BC%89"><span class="toc-text">3.1.2 CDN优化（缩短传输距离）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-3-TCP%E4%BC%98%E5%8C%96%EF%BC%88%E6%8F%90%E5%8D%87%E8%BF%9E%E6%8E%A5%E6%95%88%E7%8E%87%EF%BC%89"><span class="toc-text">3.1.3 TCP优化（提升连接效率）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9"><span class="toc-text">面试考点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%8D%8F%E8%AE%AE%E5%B1%82%E4%BC%98%E5%8C%96%EF%BC%9A%E5%88%A9%E7%94%A8HTTP%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87"><span class="toc-text">3.2 协议层优化：利用HTTP版本特性提升效率</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-HTTP-1-1%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8C%96%EF%BC%88%E5%9F%BA%E7%A1%80%E7%89%88%EF%BC%89"><span class="toc-text">3.2.1 HTTP&#x2F;1.1核心优化（基础版）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-2-HTTP-2%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8C%96%EF%BC%88%E9%9D%A9%E5%91%BD%E6%80%A7%E6%8F%90%E5%8D%87%EF%BC%89"><span class="toc-text">3.2.2 HTTP&#x2F;2核心优化（革命性提升）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-3-HTTP-3%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8C%96%EF%BC%88%E7%BB%88%E6%9E%81%E7%89%88%EF%BC%89"><span class="toc-text">3.2.3 HTTP&#x2F;3核心优化（终极版）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%89%8D%E7%AB%AF%E5%BA%94%E7%94%A8%E5%B1%82%E4%BC%98%E5%8C%96%EF%BC%9A%E4%BB%8E%E2%80%9D%E8%AF%B7%E6%B1%82%E5%8F%91%E9%80%81%E2%80%9D%E5%87%8F%E5%B0%91%E5%BC%80%E9%94%80"><span class="toc-text">3.3 前端应用层优化：从”请求发送”减少开销</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-1-%E7%BC%93%E5%AD%98%E4%BC%98%E5%8C%96%EF%BC%88%E6%A0%B8%E5%BF%83%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-text">3.3.1 缓存优化（核心中的核心）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-2-%E8%B5%84%E6%BA%90%E5%8E%8B%E7%BC%A9%E4%B8%8E%E5%90%88%E5%B9%B6"><span class="toc-text">3.3.2 资源压缩与合并</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-3-%E5%8A%A0%E8%BD%BD%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96"><span class="toc-text">3.3.3 加载策略优化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BA%94%E7%94%A8%E5%B1%82%E4%BC%98%E5%8C%96%EF%BC%9A%E4%BB%8E%E2%80%9D%E5%93%8D%E5%BA%94%E5%A4%84%E7%90%86%E2%80%9D%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87"><span class="toc-text">3.4 服务端应用层优化：从”响应处理”提升效率</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-1-%E6%8E%A5%E5%8F%A3%E4%BC%98%E5%8C%96"><span class="toc-text">3.4.1 接口优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-2-%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96"><span class="toc-text">3.4.2 数据优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-3-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%BC%93%E5%AD%98%E4%B8%8E%E5%B9%B6%E5%8F%91"><span class="toc-text">3.4.3 服务端缓存与并发</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%AF%B9%E6%AF%94%E8%A1%A8%EF%BC%88%E9%9D%A2%E8%AF%95%E9%80%9F%E6%9F%A5%EF%BC%89"><span class="toc-text">4、核心概念对比表（面试速查）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E7%9B%B4%E6%8E%A5%E8%83%8C%E8%AF%B5%EF%BC%89"><span class="toc-text">5、面试高频考点汇总（直接背诵）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%A0%B8%E5%BF%83%E9%97%AE%E7%AD%94%EF%BC%88%E5%BF%85%E8%83%8C%EF%BC%89"><span class="toc-text">5.1 核心问答（必背）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E6%98%93%E9%94%99%E7%82%B9%E6%8F%90%E9%86%92%EF%BC%88%E9%81%BF%E5%9D%91%EF%BC%89"><span class="toc-text">5.2 易错点提醒（避坑）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">6、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</a><time datetime="2026-02-05T12:00:00.000Z" title="Created 2026-02-05 20:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）</a><time datetime="2026-02-05T11:00:00.000Z" title="Created 2026-02-05 19:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"><img src="https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"/></a><div class="content"><a class="title" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解">Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解</a><time datetime="2026-02-05T10:00:00.000Z" title="Created 2026-02-05 18:00:00">2026-02-05</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

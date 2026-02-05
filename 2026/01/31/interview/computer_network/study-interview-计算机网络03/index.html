@@ -1,0 +1,422 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="系统梳理操作系统从网卡接收网络数据包到交付给应用程序的完整流程，拆解硬中断、软中断、协议栈解封装、Socket交付等核心环节，详解DMA、sk_buff、Socket等关键组件，总结面试高频考点和易错点，打通网络与操作系统的底层关联知识点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用）">
+<meta property="og:url" content="https://wxggo.github.io/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C03/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="系统梳理操作系统从网卡接收网络数据包到交付给应用程序的完整流程，拆解硬中断、软中断、协议栈解封装、Socket交付等核心环节，详解DMA、sk_buff、Socket等关键组件，总结面试高频考点和易错点，打通网络与操作系统的底层关联知识点">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost3@main/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%B5%AE%E7%82%B9/%E5%8D%8F%E8%AE%AE%E6%A0%88.png">
+<meta property="article:published_time" content="2026-01-31T12:03:00.000Z">
+<meta property="article:modified_time" content="2026-01-31T12:03:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="面试">
+<meta property="article:tag" content="计算机网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost3@main/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%B5%AE%E7%82%B9/%E5%8D%8F%E8%AE%AE%E6%A0%88.png"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C03/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-01-31 20:03:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost3@main/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%B5%AE%E7%82%B9/%E5%8D%8F%E8%AE%AE%E6%A0%88.png')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-01-31T12:03:00.000Z" title="Created 2026-01-31 20:03:00">2026-01-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-01-31T12:03:00.000Z" title="Updated 2026-01-31 20:03:00">2026-01-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E9%9D%A2%E8%AF%95%E5%AD%A6%E4%B9%A0/">面试学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">6.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>20mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Interview-计算机网络03:操作系统处理网络数据包的完整流程（从网卡到应用）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="1、前言"><a href="#1、前言" class="headerlink" title="1、前言"></a>1、前言</h2><p>“网络数据包到达主机后，操作系统是如何处理并最终交给应用程序的？”——这是<strong>计算机网络+操作系统交叉的高频面试考点</strong>，既考察对TCP&#x2F;IP协议栈的实际应用，又检验对操作系统内核、中断、内存管理、用户态&#x2F;内核态切换的理解，是区分基础是否扎实的关键问题。</p>
+<p>此前我们梳理了TCP&#x2F;IP四层模型和网络包的传输流程，而本文基于小林coding的详细讲解，聚焦<strong>主机端的内核处理逻辑</strong>，从网卡接收比特流开始，系统拆解操作系统处理网络包的全流程（网卡→硬中断→软中断→协议栈→Socket→应用程序），详解DMA、硬中断&#x2F;软中断、sk_buff、Socket等核心组件，总结面试必背考点，帮你打通网络与操作系统的底层关联。</p>
+<h2 id="2、核心流程总览"><a href="#2、核心流程总览" class="headerlink" title="2、核心流程总览"></a>2、核心流程总览</h2><p>操作系统处理网络数据包的全过程，本质是<strong>“硬件接收→内核处理→协议解封装→应用交付”</strong> 的流水线作业，核心依托<strong>中断机制</strong>（硬中断+软中断）实现异步处理，依托<strong>TCP&#x2F;IP协议栈</strong>实现逐层解析，依托<strong>Socket</strong>实现内核与应用的交互。</p>
+<p><strong>完整处理流程（5大核心步骤，面试必背）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>处理阶段</th>
+<th>核心组件&#x2F;技术</th>
+<th>核心作用</th>
+<th>运行上下文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. 网卡接收与硬中断</td>
+<td>网卡、DMA、硬中断</td>
+<td>接收比特流并转为帧，通过DMA写入内存，触发硬中断通知CPU做极简处理</td>
+<td>硬中断上下文</td>
+</tr>
+<tr>
+<td>2. 内核软中断处理</td>
+<td>软中断、ksoftirqd、sk_buff</td>
+<td>从网卡缓冲区搬移数据包到内核通用缓冲区，初始化网络包管理结构</td>
+<td>软中断上下文</td>
+</tr>
+<tr>
+<td>3. 协议栈逐层解封装</td>
+<td>内核TCP&#x2F;IP协议栈</td>
+<td>按网络接口层→网际层→传输层顺序解封装，校验并提取有效数据，处理协议逻辑</td>
+<td>软中断上下文</td>
+</tr>
+<tr>
+<td>4. Socket缓冲区交付</td>
+<td>Socket、内核缓冲区</td>
+<td>根据端口和协议找到对应Socket，将数据写入其接收缓冲区，完成内核层处理</td>
+<td>内核态</td>
+</tr>
+<tr>
+<td>5. 应用程序读取数据</td>
+<td>系统调用、用户缓冲区</td>
+<td>应用通过系统调用从Socket缓冲区读取数据，从内核态拷贝到用户态，处理业务逻辑</td>
+<td>用户态+内核态</td>
+</tr>
+</tbody></table>
+<p><strong>核心设计思想</strong>：<strong>“异步处理”+“分层解耦”+“减少CPU开销”</strong>，比如DMA解放CPU、硬中断快速响应、软中断后台处理、协议栈分层解析、Socket解耦内核与应用。</p>
+<h2 id="3、分步拆解（含面试高频考点）"><a href="#3、分步拆解（含面试高频考点）" class="headerlink" title="3、分步拆解（含面试高频考点）"></a>3、分步拆解（含面试高频考点）</h2><h3 id="3-1-第一步：网卡接收与硬中断（硬件层，极简处理）"><a href="#3-1-第一步：网卡接收与硬中断（硬件层，极简处理）" class="headerlink" title="3.1 第一步：网卡接收与硬中断（硬件层，极简处理）"></a>3.1 第一步：网卡接收与硬中断（硬件层，极简处理）</h3><p>这是网络包进入主机的第一步，由<strong>网卡硬件</strong>主导，配合<strong>DMA技术</strong>和<strong>硬中断</strong>实现，核心是“快速接收、快速通知”，不占用CPU过多资源。</p>
+<h4 id="核心工作流程"><a href="#核心工作流程" class="headerlink" title="核心工作流程"></a>核心工作流程</h4><ol>
+<li><strong>比特流接收与帧转换</strong>：网卡从物理介质（网线&#x2F;光纤）接收二进制比特流，按以太网协议封装规则<strong>解转为以太网帧</strong>，同时校验帧尾的<strong>FCS（帧校验序列）</strong>，校验失败则直接丢弃数据包，避免无效数据进入内核；</li>
+<li><strong>DMA直接写入内存</strong>：通过<strong>DMA（直接内存访问）</strong> 技术，网卡跳过CPU，直接将校验通过的以太网帧写入<strong>网卡环形缓冲区</strong>（内核为网卡分配的专用内存区域），并更新网卡硬件寄存器标记“新包到达”；</li>
+<li><strong>触发硬中断通知CPU</strong>：网卡完成数据写入后，主动向CPU发送<strong>硬中断请求</strong>（IRQ），通知内核“有新的网络包需要处理”；</li>
+<li><strong>硬中断的极简处理</strong>：CPU响应硬中断，暂停当前任务，进入<strong>硬中断上下文</strong>执行网卡对应的硬中断处理程序——该程序仅做<strong>最核心、最简短的工作</strong>：确认新包到达、更新内核中网卡的状态信息、<strong>触发软中断</strong>标记“待处理网络包”，随后立即退出硬中断上下文，恢复之前的任务。</li>
+</ol>
+<h4 id="关键考点解析（DMA是重中之重）"><a href="#关键考点解析（DMA是重中之重）" class="headerlink" title="关键考点解析（DMA是重中之重）"></a>关键考点解析（DMA是重中之重）</h4><ul>
+<li><strong>DMA技术的核心作用</strong>：让外围设备（网卡&#x2F;磁盘）直接与内存进行数据交互，<strong>无需CPU全程参与数据拷贝</strong>，仅在数据传输开始和结束时由CPU做一次指令触发和状态确认，大幅<strong>减少CPU的资源开销</strong>，解决“CPU速度远快于IO速度”的瓶颈问题；</li>
+<li><strong>为什么硬中断处理必须极简？</strong>：硬中断具有<strong>高优先级</strong>，CPU响应硬中断时会<strong>屏蔽其他低优先级中断</strong>，若硬中断处理耗时过长，会导致其他硬件的中断请求被阻塞，引发系统响应缓慢甚至卡死，因此硬中断仅做“触发软中断”的铺垫工作；</li>
+<li><strong>网卡环形缓冲区的设计意义</strong>：采用环形结构可以实现数据包的“先进先出”有序处理，同时避免内存频繁分配和释放，提高数据读写效率。</li>
+</ul>
+<h4 id="面试考点"><a href="#面试考点" class="headerlink" title="面试考点"></a>面试考点</h4><ul>
+<li>问：网卡接收网络包时，DMA技术的作用是什么？为什么需要DMA？</li>
+<li>答：DMA让网卡直接将数据写入内存，无需CPU参与数据拷贝；解决CPU速度与IO速度不匹配的问题，减少CPU开销，提高数据传输效率。</li>
+<li>问：硬中断处理网络包时只做极简工作，原因是什么？</li>
+<li>答：硬中断优先级高，响应时会屏蔽其他低优先级中断，若处理耗时过长，会阻塞其他硬件中断，导致系统响应异常。</li>
+</ul>
+<h3 id="3-2-第二步：内核软中断处理（内核层，后台搬移）"><a href="#3-2-第二步：内核软中断处理（内核层，后台搬移）" class="headerlink" title="3.2 第二步：内核软中断处理（内核层，后台搬移）"></a>3.2 第二步：内核软中断处理（内核层，后台搬移）</h3><p>硬中断仅完成“通知”，真正的网络包前期处理由<strong>内核软中断</strong>完成，软中断是Linux内核处理异步任务的核心机制，专门承接硬中断的“后续工作”。</p>
+<h4 id="核心工作流程-1"><a href="#核心工作流程-1" class="headerlink" title="核心工作流程"></a>核心工作流程</h4><ol>
+<li><strong>软中断的触发与调度</strong>：硬中断处理程序触发<strong>网络软中断</strong>（NET_RX_SOFTIRQ）后，内核会在合适的时机调度软中断执行——执行时机包括：硬中断处理程序退出时、CPU空闲时、内核专门的<strong>ksoftirqd守护进程</strong>轮询时（当软中断任务过多时，由该进程接管，避免阻塞）；</li>
+<li><strong>数据包的内存搬移</strong>：软中断处理程序运行在<strong>软中断上下文</strong>，核心工作是将网络包从<strong>网卡环形缓冲区</strong>（专用缓冲区）搬移到内核的<strong>通用内存区域</strong>，避免网卡缓冲区被占满导致新包丢失；</li>
+<li><strong>初始化sk_buff结构</strong>：内核为每个网络包创建一个<strong>sk_buff（socket buffer）</strong> 数据结构，将网络包的所有信息（帧数据、各层头部指针、包长度、协议类型等）封装到sk_buff中——<strong>整个内核处理网络包的过程，都是对sk_buff的操作</strong>，各层协议栈仅需修改sk_buff中的头部指针，无需拷贝实际数据；</li>
+<li><strong>移交协议栈处理</strong>：sk_buff初始化完成后，软中断处理程序将其<strong>移交到内核TCP&#x2F;IP协议栈</strong>的入口，进入下一步的逐层解封装阶段。</li>
+</ol>
+<h4 id="关键考点解析"><a href="#关键考点解析" class="headerlink" title="关键考点解析"></a>关键考点解析</h4><ul>
+<li><strong>软中断与硬中断的核心区别</strong>：<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>硬中断</th>
+<th>软中断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>触发源</td>
+<td>硬件设备（网卡&#x2F;磁盘）</td>
+<td>内核&#x2F;硬中断处理程序</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>高（屏蔽低优先级中断）</td>
+<td>低（不屏蔽硬中断）</td>
+</tr>
+<tr>
+<td>处理耗时</td>
+<td>极短（微秒级）</td>
+<td>较长（毫秒级）</td>
+</tr>
+<tr>
+<td>运行上下文</td>
+<td>硬中断上下文（不可阻塞）</td>
+<td>软中断上下文（可延迟）</td>
+</tr>
+</tbody></table>
+</li>
+<li><strong>sk_buff的核心设计价值</strong>：Linux内核中管理网络数据包的<strong>核心数据结构</strong>，被称为“网络包的容器”，其设计亮点是<strong>“零拷贝”思想</strong>——各层协议解封装时，仅通过修改<strong>头部指针偏移量</strong>实现，无需拷贝实际的数据包内容，大幅提升内核处理效率；</li>
+<li><strong>ksoftirqd进程的作用</strong>：当系统中有大量软中断任务（如高并发网络包）时，软中断上下文处理不及时，内核会启动ksoftirqd守护进程（每个CPU核心一个），专门处理软中断任务，避免软中断堆积导致网络卡顿。</li>
+</ul>
+<h4 id="面试考点-1"><a href="#面试考点-1" class="headerlink" title="面试考点"></a>面试考点</h4><ul>
+<li>问：Linux内核中硬中断和软中断的核心区别是什么？为什么要分硬中断和软中断处理网络包？</li>
+<li>答：硬中断由硬件触发、优先级高、处理极短；软中断由内核触发、优先级低、处理较长。分两层处理是为了让硬中断快速响应，避免阻塞其他中断，将耗时的处理工作交给软中断在后台完成，兼顾响应速度和处理效率。</li>
+<li>问：sk_buff是什么？其核心设计亮点是什么？</li>
+<li>答：sk_buff是Linux内核中管理网络数据包的核心数据结构；亮点是采用零拷贝思想，各层协议处理仅修改头部指针，无需拷贝实际数据，提升处理效率。</li>
+</ul>
+<h3 id="3-3-第三步：内核TCP-IP协议栈逐层解封装（核心层，协议解析）"><a href="#3-3-第三步：内核TCP-IP协议栈逐层解封装（核心层，协议解析）" class="headerlink" title="3.3 第三步：内核TCP&#x2F;IP协议栈逐层解封装（核心层，协议解析）"></a>3.3 第三步：内核TCP&#x2F;IP协议栈逐层解封装（核心层，协议解析）</h3><p>这一步是内核处理网络包的核心，完全依托<strong>TCP&#x2F;IP四层协议栈</strong>进行<strong>自下而上的逐层解封装</strong>，与网络传输时的“自上而下封装”流程完全相反，所有操作均基于sk_buff结构完成，核心是“校验→解包→提取有效数据→处理协议逻辑”。</p>
+<h4 id="核心工作流程（按TCP-IP四层模型解析）"><a href="#核心工作流程（按TCP-IP四层模型解析）" class="headerlink" title="核心工作流程（按TCP&#x2F;IP四层模型解析）"></a>核心工作流程（按TCP&#x2F;IP四层模型解析）</h4><h5 id="（1）网络接口层解封装：剥离MAC头部，校验局域网合法性"><a href="#（1）网络接口层解封装：剥离MAC头部，校验局域网合法性" class="headerlink" title="（1）网络接口层解封装：剥离MAC头部，校验局域网合法性"></a>（1）网络接口层解封装：剥离MAC头部，校验局域网合法性</h5><ul>
+<li>从sk_buff中读取以太网帧的<strong>MAC头部</strong>，提取目标MAC地址和源MAC地址；</li>
+<li>校验目标MAC地址是否为本机网卡MAC地址（或广播&#x2F;组播地址），非本机地址则直接丢弃数据包；</li>
+<li><strong>剥离MAC头部</strong>：通过修改sk_buff的<strong>数据指针偏移量</strong>，跳过MAC头部，将指针指向后续的IP数据包内容，完成网络接口层解封装。</li>
+</ul>
+<h5 id="（2）网际层解封装：剥离IP头部，处理跨网络逻辑"><a href="#（2）网际层解封装：剥离IP头部，处理跨网络逻辑" class="headerlink" title="（2）网际层解封装：剥离IP头部，处理跨网络逻辑"></a>（2）网际层解封装：剥离IP头部，处理跨网络逻辑</h5><ul>
+<li>从sk_buff中读取IP头部，提取目标IP、源IP、协议号（TCP&#x3D;6&#x2F;UDP&#x3D;17）、TTL（生存时间）等关键字段；</li>
+<li>核心校验：TTL减1后若为0则丢弃数据包（防止循环转发），校验IP头部的校验和，失败则丢弃；</li>
+<li>处理<strong>IP分片</strong>：若数据包是IP分片（超过MTU最大传输单元），内核会将所有分片缓存，待接收到完整分片后重新组装为完整的IP数据包，再继续处理；</li>
+<li><strong>剥离IP头部</strong>：修改sk_buff数据指针，跳过IP头部，指向后续的TCP&#x2F;UDP段内容，完成网际层解封装。</li>
+</ul>
+<h5 id="（3）传输层解封装：剥离TCP-UDP头部，处理端到端逻辑"><a href="#（3）传输层解封装：剥离TCP-UDP头部，处理端到端逻辑" class="headerlink" title="（3）传输层解封装：剥离TCP&#x2F;UDP头部，处理端到端逻辑"></a>（3）传输层解封装：剥离TCP&#x2F;UDP头部，处理端到端逻辑</h5><ul>
+<li>根据IP头部的<strong>协议号</strong>，进入对应的TCP或UDP处理流程，读取传输层头部；</li>
+<li><strong>UDP解封装</strong>（简单）：提取源端口、目标端口，校验UDP头部校验和，剥离UDP头部后，直接将数据交给下一步的Socket层；</li>
+<li><strong>TCP解封装</strong>（复杂，可靠传输保障）：<ol>
+<li>提取源端口、目标端口、序号、确认号、窗口大小等关键字段，校验头部校验和；</li>
+<li>处理<strong>TCP粘包&#x2F;拆包</strong>：根据TCP的滑动窗口和序号机制，将接收到的TCP段组装为完整的应用数据；</li>
+<li>处理<strong>TCP连接状态</strong>：校验数据包是否属于已建立的TCP连接（通过四元组：源IP、源端口、目标IP、目标端口），非已建立连接则丢弃（如三次握手前的非法包）；</li>
+<li><strong>剥离TCP头部</strong>：修改sk_buff数据指针，跳过TCP头部，指向最终的<strong>应用层原始数据</strong>，完成传输层解封装。</li>
+</ol>
+</li>
+</ul>
+<div style="float: middle;">
+  <img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost3@main/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%B5%AE%E7%82%B9/%E6%94%B6%E5%8F%91%E6%B5%81%E7%A8%8B.png 
+  " alt="TCP/IP四层模型架构图" width="640" height="auto">
+</div>
+
+
+<h4 id="关键考点解析-1"><a href="#关键考点解析-1" class="headerlink" title="关键考点解析"></a>关键考点解析</h4><ul>
+<li><strong>协议栈解封装的核心原则</strong>：<strong>自下而上</strong>（网络接口层→网际层→传输层），与网络传输时的“自上而下封装”完全相反，每层仅处理自身协议头部，通过sk_buff指针偏移实现“剥离”，无实际数据拷贝；</li>
+<li><strong>TCP与UDP解封装的差异</strong>：UDP是无连接、不可靠协议，解封装仅做简单的端口校验和头部剥离；TCP是面向连接、可靠协议，解封装需处理连接状态、序号确认、粘包拆包、滑动窗口等逻辑，耗时更长；</li>
+<li><strong>IP分片的处理时机</strong>：分片仅在<strong>网际层</strong>处理，数据链路层有MTU限制（如以太网MTU&#x3D;1500字节），当IP数据包超过MTU时，发送端网际层会进行分片，接收端网际层会重新组装，传输层和应用层无需感知分片。</li>
+</ul>
+<h4 id="面试考点-2"><a href="#面试考点-2" class="headerlink" title="面试考点"></a>面试考点</h4><ul>
+<li>问：操作系统内核中，TCP&#x2F;IP协议栈解封装网络包的顺序是什么？与传输时的封装顺序有什么关系？</li>
+<li>答：解封装顺序为网络接口层→网际层→传输层；与传输时的封装顺序（应用层→传输层→网际层→网络接口层）完全相反。</li>
+<li>问：TCP解封装比UDP复杂的原因是什么？</li>
+<li>答：TCP是面向连接、可靠传输协议，解封装时需要处理连接状态校验、序号确认、粘包&#x2F;拆包、滑动窗口等逻辑；UDP是无连接、不可靠协议，仅需做简单的端口校验和头部剥离。</li>
+<li>问：IP分片是在哪个层级处理的？应用层是否需要感知分片？</li>
+<li>答：IP分片在网际层处理（发送端分片，接收端组装）；应用层无需感知分片，由内核网际层透明处理。</li>
+</ul>
+<h3 id="3-4-第四步：Socket缓冲区交付（内核与应用的桥梁）"><a href="#3-4-第四步：Socket缓冲区交付（内核与应用的桥梁）" class="headerlink" title="3.4 第四步：Socket缓冲区交付（内核与应用的桥梁）"></a>3.4 第四步：Socket缓冲区交付（内核与应用的桥梁）</h3><p>传输层解封装得到应用层原始数据后，内核需要将数据<strong>交付给对应的应用程序</strong>，而<strong>Socket</strong>就是操作系统内核与应用程序之间的<strong>唯一接口</strong>，是连接网络协议栈和应用程序的桥梁。</p>
+<h4 id="核心工作流程-2"><a href="#核心工作流程-2" class="headerlink" title="核心工作流程"></a>核心工作流程</h4><ol>
+<li><strong>查找对应Socket</strong>：内核根据<strong>传输层协议（TCP&#x2F;UDP）</strong> 和<strong>目标端口号</strong>，在内核的<strong>Socket管理表</strong>中查找对应的Socket实例——内核会为每个应用程序的网络连接创建一个唯一的Socket，通过“协议+端口”实现精准匹配；<ul>
+<li>TCP协议：若为监听端口（如80&#x2F;443），则匹配<strong>监听Socket</strong>；若为已建立连接的端口，则匹配<strong>已连接Socket</strong>（每个TCP连接对应一个已连接Socket）；</li>
+<li>UDP协议：无连接概念，直接匹配对应端口的<strong>UDP Socket</strong>（一个端口对应一个UDP Socket）；</li>
+</ul>
+</li>
+<li><strong>写入Socket接收缓冲区</strong>：找到对应的Socket后，内核将应用层原始数据<strong>写入该Socket的内核接收缓冲区</strong>：<ul>
+<li>TCP协议：数据按序写入<strong>流式接收缓冲区</strong>，解决“应用程序读取速度慢于数据到达速度”的问题，TCP的滑动窗口机制也基于该缓冲区的剩余空间实现；</li>
+<li>UDP协议：数据以<strong>数据报</strong>为单位写入缓冲区，保留数据的边界（不会粘包），应用程序读取时按数据报读取；</li>
+</ul>
+</li>
+<li><strong>状态通知与唤醒</strong>：数据写入缓冲区后，内核会更新Socket的状态（标记“有数据可读”），若应用程序此时正处于<strong>阻塞等待状态</strong>（如调用read&#x2F;recv时无数据），内核会<strong>唤醒该应用程序</strong>，通知其有新数据可读取。</li>
+</ol>
+<h4 id="关键考点解析-2"><a href="#关键考点解析-2" class="headerlink" title="关键考点解析"></a>关键考点解析</h4><ul>
+<li><strong>Socket的本质</strong>：Socket并非硬件，而是<strong>操作系统内核提供的一组抽象接口（API）</strong>，以及内核中对应的<strong>数据结构</strong>（包含缓冲区、连接状态、协议信息、端口号等），应用程序通过调用Socket API（socket&#x2F;bind&#x2F;listen&#x2F;accept&#x2F;connect）与内核交互，实现网络通信；</li>
+<li><strong>TCP Socket的两种类型</strong>：<ul>
+<li>监听Socket（LISTEN状态）：由应用程序调用listen()后创建，仅负责接收客户端的连接请求（三次握手），不处理实际数据传输；</li>
+<li>已连接Socket（ESTABLISHED状态）：三次握手成功后，内核为每个TCP连接创建的新Socket，负责该连接的实际数据收发，与监听Socket共用同一个端口；</li>
+</ul>
+</li>
+<li><strong>Socket缓冲区的核心作用</strong>：<strong>解耦内核与应用程序的处理速度</strong>，避免因应用程序处理速度慢导致数据丢失，同时实现“异步读写”——内核可持续接收网络包写入缓冲区，应用程序可在合适的时机读取。</li>
+</ul>
+<h4 id="面试考点-3"><a href="#面试考点-3" class="headerlink" title="面试考点"></a>面试考点</h4><ul>
+<li>问：Socket的本质是什么？其核心作用是什么？</li>
+<li>答：Socket是操作系统内核提供的一组网络通信抽象接口，以及内核中对应的管理数据结构；核心作用是作为内核协议栈和应用程序之间的桥梁，实现两者的数据交互。</li>
+<li>问：TCP的监听Socket和已连接Socket有什么区别？</li>
+<li>答：监听Socket仅负责接收客户端连接请求，处于LISTEN状态，一个监听端口对应一个监听Socket；已连接Socket在三次握手后创建，负责实际的数据收发，一个TCP连接对应一个已连接Socket，多个连接可共用同一个监听端口。</li>
+<li>问：Socket接收缓冲区的作用是什么？</li>
+<li>答：解耦内核和应用程序的处理速度，避免应用处理慢导致数据丢失；实现异步读写，内核可持续接收数据，应用可按需读取。</li>
+</ul>
+<h3 id="3-5-第五步：应用程序读取数据（用户态，业务处理）"><a href="#3-5-第五步：应用程序读取数据（用户态，业务处理）" class="headerlink" title="3.5 第五步：应用程序读取数据（用户态，业务处理）"></a>3.5 第五步：应用程序读取数据（用户态，业务处理）</h3><p>这是网络包处理的最后一步，应用程序通过<strong>系统调用</strong>从Socket的内核接收缓冲区中读取数据，完成从“内核态”到“用户态”的	data拷贝，最终处理业务逻辑。</p>
+<h4 id="核心工作流程-3"><a href="#核心工作流程-3" class="headerlink" title="核心工作流程"></a>核心工作流程</h4><ol>
+<li><strong>应用程序的读取方式</strong>：应用程序有两种读取数据的方式，均需通过<strong>系统调用</strong>实现（因为用户态程序无法直接访问内核内存）：<ul>
+<li><strong>阻塞读取</strong>：应用程序调用<strong>read()&#x2F;recv()&#x2F;recvfrom()</strong> 时，若Socket接收缓冲区无数据，则应用程序进入<strong>阻塞睡眠状态</strong>，直到内核将数据写入缓冲区并唤醒它；</li>
+<li><strong>非阻塞读取</strong>：应用程序将Socket设置为非阻塞模式后，调用读取函数时，若缓冲区无数据则直接返回<strong>EAGAIN&#x2F;EWOULDBLOCK</strong>错误，应用程序可通过轮询或IO多路复用（select&#x2F;poll&#x2F;epoll）检测数据是否可读；</li>
+</ul>
+</li>
+<li><strong>用户态与内核态的切换</strong>：调用系统调用时，CPU会从<strong>用户态</strong>切换到<strong>内核态</strong>，进入内核的系统调用处理程序；</li>
+<li><strong>数据拷贝与返回</strong>：内核将Socket接收缓冲区中的数据<strong>拷贝到应用程序的用户缓冲区</strong>（应用程序在用户态分配的内存），拷贝完成后，更新Socket缓冲区的读指针（标记已读取数据）；</li>
+<li><strong>返回用户态处理</strong>：数据拷贝完成后，CPU从内核态切换回用户态，应用程序从系统调用中返回，开始处理用户缓冲区中的数据（如HTTP请求解析、业务逻辑执行等）。</li>
+</ol>
+<h4 id="关键考点解析-3"><a href="#关键考点解析-3" class="headerlink" title="关键考点解析"></a>关键考点解析</h4><ul>
+<li><strong>用户态与内核态的核心区别</strong>：<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>用户态</th>
+<th>内核态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>访问权限</td>
+<td>低（仅能访问用户内存）</td>
+<td>高（可访问所有系统资源）</td>
+</tr>
+<tr>
+<td>执行代码</td>
+<td>应用程序代码</td>
+<td>操作系统内核代码</td>
+</tr>
+<tr>
+<td>切换方式</td>
+<td>系统调用&#x2F;中断&#x2F;异常</td>
+<td>系统调用返回&#x2F;中断返回</td>
+</tr>
+</tbody></table>
+</li>
+<li><strong>IO多路复用的作用</strong>：对于高并发网络应用（如Nginx&#x2F;Redis），采用select&#x2F;poll&#x2F;epoll等IO多路复用技术，可让一个应用进程同时监控多个Socket的状态，避免为每个Socket创建一个进程&#x2F;线程，大幅减少系统资源开销；</li>
+<li><strong>零拷贝技术</strong>：传统的数据读取需要“内核缓冲区→用户缓冲区”的拷贝，而<strong>零拷贝技术</strong>（如sendfile&#x2F;mmap）可让数据直接从内核缓冲区传输到网卡，或从网卡缓冲区直接映射到用户态，<strong>减少一次甚至多次数据拷贝</strong>，提升高并发场景下的IO效率，是面试高频考点。</li>
+</ul>
+<h4 id="面试考点-4"><a href="#面试考点-4" class="headerlink" title="面试考点"></a>面试考点</h4><ul>
+<li>问：应用程序读取网络数据时，为什么需要通过系统调用？</li>
+<li>答：应用程序运行在用户态，无权限直接访问内核中的Socket缓冲区；系统调用会触发CPU从用户态切换到内核态，让内核代为读取数据并拷贝到用户缓冲区。</li>
+<li>问：网络编程中，阻塞IO和非阻塞IO的核心区别是什么？</li>
+<li>答：阻塞IO调用读取函数时，无数据则进程睡眠阻塞，直到有数据才返回；非阻塞IO无数据则直接返回错误，进程不阻塞，可继续执行其他逻辑。</li>
+<li>问：零拷贝技术的核心作用是什么？常见的零拷贝方案有哪些？</li>
+<li>答：核心作用是减少数据在内核态和用户态之间的拷贝次数，提升IO效率；常见方案有sendfile（适用于文件传输）、mmap（适用于网络数据读写）、splice&#x2F;tee。</li>
+</ul>
+<h2 id="4、核心组件与技术总结（面试必记）"><a href="#4、核心组件与技术总结（面试必记）" class="headerlink" title="4、核心组件与技术总结（面试必记）"></a>4、核心组件与技术总结（面试必记）</h2><p>操作系统处理网络包的过程涉及多个内核核心组件和技术，这些是面试中常考的“高频词汇”，需牢记其作用和设计意义：</p>
+<ol>
+<li><strong>DMA</strong>：直接内存访问，让网卡直接与内存交互，解放CPU，减少数据拷贝开销；</li>
+<li><strong>硬中断&#x2F;软中断</strong>：异步处理机制，硬中断快速响应硬件事件，软中断后台处理耗时工作，兼顾响应速度和处理效率；</li>
+<li><strong>sk_buff</strong>：Linux内核网络包管理核心结构，采用零拷贝思想，通过指针偏移实现各层解封装，无实际数据拷贝；</li>
+<li><strong>TCP&#x2F;IP内核协议栈</strong>：操作系统内核实现的TCP&#x2F;IP四层协议，负责网络包的逐层解封装和协议逻辑处理；</li>
+<li><strong>Socket</strong>：内核与应用的网络通信接口，包含内核缓冲区和连接信息，是数据交付的核心桥梁；</li>
+<li><strong>用户态&#x2F;内核态</strong>：操作系统的两种运行状态，通过系统调用实现切换，保证系统资源的安全访问；</li>
+<li><strong>IO多路复用</strong>：select&#x2F;poll&#x2F;epoll，解决高并发网络场景下的Socket管理问题，减少进程&#x2F;线程开销。</li>
+</ol>
+<h2 id="5、面试高频考点汇总（直接背诵）"><a href="#5、面试高频考点汇总（直接背诵）" class="headerlink" title="5、面试高频考点汇总（直接背诵）"></a>5、面试高频考点汇总（直接背诵）</h2><h3 id="5-1-核心问答（必背）"><a href="#5-1-核心问答（必背）" class="headerlink" title="5.1 核心问答（必背）"></a>5.1 核心问答（必背）</h3><ol>
+<li>问：操作系统从网卡接收网络包到交付给应用程序的完整流程是什么？<br>答：网卡接收与硬中断→内核软中断处理→TCP&#x2F;IP协议栈逐层解封装→Socket缓冲区交付→应用程序系统调用读取。</li>
+<li>问：DMA技术的作用是什么？为什么网卡接收数据需要DMA？<br>答：DMA让网卡直接将数据写入内存，无需CPU参与数据拷贝；减少CPU开销，解决CPU与IO速度不匹配的瓶颈。</li>
+<li>问：Linux内核中硬中断和软中断的区别？为什么要分两层处理网络包？<br>答：硬中断由硬件触发、优先级高、处理极短；软中断由内核触发、优先级低、处理较长。分两层是为了让硬中断快速响应，避免阻塞其他中断，将耗时工作交给软中断后台处理。</li>
+<li>问：sk_buff是什么？其核心设计亮点是什么？<br>答：sk_buff是内核管理网络包的核心数据结构；亮点是零拷贝思想，通过指针偏移实现各层解封装，无实际数据拷贝。</li>
+<li>问：Socket的本质是什么？TCP的监听Socket和已连接Socket有什么区别？<br>答：Socket是内核提供的网络通信抽象接口和内核数据结构；监听Socket负责接收连接请求，已连接Socket负责实际数据收发，一个监听端口对应多个已连接Socket。</li>
+<li>问：应用程序读取网络数据时需要系统调用的原因是什么？<br>答：应用运行在用户态，无权限直接访问内核的Socket缓冲区；系统调用触发用户态→内核态切换，让内核代为完成数据拷贝。</li>
+</ol>
+<h3 id="5-2-易错点提醒（避坑）"><a href="#5-2-易错点提醒（避坑）" class="headerlink" title="5.2 易错点提醒（避坑）"></a>5.2 易错点提醒（避坑）</h3><ol>
+<li>硬中断<strong>不处理</strong>实际的网络包解析，仅做“触发软中断”的极简工作；</li>
+<li>sk_buff是<strong>网络包管理结构</strong>，并非单纯的缓冲区，其核心是指针偏移而非数据拷贝；</li>
+<li>TCP的<strong>已连接Socket</strong>与监听Socket共用端口，并非每个连接都占用一个新端口；</li>
+<li>零拷贝技术<strong>不是没有拷贝</strong>，而是减少“用户态与内核态之间”的拷贝，内核内部仍可能有拷贝；</li>
+<li>IP分片仅在<strong>网际层</strong>处理，传输层和应用层无需感知，TCP粘包&#x2F;拆包与IP分片无关；</li>
+<li>Socket缓冲区属于<strong>内核态内存</strong>，应用程序无法直接访问，必须通过系统调用拷贝到用户缓冲区。</li>
+</ol>
+<h2 id="6、总结"><a href="#6、总结" class="headerlink" title="6、总结"></a>6、总结</h2><p>操作系统处理网络数据包的过程，是<strong>计算机网络</strong>与<strong>操作系统</strong>两大核心知识点的深度融合，也是面试中考察底层原理的高频考点。整个流程的核心设计围绕<strong>“减少CPU开销”“提升处理效率”“解耦分层设计”</strong> 展开：</p>
+<ul>
+<li>用DMA解放CPU，用硬中断+软中断实现异步处理，兼顾响应速度和处理效率；</li>
+<li>用sk_buff实现网络包的零拷贝管理，让协议栈解封装无需数据拷贝；</li>
+<li>用TCP&#x2F;IP协议栈实现分层解析，让各层专注于自身协议逻辑；</li>
+<li>用Socket实现内核与应用的解耦，让应用程序无需关注底层网络细节；</li>
+<li>用用户态&#x2F;内核态隔离保证系统安全，用系统调用实现两者的交互。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C03/">https://wxggo.github.io/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C03/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost3@main/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%B5%AE%E7%82%B9/%E5%8D%8F%E8%AE%AE%E6%A0%88.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/01/leetcode/leetcodehot100/date2026_1/study-leetcode-739/" title="Leetcode-739:每日温度问题-反向遍历跳跃优化&amp;单调栈双解法"><img class="cover" src="/images/photo2024/study_java/leetcode739.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Leetcode-739:每日温度问题-反向遍历跳跃优化&amp;单调栈双解法</div></div></a></div><div class="next-post pull-right"><a href="/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C02/" title="Interview-计算机网络02:键入网址到网页显示，期间发生了什么？"><img class="cover" src="https://gcore.jsdelivr.net/gh/CNhuazhu/Image/ComputerNetworksCover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Interview-计算机网络02:键入网址到网页显示，期间发生了什么？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C02/" title="Interview-计算机网络02:键入网址到网页显示，期间发生了什么？"><img class="cover" src="https://gcore.jsdelivr.net/gh/CNhuazhu/Image/ComputerNetworksCover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Interview-计算机网络02:键入网址到网页显示，期间发生了什么？</div></div></a></div><div><a href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络&#x2F;协议&#x2F;应用层）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-05</div><div class="title">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络&#x2F;协议&#x2F;应用层）</div></div></a></div><div><a href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-05</div><div class="title">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</div></div></a></div><div><a href="/2026/01/31/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C01/" title="Interview-计算机网络01:TCP&#x2F;IP模型（四层架构）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/tcpip%E5%8F%82%E8%80%83%E6%A8%A1%E5%9E%8B.drawio.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Interview-计算机网络01:TCP&#x2F;IP模型（四层架构）</div></div></a></div><div><a href="/2026/02/01/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C04_http1/" title="Interview-计算机网络04：HTTP面试八股文解析（状态码&#x2F;缓存&#x2F;HTTPS&#x2F;演进）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/HTTP/5-%E8%AF%B7%E6%B1%82%E5%BA%94%E7%AD%94.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Interview-计算机网络04：HTTP面试八股文解析（状态码&#x2F;缓存&#x2F;HTTPS&#x2F;演进）</div></div></a></div><div><a href="/2026/02/01/leetcodehot100/" title="Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Leetcode Hot100 刷题顺序+题型分类总结（面试&#x2F;复习专用）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="toc-text">2、核心流程总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%88%86%E6%AD%A5%E6%8B%86%E8%A7%A3%EF%BC%88%E5%90%AB%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%EF%BC%89"><span class="toc-text">3、分步拆解（含面试高频考点）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E7%BD%91%E5%8D%A1%E6%8E%A5%E6%94%B6%E4%B8%8E%E7%A1%AC%E4%B8%AD%E6%96%AD%EF%BC%88%E7%A1%AC%E4%BB%B6%E5%B1%82%EF%BC%8C%E6%9E%81%E7%AE%80%E5%A4%84%E7%90%86%EF%BC%89"><span class="toc-text">3.1 第一步：网卡接收与硬中断（硬件层，极简处理）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">核心工作流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%80%83%E7%82%B9%E8%A7%A3%E6%9E%90%EF%BC%88DMA%E6%98%AF%E9%87%8D%E4%B8%AD%E4%B9%8B%E9%87%8D%EF%BC%89"><span class="toc-text">关键考点解析（DMA是重中之重）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9"><span class="toc-text">面试考点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%86%85%E6%A0%B8%E8%BD%AF%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%EF%BC%88%E5%86%85%E6%A0%B8%E5%B1%82%EF%BC%8C%E5%90%8E%E5%8F%B0%E6%90%AC%E7%A7%BB%EF%BC%89"><span class="toc-text">3.2 第二步：内核软中断处理（内核层，后台搬移）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-1"><span class="toc-text">核心工作流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%80%83%E7%82%B9%E8%A7%A3%E6%9E%90"><span class="toc-text">关键考点解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9-1"><span class="toc-text">面试考点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%86%85%E6%A0%B8TCP-IP%E5%8D%8F%E8%AE%AE%E6%A0%88%E9%80%90%E5%B1%82%E8%A7%A3%E5%B0%81%E8%A3%85%EF%BC%88%E6%A0%B8%E5%BF%83%E5%B1%82%EF%BC%8C%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90%EF%BC%89"><span class="toc-text">3.3 第三步：内核TCP&#x2F;IP协议栈逐层解封装（核心层，协议解析）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%EF%BC%88%E6%8C%89TCP-IP%E5%9B%9B%E5%B1%82%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90%EF%BC%89"><span class="toc-text">核心工作流程（按TCP&#x2F;IP四层模型解析）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E5%B1%82%E8%A7%A3%E5%B0%81%E8%A3%85%EF%BC%9A%E5%89%A5%E7%A6%BBMAC%E5%A4%B4%E9%83%A8%EF%BC%8C%E6%A0%A1%E9%AA%8C%E5%B1%80%E5%9F%9F%E7%BD%91%E5%90%88%E6%B3%95%E6%80%A7"><span class="toc-text">（1）网络接口层解封装：剥离MAC头部，校验局域网合法性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%BD%91%E9%99%85%E5%B1%82%E8%A7%A3%E5%B0%81%E8%A3%85%EF%BC%9A%E5%89%A5%E7%A6%BBIP%E5%A4%B4%E9%83%A8%EF%BC%8C%E5%A4%84%E7%90%86%E8%B7%A8%E7%BD%91%E7%BB%9C%E9%80%BB%E8%BE%91"><span class="toc-text">（2）网际层解封装：剥离IP头部，处理跨网络逻辑</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E4%BC%A0%E8%BE%93%E5%B1%82%E8%A7%A3%E5%B0%81%E8%A3%85%EF%BC%9A%E5%89%A5%E7%A6%BBTCP-UDP%E5%A4%B4%E9%83%A8%EF%BC%8C%E5%A4%84%E7%90%86%E7%AB%AF%E5%88%B0%E7%AB%AF%E9%80%BB%E8%BE%91"><span class="toc-text">（3）传输层解封装：剥离TCP&#x2F;UDP头部，处理端到端逻辑</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%80%83%E7%82%B9%E8%A7%A3%E6%9E%90-1"><span class="toc-text">关键考点解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9-2"><span class="toc-text">面试考点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9ASocket%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BA%A4%E4%BB%98%EF%BC%88%E5%86%85%E6%A0%B8%E4%B8%8E%E5%BA%94%E7%94%A8%E7%9A%84%E6%A1%A5%E6%A2%81%EF%BC%89"><span class="toc-text">3.4 第四步：Socket缓冲区交付（内核与应用的桥梁）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-2"><span class="toc-text">核心工作流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%80%83%E7%82%B9%E8%A7%A3%E6%9E%90-2"><span class="toc-text">关键考点解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9-3"><span class="toc-text">面试考点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9A%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%88%E7%94%A8%E6%88%B7%E6%80%81%EF%BC%8C%E4%B8%9A%E5%8A%A1%E5%A4%84%E7%90%86%EF%BC%89"><span class="toc-text">3.5 第五步：应用程序读取数据（用户态，业务处理）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-3"><span class="toc-text">核心工作流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%80%83%E7%82%B9%E8%A7%A3%E6%9E%90-3"><span class="toc-text">关键考点解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E8%80%83%E7%82%B9-4"><span class="toc-text">面试考点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E4%B8%8E%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93%EF%BC%88%E9%9D%A2%E8%AF%95%E5%BF%85%E8%AE%B0%EF%BC%89"><span class="toc-text">4、核心组件与技术总结（面试必记）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%E6%B1%87%E6%80%BB%EF%BC%88%E7%9B%B4%E6%8E%A5%E8%83%8C%E8%AF%B5%EF%BC%89"><span class="toc-text">5、面试高频考点汇总（直接背诵）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%A0%B8%E5%BF%83%E9%97%AE%E7%AD%94%EF%BC%88%E5%BF%85%E8%83%8C%EF%BC%89"><span class="toc-text">5.1 核心问答（必背）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E6%98%93%E9%94%99%E7%82%B9%E6%8F%90%E9%86%92%EF%BC%88%E9%81%BF%E5%9D%91%EF%BC%89"><span class="toc-text">5.2 易错点提醒（避坑）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">6、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</a><time datetime="2026-02-05T12:00:00.000Z" title="Created 2026-02-05 20:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）</a><time datetime="2026-02-05T11:00:00.000Z" title="Created 2026-02-05 19:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"><img src="https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"/></a><div class="content"><a class="title" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解">Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解</a><time datetime="2026-02-05T10:00:00.000Z" title="Created 2026-02-05 18:00:00">2026-02-05</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

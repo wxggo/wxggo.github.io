@@ -1,0 +1,310 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解Leetcode15三数之和的排序+双指针解法，核心剖析**三层去重逻辑**与**两步剪枝优化**的底层原因，手把手拆解双指针移动与三元组收集过程，代码为面试最优版">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）">
+<meta property="og:url" content="https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-015/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="详解Leetcode15三数之和的排序+双指针解法，核心剖析**三层去重逻辑**与**两步剪枝优化**的底层原因，手把手拆解双指针移动与三元组收集过程，代码为面试最优版">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://t14.baidu.com/it/u=1808636192,4221427548&fm=225&app=113&f=JPEG?w=1024&h=640&s=4AA43462034A4D4F484D7CDA0000C0B0">
+<meta property="article:published_time" content="2026-02-02T09:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-02T09:20:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="数组">
+<meta property="article:tag" content="双指针">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://t14.baidu.com/it/u=1808636192,4221427548&fm=225&app=113&f=JPEG?w=1024&h=640&s=4AA43462034A4D4F484D7CDA0000C0B0"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-015/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-02 17:20:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://t14.baidu.com/it/u=1808636192,4221427548&amp;fm=225&amp;app=113&amp;f=JPEG?w=1024&amp;h=640&amp;s=4AA43462034A4D4F484D7CDA0000C0B0')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-02T09:00:00.000Z" title="Created 2026-02-02 17:00:00">2026-02-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-02T09:20:00.000Z" title="Updated 2026-02-02 17:20:00">2026-02-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Java学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Leetcode-Hot100/">Leetcode Hot100</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">3.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>12mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="1、题目"><a href="#1、题目" class="headerlink" title="1、题目"></a>1、题目</h2><p>给你一个整数数组 <code>nums</code>，判断是否存在三元组 <code>[nums[i], nums[j], nums[k]]</code> 满足 <code>i != j != k</code> 且 <code>nums[i] + nums[j] + nums[k] = 0</code>。请你返回所有和为 <code>0</code> 且<strong>不重复</strong>的三元组。</p>
+<p><strong>注意</strong>：答案中不可以包含重复的三元组，顺序不限。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>示例 1：<br>输入：nums &#x3D; [-1,0,1,2,-1,-4]<br>输出：[[-1,-1,2],[-1,0,1]]<br>解释：两个不重复的三元组和均为0。</p>
+<p>示例 2：<br>输入：nums &#x3D; [0,1,1]<br>输出：[]<br>解释：无满足条件的三元组。</p>
+<p>示例 3：<br>输入：nums &#x3D; [0,0,0,0]<br>输出：[[0,0,0]]<br>解释：仅一个不重复的三元组。</p>
+<h3 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h3><ul>
+<li><code>3 &lt;= nums.length &lt;= 3000</code></li>
+<li><code>-10^5 &lt;= nums[i] &lt;= 10^5</code></li>
+</ul>
+<h2 id="2、分析"><a href="#2、分析" class="headerlink" title="2、分析"></a>2、分析</h2><h3 id="2-1-问题核心"><a href="#2-1-问题核心" class="headerlink" title="2.1 问题核心"></a>2.1 问题核心</h3><p>三数之和的核心是<strong>将三元组问题转化为有序数组的双指针两数之和问题</strong>：固定一个数<code>nums[i]</code>，寻找另外两个数使其和为<code>-nums[i]</code>，即满足<code>nums[i] + nums[left] + nums[right] = 0</code>。<br>暴力解法需三层循环枚举所有三元组，时间复杂度<code>O(n³)</code>，面对<code>n=3000</code>时计算量达2.7×10¹⁰，必然超时；<strong>排序+双指针</strong>是最优解，排序将时间复杂度降为<code>O(nlogn)</code>，双指针遍历将内层两层循环降为一层，整体时间复杂度为<code>O(n²)</code>，适配题目数据规模。</p>
+<p>本题的<strong>两大关键难点</strong>（面试必考）：</p>
+<ol>
+<li><strong>去重</strong>：避免答案中出现重复的三元组，需对固定数、左指针、右指针分别去重；</li>
+<li><strong>剪枝</strong>：提前跳过无效循环，减少计算量，提升程序执行效率。</li>
+</ol>
+<h3 id="2-2-排序的三大核心作用"><a href="#2-2-排序的三大核心作用" class="headerlink" title="2.2 排序的三大核心作用"></a>2.2 排序的三大核心作用</h3><p>排序是整个解法的基础，没有排序则双指针无法移动、去重和剪枝无从谈起，核心作用有三：</p>
+<ol>
+<li><strong>双指针移动依据</strong>：有序数组中，两数之和过小则左指针右移，过大则右指针左移，可线性寻找目标和；</li>
+<li><strong>方便去重</strong>：相同元素相邻排列，只需判断当前元素与前&#x2F;后元素是否相等，即可快速跳过重复值；</li>
+<li><strong>支持剪枝优化</strong>：有序数组中，可通过简单的和判断，提前终止或跳过无效的固定数遍历。</li>
+</ol>
+<h3 id="2-3-核心难点1：三层去重逻辑（为什么要去重？怎么去重？）"><a href="#2-3-核心难点1：三层去重逻辑（为什么要去重？怎么去重？）" class="headerlink" title="2.3 核心难点1：三层去重逻辑（为什么要去重？怎么去重？）"></a>2.3 核心难点1：三层去重逻辑（为什么要去重？怎么去重？）</h3><p>去重的本质是<strong>跳过重复的起始点，避免生成重复的三元组</strong>，需在三个关键位置执行去重，缺一不可：</p>
+<ol>
+<li><strong>固定数<code>i</code>的去重</strong>：若<code>nums[i] == nums[i-1]</code>（<code>i&gt;0</code>），说明当前数与上一个数相同，继续遍历会生成重复三元组，直接<code>continue</code>；<ul>
+<li>注意：必须判断<code>i&gt;0</code>，否则<code>i-1</code>会数组越界；</li>
+</ul>
+</li>
+<li><strong>左指针<code>left</code>的去重</strong>：找到有效三元组后，若<code>nums[left] == nums[left+1]</code>，说明后续左指针值重复，需<code>left++</code>跳过；</li>
+<li><strong>右指针<code>right</code>的去重</strong>：找到有效三元组后，若<code>nums[right] == nums[right-1]</code>，说明后续右指针值重复，需<code>right--</code>跳过；<ul>
+<li>注意：左右指针去重需在<strong>找到有效三元组后</strong>执行，且需保证<code>left &lt; right</code>，避免越界。</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-4-核心难点2：两步剪枝优化（为什么能剪枝？）"><a href="#2-4-核心难点2：两步剪枝优化（为什么能剪枝？）" class="headerlink" title="2.4 核心难点2：两步剪枝优化（为什么能剪枝？）"></a>2.4 核心难点2：两步剪枝优化（为什么能剪枝？）</h3><p>剪枝是对程序的效率优化，利用有序数组的特性，提前跳过无效循环，减少不必要的计算：</p>
+<ol>
+<li><strong>提前终止循环</strong>：若<code>nums[i] + nums[i+1] + nums[i+2] &gt; 0</code>，说明当前固定数<code>nums[i]</code>已过大，后续数均≥<code>nums[i]</code>，三数之和必然&gt;0，直接<code>break</code>终止整个固定数遍历；</li>
+<li><strong>跳过无效固定数</strong>：若<code>nums[i] + nums[length-2] + nums[length-1] &lt; 0</code>，说明当前固定数<code>nums[i]</code>过小，即使与数组最后两个最大数相加仍&lt;0，无满足条件的三元组，直接<code>continue</code>跳过当前<code>i</code>。</li>
+</ol>
+<h3 id="2-5-核心思路"><a href="#2-5-核心思路" class="headerlink" title="2.5 核心思路"></a>2.5 核心思路</h3><ol>
+<li><strong>数组排序</strong>：对<code>nums</code>进行升序排序，为双指针、去重、剪枝打下基础；</li>
+<li>**遍历固定数<code>i</code>**：遍历数组，固定第一个数<code>nums[i]</code>，遍历边界为<code>length-2</code>（需留两个数给左右指针）；</li>
+<li><strong>固定数去重+剪枝</strong>：执行<code>i</code>的去重逻辑，再执行两步剪枝优化，跳过无效情况；</li>
+<li><strong>双指针初始化</strong>：左指针<code>left = i+1</code>（固定数下一个数），右指针<code>right = length-1</code>（数组末尾）；</li>
+<li><strong>双指针遍历</strong>：当<code>left &lt; right</code>时，计算<code>nums[left] + nums[right]</code>与目标值<code>-nums[i]</code>比较：<ul>
+<li>等于目标值：收集三元组，执行左右指针去重，再同时移动左右指针寻找新组合；</li>
+<li>小于目标值：左指针右移（增大两数之和）；</li>
+<li>大于目标值：右指针左移（减小两数之和）；</li>
+</ul>
+</li>
+<li><strong>返回结果</strong>：遍历完成后，返回收集到的所有不重复三元组。</li>
+</ol>
+<h2 id="3、程序"><a href="#3、程序" class="headerlink" title="3、程序"></a>3、程序</h2><h3 id="3-1-完整代码"><a href="#3-1-完整代码" class="headerlink" title="3.1 完整代码"></a>3.1 完整代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">threeSum</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        List&lt;List&lt;Integer&gt;&gt; ans = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(); <span class="comment">// 存储最终不重复的三元组</span></span><br><span class="line">        Arrays.sort(nums); <span class="comment">// 核心：数组升序排序，为双指针/去重/剪枝铺垫</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">length</span> <span class="operator">=</span> nums.length;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历固定第一个数nums[i]，边界为length-2（需留两个数给left/right）</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; length - <span class="number">2</span>; i++) &#123;</span><br><span class="line">            <span class="comment">// 去重1：固定数i去重，跳过重复值避免生成重复三元组</span></span><br><span class="line">            <span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 剪枝1：当前i的最小三数和&gt;0，后续均&gt;0，直接终止循环</span></span><br><span class="line">            <span class="keyword">if</span> (nums[i] + nums[i + <span class="number">1</span>] + nums[i + <span class="number">2</span>] &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 剪枝2：当前i的最大三数和&lt;0，无有效三元组，跳过当前i</span></span><br><span class="line">            <span class="keyword">if</span> (nums[i] + nums[length - <span class="number">2</span>] + nums[length - <span class="number">1</span>] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> i + <span class="number">1</span>; <span class="comment">// 左指针：i的下一个数，避免重复使用i</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">right</span> <span class="operator">=</span> length - <span class="number">1</span>; <span class="comment">// 右指针：数组末尾</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">target</span> <span class="operator">=</span> -nums[i]; <span class="comment">// 两数之和的目标值：nums[left]+nums[right] = -nums[i]</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 双指针遍历，寻找符合条件的两个数</span></span><br><span class="line">            <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> nums[left] + nums[right];</span><br><span class="line">                <span class="keyword">if</span> (sum == target) &#123;</span><br><span class="line">                    <span class="comment">// 找到有效三元组，加入结果集</span></span><br><span class="line">                    List&lt;Integer&gt; list = Arrays.asList(nums[i], nums[left], nums[right]);</span><br><span class="line">                    ans.add(list);</span><br><span class="line">                    <span class="comment">// 去重2：左指针去重，跳过相邻重复值</span></span><br><span class="line">                    <span class="keyword">while</span> (left &lt; right &amp;&amp; nums[left] == nums[left + <span class="number">1</span>]) &#123;</span><br><span class="line">                        left++;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 去重3：右指针去重，跳过相邻重复值</span></span><br><span class="line">                    <span class="keyword">while</span> (left &lt; right &amp;&amp; nums[right] == nums[right - <span class="number">1</span>]) &#123;</span><br><span class="line">                        right--;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 移动指针，寻找新的组合（已去重，直接移动）</span></span><br><span class="line">                    left++;</span><br><span class="line">                    right--;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sum &lt; target) &#123;</span><br><span class="line">                    <span class="comment">// 两数之和过小，左指针右移增大和</span></span><br><span class="line">                    left++;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="comment">// 两数之和过大，右指针左移减小和</span></span><br><span class="line">                    right--;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-代码核心点逐行解释"><a href="#3-2-代码核心点逐行解释" class="headerlink" title="3.2 代码核心点逐行解释"></a>3.2 代码核心点逐行解释</h3><h4 id="（1）数组排序"><a href="#（1）数组排序" class="headerlink" title="（1）数组排序"></a>（1）数组排序</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Arrays.sort(nums);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>整个解法的基础，升序排序后所有后续逻辑才有依据，无排序则本题无法高效求解；</li>
+<li>Java内置排序为快速排序优化版，时间复杂度<code>O(nlogn)</code>。</li>
+</ul>
+<h4 id="（2）固定数去重"><a href="#（2）固定数去重" class="headerlink" title="（2）固定数去重"></a>（2）固定数去重</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) &#123; <span class="keyword">continue</span>; &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>必须加<code>i&gt;0</code>，否则<code>i=0</code>时<code>i-1=-1</code>，数组越界；</li>
+<li>跳过重复的固定数，从源头上避免生成重复三元组，是最关键的去重步骤。</li>
+</ul>
+<h4 id="（3）两步剪枝优化"><a href="#（3）两步剪枝优化" class="headerlink" title="（3）两步剪枝优化"></a>（3）两步剪枝优化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (nums[i] + nums[i + <span class="number">1</span>] + nums[i + <span class="number">2</span>] &gt; <span class="number">0</span>) &#123; <span class="keyword">break</span>; &#125;</span><br><span class="line"><span class="keyword">if</span> (nums[i] + nums[length - <span class="number">2</span>] + nums[length - <span class="number">1</span>] &lt; <span class="number">0</span>) &#123; <span class="keyword">continue</span>; &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>剪枝1用<code>break</code>：有序数组中后续数更大，三数之和只会更大，直接终止整个循环；</li>
+<li>剪枝2用<code>continue</code>：仅当前<code>i</code>过小，后续<code>i</code>增大后可能有有效解，仅跳过当前<code>i</code>。</li>
+</ul>
+<h4 id="（4）双指针与目标值定义"><a href="#（4）双指针与目标值定义" class="headerlink" title="（4）双指针与目标值定义"></a>（4）双指针与目标值定义</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> i + <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">right</span> <span class="operator">=</span> length - <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">target</span> <span class="operator">=</span> -nums[i];</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>left=i+1</code>：保证<code>left</code>在<code>i</code>之后，避免重复使用同一个元素（<code>i!=left</code>）；</li>
+<li><code>target=-nums[i]</code>：将三数之和为0转化为两数之和为<code>target</code>，简化问题。</li>
+</ul>
+<h4 id="（5）找到有效三元组后的去重与指针移动"><a href="#（5）找到有效三元组后的去重与指针移动" class="headerlink" title="（5）找到有效三元组后的去重与指针移动"></a>（5）找到有效三元组后的去重与指针移动</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (left &lt; right &amp;&amp; nums[left] == nums[left + <span class="number">1</span>]) &#123; left++; &#125;</span><br><span class="line"><span class="keyword">while</span> (left &lt; right &amp;&amp; nums[left] == nums[left + <span class="number">1</span>]) &#123; right--; &#125;</span><br><span class="line">left++; right--;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>去重需加<code>left &lt; right</code>，避免指针越界；</li>
+<li>先去重再移动指针，确保下一次遍历的指针值为新值，无重复；</li>
+<li>同时移动左右指针：有序数组中，单个指针移动后的两数之和必然不等于目标值，需同时移动。</li>
+</ul>
+<h4 id="（6）三元组收集"><a href="#（6）三元组收集" class="headerlink" title="（6）三元组收集"></a>（6）三元组收集</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(nums[i], nums[left], nums[right]);</span><br><span class="line">ans.add(list);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>Arrays.asList</code>快速生成固定大小的列表，满足题目返回要求；</li>
+<li>因排序后数组升序，收集的三元组也为升序，天然避免因顺序不同导致的重复（如<code>[-1,0,1]</code>和<code>[0,-1,1]</code>）。</li>
+</ul>
+<h2 id="4、算法性能"><a href="#4、算法性能" class="headerlink" title="4、算法性能"></a>4、算法性能</h2><ul>
+<li><strong>时间复杂度</strong>：<code>O(n²)</code>（整体由主导步骤决定）；<ul>
+<li>排序：<code>O(nlogn)</code>；</li>
+<li>固定数遍历：<code>O(n)</code>，每层遍历中双指针遍历：<code>O(n)</code>，合计<code>O(n²)</code>；</li>
+<li>去重和剪枝为常数级操作，不影响整体时间复杂度。</li>
+</ul>
+</li>
+<li><strong>空间复杂度</strong>：<code>O(logn)</code>（排序的递归栈空间，若忽略排序的额外空间，可认为是<code>O(1)</code>原地操作）；<ul>
+<li>结果集<code>ans</code>的存储空间为题目要求的输出空间，不计入算法额外空间。</li>
+</ul>
+</li>
+<li><strong>核心优势</strong>（面试重点）：<ol>
+<li>时间复杂度<code>O(n²)</code>为本题最优，完美适配<code>n=3000</code>的数规模；</li>
+<li>去重+剪枝双重优化，实际执行效率远高于基础版排序+双指针；</li>
+<li>代码逻辑清晰，无复杂数据结构，面试中可快速书写；</li>
+<li>思路可迁移至<strong>四数之和</strong>「Leetcode18」等多数之和问题。</li>
+</ol>
+</li>
+</ul>
+<h2 id="5、测试示例"><a href="#5、测试示例" class="headerlink" title="5、测试示例"></a>5、测试示例</h2><p>以<strong>经典示例：nums &#x3D; [-1,0,1,2,-1,-4]</strong> 为例，完整模拟执行过程，直观理解核心逻辑：</p>
+<ol>
+<li><strong>排序后</strong>：nums &#x3D; [-4,-1,-1,0,1,2]，length&#x3D;6，ans&#x3D;[]；</li>
+<li><strong>i&#x3D;0（nums[i]&#x3D;-4）</strong>：<ul>
+<li>无去重，剪枝1：-4+(-1)+(-1)&#x3D;-6&lt;0，剪枝2：-4+1+2&#x3D;-1&lt;0 → continue；</li>
+</ul>
+</li>
+<li><strong>i&#x3D;1（nums[i]&#x3D;-1）</strong>：<ul>
+<li>无去重（i&#x3D;1，nums[1]≠nums[0]），剪枝1：-1+(-1)+0&#x3D;-2&lt;0，剪枝2：-1+1+2&#x3D;2&gt;0 → 进入双指针；</li>
+<li>left&#x3D;2（-1），right&#x3D;5（2），target&#x3D;1；</li>
+<li>sum&#x3D;-1+2&#x3D;1 &#x3D;&#x3D; target → 收集[-1,-1,2]，ans&#x3D;[[-1,-1,2]]；</li>
+<li>左指针去重：nums[2]&#x3D;&#x3D;nums[3]？-1≠0 → 不执行；右指针去重：nums[5]≠nums[4] → 不执行；</li>
+<li>left&#x3D;3，right&#x3D;4；</li>
+<li>sum&#x3D;0+1&#x3D;1 &#x3D;&#x3D; target → 收集[-1,0,1]，ans&#x3D;[[-1,-1,2],[-1,0,1]]；</li>
+<li>左右指针去重均不执行，left&#x3D;4，right&#x3D;3 → 双指针循环终止；</li>
+</ul>
+</li>
+<li><strong>i&#x3D;2（nums[i]&#x3D;-1）</strong>：<ul>
+<li>去重：i&gt;0且nums[2]&#x3D;&#x3D;nums[1] → continue；</li>
+</ul>
+</li>
+<li><strong>i&#x3D;3（nums[i]&#x3D;0）</strong>：<ul>
+<li>剪枝1：0+1+2&#x3D;3&gt;0 → break，整个固定数循环终止；</li>
+</ul>
+</li>
+<li><strong>返回结果</strong>：[[-1,-1,2],[-1,0,1]]，与示例一致。</li>
+</ol>
+<h2 id="6、扩展思考"><a href="#6、扩展思考" class="headerlink" title="6、扩展思考"></a>6、扩展思考</h2><h3 id="6-1-暴力解法的局限性"><a href="#6-1-暴力解法的局限性" class="headerlink" title="6.1 暴力解法的局限性"></a>6.1 暴力解法的局限性</h3><p>暴力解法通过三层循环枚举所有<code>i&lt;j&lt;k</code>的组合，判断和为0并收集，最后去重，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 暴力解法（超时+去重复杂，仅作对比）</span></span><br><span class="line"><span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">threeSum</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">    Set&lt;List&lt;Integer&gt;&gt; set = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;();</span><br><span class="line">    <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i+<span class="number">1</span>; j &lt; n; j++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> j+<span class="number">1</span>; k &lt; n; k++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[i]+nums[j]+nums[k]==<span class="number">0</span>) &#123;</span><br><span class="line">                    List&lt;Integer&gt; list = Arrays.asList(nums[i],nums[j],nums[k]);</span><br><span class="line">                    Collections.sort(list);</span><br><span class="line">                    set.add(list);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(set);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>时间复杂度<code>O(n³)</code>，<code>n=3000</code>时完全超时；</li>
+<li>需借助<code>HashSet</code>去重，且每次收集后需排序，额外空间和时间开销大；</li>
+<li>无任何剪枝，存在大量无效计算，工程中无实用价值。</li>
+</ul>
+<h3 id="6-2-去重的注意事项（面试易出错点）"><a href="#6-2-去重的注意事项（面试易出错点）" class="headerlink" title="6.2 去重的注意事项（面试易出错点）"></a>6.2 去重的注意事项（面试易出错点）</h3><ol>
+<li>固定数去重<strong>不能放在剪枝之后</strong>：若先剪枝再去重，会导致重复的<code>i</code>未被跳过，生成重复三元组；</li>
+<li>左右指针去重<strong>必须在找到有效三元组后</strong>：若提前去重，会跳过可能的有效组合；</li>
+<li>所有去重步骤都需加<strong>边界判断</strong>（<code>i&gt;0</code>&#x2F;<code>left&lt;right</code>），避免数组越界。</li>
+</ol>
+<h3 id="6-3-多数之和的通用思路"><a href="#6-3-多数之和的通用思路" class="headerlink" title="6.3 多数之和的通用思路"></a>6.3 多数之和的通用思路</h3><p>三数之和的<strong>排序+双指针</strong>思路可直接迁移至<strong>四数之和</strong>「Leetcode18」、五数之和等问题，通用模板为：</p>
+<ol>
+<li>对数组进行升序排序；</li>
+<li>遍历固定前<code>k-2</code>个数（三数之和固定1个，四数之和固定2个），每层都执行去重和剪枝；</li>
+<li>最后两个数用双指针遍历，寻找和为目标值的组合；</li>
+<li>收集所有不重复的组合并返回。</li>
+</ol>
+<p>该模板将<code>k</code>数之和的时间复杂度从<code>O(n^k)</code>降至<code>O(n^(k-1))</code>，是解决多数之和问题的最优思路。</p>
+<h3 id="6-4-为什么不能用哈希表解三数之和？"><a href="#6-4-为什么不能用哈希表解三数之和？" class="headerlink" title="6.4 为什么不能用哈希表解三数之和？"></a>6.4 为什么不能用哈希表解三数之和？</h3><p>哈希表可解两数之和，但解三数之和时，去重逻辑会变得异常复杂，且需要额外的哈希表存储已遍历的数，空间复杂度升至<code>O(n)</code>，同时无法进行剪枝优化，实际执行效率远低于排序+双指针解法，因此面试中不推荐使用。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>三数之和的<strong>排序+双指针</strong>解法是数组问题中的经典最优解，其核心在于<strong>将三元组问题转化为有序数组的双指针两数之和问题</strong>，并通过<strong>三层去重</strong>和<strong>两步剪枝</strong>解决本题的两大关键难点。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-015/">https://wxggo.github.io/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-015/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E7%BB%84/">数组</a><a class="post-meta__tags" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/">双指针</a></div><div class="post_share"><div class="social-share" data-image="https://t14.baidu.com/it/u=1808636192,4221427548&amp;fm=225&amp;app=113&amp;f=JPEG?w=1024&amp;h=640&amp;s=4AA43462034A4D4F484D7CDA0000C0B0" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-094/" title="Leetcode-094:二叉树的中序遍历-递归极简实现（附先序/后序/迭代写法）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/17/51b7e278b47e3782.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Leetcode-094:二叉树的中序遍历-递归极简实现（附先序/后序/迭代写法）</div></div></a></div><div class="next-post pull-right"><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-011/" title="Leetcode-011:盛最多水的容器-双指针贪心最优解"><img class="cover" src="/images/photo2024/study_java/leetcode011.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-011:盛最多水的容器-双指针贪心最优解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/09/30/leetcode/leetcode_else/study-leetcode-026/" title="Leetcode-026&amp;027：双指针法搞定数组原地修改"><img class="cover" src="/images/photo2024/study_python/python001.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-30</div><div class="title">Leetcode-026&amp;027：双指针法搞定数组原地修改</div></div></a></div><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-011/" title="Leetcode-011:盛最多水的容器-双指针贪心最优解"><img class="cover" src="/images/photo2024/study_java/leetcode011.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-011:盛最多水的容器-双指针贪心最优解</div></div></a></div><div><a href="/2025/02/25/leetcode/leetcodehot100/date2026_1/study-leetcode-001/" title="Leetcode-001:两数之和-哈希表一次遍历最优解"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-25</div><div class="title">Leetcode-001:两数之和-哈希表一次遍历最优解</div></div></a></div><div><a href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-004/" title="Leetcode-004:寻找两个有序数组的中位数-二分查找（时间O(log(min(m,n)))）"><img class="cover" src="/images/photo2024/study_java/leetcode004.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-05</div><div class="title">Leetcode-004:寻找两个有序数组的中位数-二分查找（时间O(log(min(m,n)))）</div></div></a></div><div><a href="/2026/02/03/leetcode/leetcodehot100/date2026_1/study-leetcode-019/" title="Leetcode-19:移除链表倒数第N个节点-双指针法"><img class="cover" src="https://t13.baidu.com/it/u=14984170171212616652,6173430104495768090&fm=3008&app=3011&f=JPEG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-03</div><div class="title">Leetcode-19:移除链表倒数第N个节点-双指针法</div></div></a></div><div><a href="/2026/02/03/leetcode/leetcodehot100/date2026_1/study-leetcode-042/" title="Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-03/16/2abcfae0a4bc9628.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-03</div><div class="title">Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%A2%98%E7%9B%AE"><span class="toc-text">1、题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E7%A4%BA"><span class="toc-text">提示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-text">2、分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%97%AE%E9%A2%98%E6%A0%B8%E5%BF%83"><span class="toc-text">2.1 问题核心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%8E%92%E5%BA%8F%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E4%BD%9C%E7%94%A8"><span class="toc-text">2.2 排序的三大核心作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%A0%B8%E5%BF%83%E9%9A%BE%E7%82%B91%EF%BC%9A%E4%B8%89%E5%B1%82%E5%8E%BB%E9%87%8D%E9%80%BB%E8%BE%91%EF%BC%88%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%8E%BB%E9%87%8D%EF%BC%9F%E6%80%8E%E4%B9%88%E5%8E%BB%E9%87%8D%EF%BC%9F%EF%BC%89"><span class="toc-text">2.3 核心难点1：三层去重逻辑（为什么要去重？怎么去重？）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E6%A0%B8%E5%BF%83%E9%9A%BE%E7%82%B92%EF%BC%9A%E4%B8%A4%E6%AD%A5%E5%89%AA%E6%9E%9D%E4%BC%98%E5%8C%96%EF%BC%88%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%89%AA%E6%9E%9D%EF%BC%9F%EF%BC%89"><span class="toc-text">2.4 核心难点2：两步剪枝优化（为什么能剪枝？）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-text">2.5 核心思路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%A8%8B%E5%BA%8F"><span class="toc-text">3、程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="toc-text">3.1 完整代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%BB%A3%E7%A0%81%E6%A0%B8%E5%BF%83%E7%82%B9%E9%80%90%E8%A1%8C%E8%A7%A3%E9%87%8A"><span class="toc-text">3.2 代码核心点逐行解释</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E6%95%B0%E7%BB%84%E6%8E%92%E5%BA%8F"><span class="toc-text">（1）数组排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%9B%BA%E5%AE%9A%E6%95%B0%E5%8E%BB%E9%87%8D"><span class="toc-text">（2）固定数去重</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E4%B8%A4%E6%AD%A5%E5%89%AA%E6%9E%9D%E4%BC%98%E5%8C%96"><span class="toc-text">（3）两步剪枝优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E5%8F%8C%E6%8C%87%E9%92%88%E4%B8%8E%E7%9B%AE%E6%A0%87%E5%80%BC%E5%AE%9A%E4%B9%89"><span class="toc-text">（4）双指针与目标值定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E6%89%BE%E5%88%B0%E6%9C%89%E6%95%88%E4%B8%89%E5%85%83%E7%BB%84%E5%90%8E%E7%9A%84%E5%8E%BB%E9%87%8D%E4%B8%8E%E6%8C%87%E9%92%88%E7%A7%BB%E5%8A%A8"><span class="toc-text">（5）找到有效三元组后的去重与指针移动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E4%B8%89%E5%85%83%E7%BB%84%E6%94%B6%E9%9B%86"><span class="toc-text">（6）三元组收集</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%AE%97%E6%B3%95%E6%80%A7%E8%83%BD"><span class="toc-text">4、算法性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%B5%8B%E8%AF%95%E7%A4%BA%E4%BE%8B"><span class="toc-text">5、测试示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="toc-text">6、扩展思考</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%9A%B4%E5%8A%9B%E8%A7%A3%E6%B3%95%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-text">6.1 暴力解法的局限性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%8E%BB%E9%87%8D%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%88%E9%9D%A2%E8%AF%95%E6%98%93%E5%87%BA%E9%94%99%E7%82%B9%EF%BC%89"><span class="toc-text">6.2 去重的注意事项（面试易出错点）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%A4%9A%E6%95%B0%E4%B9%8B%E5%92%8C%E7%9A%84%E9%80%9A%E7%94%A8%E6%80%9D%E8%B7%AF"><span class="toc-text">6.3 多数之和的通用思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%94%A8%E5%93%88%E5%B8%8C%E8%A1%A8%E8%A7%A3%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C%EF%BC%9F"><span class="toc-text">6.4 为什么不能用哈希表解三数之和？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</a><time datetime="2026-02-05T12:00:00.000Z" title="Created 2026-02-05 20:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）</a><time datetime="2026-02-05T11:00:00.000Z" title="Created 2026-02-05 19:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"><img src="https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"/></a><div class="content"><a class="title" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解">Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解</a><time datetime="2026-02-05T10:00:00.000Z" title="Created 2026-02-05 18:00:00">2026-02-05</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

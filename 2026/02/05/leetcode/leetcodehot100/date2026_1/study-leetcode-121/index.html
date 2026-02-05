@@ -1,0 +1,219 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解 | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解Leetcode121买卖股票的最佳时机一次遍历贪心解法，核心讲解维护历史低价与最大利润的思路，实现O(n)时间+O(1)空间最优解，代码简洁易实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解">
+<meta property="og:url" content="https://wxggo.github.io/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="详解Leetcode121买卖股票的最佳时机一次遍历贪心解法，核心讲解维护历史低价与最大利润的思路，实现O(n)时间+O(1)空间最优解，代码简洁易实现">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://t13.baidu.com/it/u=1867100605,1571826210&fm=225&app=113&f=JPEG?w=3007&h=1878&s=BD0AF6164BBEE8CC407F59FD02005038">
+<meta property="article:published_time" content="2026-02-05T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-05T10:10:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="数组">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://t13.baidu.com/it/u=1867100605,1571826210&fm=225&app=113&f=JPEG?w=3007&h=1878&s=BD0AF6164BBEE8CC407F59FD02005038"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-05 18:10:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-02-05T10:00:00.000Z" title="Created 2026-02-05 18:00:00">2026-02-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-05T10:10:00.000Z" title="Updated 2026-02-05 18:10:00">2026-02-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Java学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Leetcode-Hot100/">Leetcode Hot100</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">1.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>5mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Leetcode121是<strong>贪心算法的经典入门题</strong>，也是数组类高频基础题，题目要求仅一次买卖股票求最大利润，核心解法为<strong>一次遍历贪心策略</strong>。该解法无需复杂逻辑，仅通过两个变量维护关键状态，就能实现<code>O(n)</code>时间复杂度+O(1)空间复杂度的最优解，代码极简且易理解，是面试中本题的唯一首选写法。本文精简梳理题目要求、核心思路、代码实现及执行过程，快速掌握解题关键。</p>
+<h2 id="1、题目"><a href="#1、题目" class="headerlink" title="1、题目"></a>1、题目</h2><p>给定数组 <code>prices</code>，其中 <code>prices[i]</code> 是某支股票第 <code>i</code> 天的价格。你只能选择某一天买入股票，并在<strong>未来某一不同日子</strong>卖出，计算能获取的最大利润。若无法获取利润，返回0。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>示例1：输入：prices &#x3D; [7,1,5,3,6,4] → 输出：5<br>解释：第2天（价格1）买入，第5天（价格6）卖出，利润6-1&#x3D;5。<br>示例2：输入：prices &#x3D; [7,6,4,3,1] → 输出：0<br>解释：价格持续下跌，无利润可赚。<br>示例3：输入：prices &#x3D; [1,2] → 输出：1</p>
+<h3 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h3><ul>
+<li>1 &lt;&#x3D; prices.length &lt;&#x3D; 10^5</li>
+<li>0 &lt;&#x3D; prices[i] &lt;&#x3D; 10^4</li>
+</ul>
+<h2 id="2、核心解法：一次遍历贪心算法（最优解）"><a href="#2、核心解法：一次遍历贪心算法（最优解）" class="headerlink" title="2、核心解法：一次遍历贪心算法（最优解）"></a>2、核心解法：一次遍历贪心算法（最优解）</h2><p>本题核心逻辑是<strong>低买高卖</strong>，贪心策略体现在：遍历过程中实时维护<strong>历史最低买入价格</strong>和<strong>当前最大利润</strong>，一次线性遍历即可得到结果，无任何额外空间开销。</p>
+<h3 id="2-1-核心思路"><a href="#2-1-核心思路" class="headerlink" title="2.1 核心思路"></a>2.1 核心思路</h3><ol>
+<li>初始化两个变量：<code>min</code> 记录遍历到当前的<strong>历史最低价格</strong>（初始为第一天价格，作为初始买入基准），<code>ans</code> 记录当前能获得的<strong>最大利润</strong>（初始为0，适配无利润返回0的要求）；</li>
+<li>从第二天开始遍历价格数组（第一天仅能买入，无法卖出）：<ul>
+<li>先计算<strong>当前价格卖出的利润</strong>（当前价格 - 历史最低价格），与当前最大利润比较，更新最大利润；</li>
+<li>再将当前价格与历史最低价格比较，更新历史最低价格；<blockquote>
+<p>关键：<strong>先算利润再更新最低价格</strong>，避免出现「当天买当天卖」的无效操作，保证买入在卖出之前；</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>遍历结束后，<code>ans</code> 即为所求的最大利润。</li>
+</ol>
+<h3 id="2-2-完整代码"><a href="#2-2-完整代码" class="headerlink" title="2.2 完整代码"></a>2.2 完整代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">maxProfit</span><span class="params">(<span class="type">int</span>[] prices)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">length</span> <span class="operator">=</span> prices.length;</span><br><span class="line">        <span class="type">int</span> <span class="variable">min</span> <span class="operator">=</span> prices[<span class="number">0</span>]; <span class="comment">// 维护遍历到当前位置的历史最低价格</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">ans</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// 维护当前能获得的最大利润，初始为0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt; length; i++) &#123;</span><br><span class="line">            ans = Math.max(prices[i] - min, ans); <span class="comment">// 先更新最大利润</span></span><br><span class="line">            min = Math.min(min, prices[i]); <span class="comment">// 再更新历史最低价格</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-代码核心点说明"><a href="#2-3-代码核心点说明" class="headerlink" title="2.3 代码核心点说明"></a>2.3 代码核心点说明</h3><ol>
+<li>变量初始化：<code>min</code> 初始化为<code>prices[0]</code>，保证首次比较有合理基准；<code>ans</code> 初始化为0，无需额外判断，无利润时直接返回；</li>
+<li>循环范围：<code>i</code> 从1开始，跳过无法卖出的第一天；</li>
+<li>操作顺序：<strong>先更新利润，后更新低价</strong>是解题关键，若顺序颠倒，会导致用当天价格作为买入价计算当天利润，违反题目规则；</li>
+<li>工具方法：使用<code>Math.max</code>和<code>Math.min</code>简洁实现最值更新，替代手动if判断，让代码更简洁高效。</li>
+</ol>
+<h3 id="2-4-性能分析"><a href="#2-4-性能分析" class="headerlink" title="2.4 性能分析"></a>2.4 性能分析</h3><ul>
+<li><strong>时间复杂度</strong>：O(n)，仅对价格数组进行一次线性遍历，每个元素仅处理一次，完全适配题目<code>10^5</code>的数组长度要求，无性能瓶颈；</li>
+<li><strong>空间复杂度</strong>：O(1)，仅使用<code>length</code>、<code>min</code>、<code>ans</code>三个临时变量，无任何数组、集合等辅助空间，是最优的空间复杂度。</li>
+</ul>
+<h2 id="3、经典示例手动模拟（直观理解）"><a href="#3、经典示例手动模拟（直观理解）" class="headerlink" title="3、经典示例手动模拟（直观理解）"></a>3、经典示例手动模拟（直观理解）</h2><p>以<strong>示例1：prices &#x3D; [7,1,5,3,6,4]</strong> 为例，逐步模拟遍历过程，清晰看到<code>min</code>和<code>ans</code>的更新变化：</p>
+<ul>
+<li>初始化：length&#x3D;6，min&#x3D;7，ans&#x3D;0；</li>
+<li>i&#x3D;1（价格1）：ans &#x3D; max(1-7&#x3D;-6, 0) → 0；min &#x3D; min(7,1) → 1；</li>
+<li>i&#x3D;2（价格5）：ans &#x3D; max(5-1&#x3D;4, 0) → 4；min &#x3D; min(1,5) → 1；</li>
+<li>i&#x3D;3（价格3）：ans &#x3D; max(3-1&#x3D;2, 4) → 4；min &#x3D; min(1,3) → 1；</li>
+<li>i&#x3D;4（价格6）：ans &#x3D; max(6-1&#x3D;5, 4) → 5；min &#x3D; min(1,6) → 1；</li>
+<li>i&#x3D;5（价格4）：ans &#x3D; max(4-1&#x3D;3, 5) → 5；min &#x3D; min(1,4) → 1；</li>
+<li>遍历结束，返回ans&#x3D;5，与示例结果一致。</li>
+</ul>
+<p><strong>特殊示例模拟（示例2：prices &#x3D; [7,6,4,3,1]）</strong>：</p>
+<ul>
+<li>初始化：min&#x3D;7，ans&#x3D;0；</li>
+<li>遍历过程中，所有价格与min的差值均为负数，<code>ans</code> 始终保持0，<code>min</code> 持续更新为更低价格；</li>
+<li>最终返回0，符合题目要求。</li>
+</ul>
+<h2 id="4、边界情况天然适配"><a href="#4、边界情况天然适配" class="headerlink" title="4、边界情况天然适配"></a>4、边界情况天然适配</h2><p>本解法无需额外添加判空或边界处理代码，天然兼容所有题目边界场景：</p>
+<ol>
+<li><strong>数组长度为1</strong>：如prices&#x3D;[5]，循环不执行，直接返回ans&#x3D;0，正确；</li>
+<li><strong>价格持续上涨</strong>：如prices&#x3D;[1,2,3,4,5]，遍历后ans&#x3D;4（5-1），正确；</li>
+<li><strong>价格包含0</strong>：如prices&#x3D;[0,5,3,8]，ans&#x3D;8（8-0），正确；</li>
+<li><strong>价格先跌后涨再跌</strong>：如prices&#x3D;[5,3,8,2,9]，ans&#x3D;7（9-2），正确。</li>
+</ol>
+<h2 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h2><p>本题是贪心算法的入门经典，核心解法的关键总结如下：</p>
+<ol>
+<li>核心思想：<strong>低买高卖</strong>，通过遍历实时维护<code>历史最低价格</code>和<code>当前最大利润</code>，以局部最优操作实现全局最优解；</li>
+<li>代码关键：<strong>先计算利润再更新最低价格</strong>，避免当天买卖的无效操作，这是本题的解题细节；</li>
+<li>性能最优：一次线性遍历实现O(n)时间复杂度，常数变量实现O(1)空间复杂度，适配大数据量要求；</li>
+<li>拓展性：该贪心思路是股票系列问题的基础，后续可拓展至多次买卖、含冷冻期等复杂股票问题的解题框架。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/">https://wxggo.github.io/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E7%BB%84/">数组</a></div><div class="post_share"><div class="social-share" data-image="https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"><img class="cover" src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）</div></div></a></div><div class="next-post pull-right"><a href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-136/" title="Leetcode-136:只出现一次的数字-异或最优解&amp;哈希基础解"><img class="cover" src="https://gips0.baidu.com/it/u=3368623684,3944604012&amp;fm=3066&amp;app=3066&amp;f=JPEG?w=500&amp;h=281" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-136:只出现一次的数字-异或最优解&amp;哈希基础解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/09/30/leetcode/leetcode_else/study-leetcode-026/" title="Leetcode-026&amp;027：双指针法搞定数组原地修改"><img class="cover" src="/images/photo2024/study_python/python001.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-30</div><div class="title">Leetcode-026&amp;027：双指针法搞定数组原地修改</div></div></a></div><div><a href="/2025/02/25/leetcode/leetcodehot100/date2026_1/study-leetcode-001/" title="Leetcode-001:两数之和-哈希表一次遍历最优解"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-25</div><div class="title">Leetcode-001:两数之和-哈希表一次遍历最优解</div></div></a></div><div><a href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-004/" title="Leetcode-004:寻找两个有序数组的中位数-二分查找（时间O(log(min(m,n)))）"><img class="cover" src="/images/photo2024/study_java/leetcode004.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-05</div><div class="title">Leetcode-004:寻找两个有序数组的中位数-二分查找（时间O(log(min(m,n)))）</div></div></a></div><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-011/" title="Leetcode-011:盛最多水的容器-双指针贪心最优解"><img class="cover" src="/images/photo2024/study_java/leetcode011.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-011:盛最多水的容器-双指针贪心最优解</div></div></a></div><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-015/" title="Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）"><img class="cover" src="https://t14.baidu.com/it/u=1808636192,4221427548&fm=225&app=113&f=JPEG?w=1024&h=640&s=4AA43462034A4D4F484D7CDA0000C0B0" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-015:三数之和-排序+双指针最优解（含去重+剪枝）</div></div></a></div><div><a href="/2026/02/03/leetcode/leetcodehot100/date2026_1/study-leetcode-042/" title="Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-03/16/2abcfae0a4bc9628.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-03</div><div class="title">Leetcode-042:接雨水-前后缀最大值预处理经典解法（双数组版）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%A2%98%E7%9B%AE"><span class="toc-text">1、题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E7%A4%BA"><span class="toc-text">提示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%A0%B8%E5%BF%83%E8%A7%A3%E6%B3%95%EF%BC%9A%E4%B8%80%E6%AC%A1%E9%81%8D%E5%8E%86%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95%EF%BC%88%E6%9C%80%E4%BC%98%E8%A7%A3%EF%BC%89"><span class="toc-text">2、核心解法：一次遍历贪心算法（最优解）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-text">2.1 核心思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="toc-text">2.2 完整代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%BB%A3%E7%A0%81%E6%A0%B8%E5%BF%83%E7%82%B9%E8%AF%B4%E6%98%8E"><span class="toc-text">2.3 代码核心点说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-text">2.4 性能分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%BB%8F%E5%85%B8%E7%A4%BA%E4%BE%8B%E6%89%8B%E5%8A%A8%E6%A8%A1%E6%8B%9F%EF%BC%88%E7%9B%B4%E8%A7%82%E7%90%86%E8%A7%A3%EF%BC%89"><span class="toc-text">3、经典示例手动模拟（直观理解）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E8%BE%B9%E7%95%8C%E6%83%85%E5%86%B5%E5%A4%A9%E7%84%B6%E9%80%82%E9%85%8D"><span class="toc-text">4、边界情况天然适配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">5、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/https/https%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C06_http3/" title="Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）">Interview-计算机网络06：HTTPS之RSA密钥交换与TLS握手解析（面试核心）</a><time datetime="2026-02-05T12:00:00.000Z" title="Created 2026-02-05 20:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"><img src="https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost4@main/%E7%BD%91%E7%BB%9C/http1.1%E4%BC%98%E5%8C%96/%E4%BC%98%E5%8C%96http1.1%E6%8F%90%E7%BA%B2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）"/></a><div class="content"><a class="title" href="/2026/02/05/interview/computer_network/study-interview-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C05_http2/" title="Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）">Interview-计算机网络05：HTTP性能优化面试八股文解析（网络/协议/应用层）</a><time datetime="2026-02-05T11:00:00.000Z" title="Created 2026-02-05 19:00:00">2026-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"><img src="https://t13.baidu.com/it/u=1867100605,1571826210&amp;fm=225&amp;app=113&amp;f=JPEG?w=3007&amp;h=1878&amp;s=BD0AF6164BBEE8CC407F59FD02005038" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解"/></a><div class="content"><a class="title" href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-121/" title="Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解">Leetcode-121:买卖股票的最佳时机-一次遍历贪心最优解</a><time datetime="2026-02-05T10:00:00.000Z" title="Created 2026-02-05 18:00:00">2026-02-05</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
