@@ -1,0 +1,316 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode-617:合并二叉树-递归经典解法（基础最优版） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解Leetcode合并二叉树的递归解法，核心剖析递归终止条件与树节点合并逻辑，手把手拆解代码优化思路，是理解树结构操作类问题的基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode-617:合并二叉树-递归经典解法（基础最优版）">
+<meta property="og:url" content="https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="详解Leetcode合并二叉树的递归解法，核心剖析递归终止条件与树节点合并逻辑，手把手拆解代码优化思路，是理解树结构操作类问题的基础">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/22/c9a90bf6008eac99.jpg">
+<meta property="article:published_time" content="2026-03-01T14:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T14:00:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="递归">
+<meta property="article:tag" content="二叉树">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/22/c9a90bf6008eac99.jpg"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode-617:合并二叉树-递归经典解法（基础最优版）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-01 22:00:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/22/c9a90bf6008eac99.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode-617:合并二叉树-递归经典解法（基础最优版）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-03-01T14:00:00.000Z" title="Created 2026-03-01 22:00:00">2026-03-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-01T14:00:00.000Z" title="Updated 2026-03-01 22:00:00">2026-03-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Java学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Leetcode-Hot100/">Leetcode Hot100</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">2.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>10mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode-617:合并二叉树-递归经典解法（基础最优版）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>合并二叉树是Leetcode树模块的<strong>经典高频题</strong>，也是面试中考察「递归思想+树结构操作」的核心题目之一。本题的核心难点在于<strong>如何处理两个二叉树节点的存在性差异</strong>，并通过递归完成节点值合并与子树的逐层合并。其中「递归解法」是<strong>最直观、最易理解的基础最优解</strong>，该解法通过分解子问题（合并左子树、合并右子树），结合递归终止条件，实现二叉树的高效合并。</p>
+<h2 id="1、题目"><a href="#1、题目" class="headerlink" title="1、题目"></a>1、题目</h2><p>给定两个二叉树，想象当你将其中一个覆盖到另一个上时，两个二叉树的一些节点便会重叠。你需要将它们合并为一个新的二叉树。合并的规则是：如果两个节点重叠，那么将它们的值相加作为合并后节点的新值；否则，不为 null 的节点将直接作为新二叉树的节点。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>示例 1：<br>输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Tree 1                     Tree 2                  </span><br><span class="line">    1                         2                             </span><br><span class="line">   / \                       / \                            </span><br><span class="line">  3   2                     1   3                        </span><br><span class="line"> /                           \   \                      </span><br><span class="line">5                             4   7                  </span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">合并后的树:</span><br><span class="line">     3</span><br><span class="line">    / \</span><br><span class="line">   4   5</span><br><span class="line">  / \   \ </span><br><span class="line"> 5   4   7</span><br></pre></td></tr></table></figure>
+<p>解释：重叠节点值相加（1+2&#x3D;3、3+1&#x3D;4、2+3&#x3D;5），非重叠节点直接保留（5、4、7）。</p>
+<p>示例 2：<br>输入：root1 &#x3D; [], root2 &#x3D; [1]<br>输出：[1]<br>解释：空树与非空树合并，直接返回非空树。</p>
+<p>示例 3：<br>输入：root1 &#x3D; [1], root2 &#x3D; []<br>输出：[1]<br>解释：非空树与空树合并，直接返回非空树。</p>
+<h3 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h3><ul>
+<li>两棵树中的节点数目在范围 [0, 2000] 内</li>
+<li>-10^4 &lt;&#x3D; Node.val &lt;&#x3D; 10^4</li>
+</ul>
+<h2 id="2、分析"><a href="#2、分析" class="headerlink" title="2、分析"></a>2、分析</h2><h3 id="2-1-问题核心：如何定义二叉树的合并规则？"><a href="#2-1-问题核心：如何定义二叉树的合并规则？" class="headerlink" title="2.1 问题核心：如何定义二叉树的合并规则？"></a>2.1 问题核心：如何定义二叉树的合并规则？</h3><p>合并二叉树的本质是「逐节点处理，按规则生成新节点」，核心规则可拆解为：</p>
+<ol>
+<li>若节点A为空、节点B非空 → 合并结果为节点B；</li>
+<li>若节点A非空、节点B为空 → 合并结果为节点A；</li>
+<li>若节点A和B均非空 → 合并结果为“值为A.val+B.val，左子树为A左子树与B左子树合并结果，右子树为A右子树与B右子树合并结果”的节点。</li>
+</ol>
+<p>这一规则天然适配「递归分解子问题」的思路——合并整棵树 &#x3D; 合并当前节点 + 合并左子树 + 合并右子树。</p>
+<h3 id="2-2-核心难点：如何处理节点存在性差异？"><a href="#2-2-核心难点：如何处理节点存在性差异？" class="headerlink" title="2.2 核心难点：如何处理节点存在性差异？"></a>2.2 核心难点：如何处理节点存在性差异？</h3><p>暴力解法的思路是先遍历两棵树收集所有节点值，再重新构建合并后的树，但该方法需要额外的空间存储节点信息，且无法利用树的递归结构。</p>
+<p><strong>递归解法</strong>是解决该难点的最优思路：</p>
+<ol>
+<li>以递归终止条件处理节点存在性差异（任一节点为空则直接返回另一节点）；</li>
+<li>以递归调用处理子树合并（当前节点值相加后，递归合并左&#x2F;右子树）；</li>
+<li>整体时间复杂度优化至O(min(m,n))（m、n为两棵树的节点数，仅遍历存在的节点）。</li>
+</ol>
+<h3 id="2-3-核心解题思路"><a href="#2-3-核心解题思路" class="headerlink" title="2.3 核心解题思路"></a>2.3 核心解题思路</h3><ol>
+<li><strong>递归终止条件</strong>：若root1为空则返回root2，若root2为空则返回root1；</li>
+<li><strong>处理当前节点</strong>：若两个节点均非空，将root1的节点值更新为两节点值之和（原地合并，节省空间）；</li>
+<li><strong>递归处理子树</strong>：递归合并root1的左子树与root2的左子树，结果赋值给root1.left；递归合并root1的右子树与root2的右子树，结果赋值给root1.right；</li>
+<li><strong>返回结果</strong>：返回处理后的root1（合并后的根节点）。</li>
+</ol>
+<h2 id="3、程序：递归实现合并二叉树"><a href="#3、程序：递归实现合并二叉树" class="headerlink" title="3、程序：递归实现合并二叉树"></a>3、程序：递归实现合并二叉树</h2><h3 id="3-1-完整代码"><a href="#3-1-完整代码" class="headerlink" title="3.1 完整代码"></a>3.1 完整代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val, TreeNode left, TreeNode right) &#123;</span></span><br><span class="line"><span class="comment"> *         this.val = val;</span></span><br><span class="line"><span class="comment"> *         this.left = left;</span></span><br><span class="line"><span class="comment"> *         this.right = right;</span></span><br><span class="line"><span class="comment"> *     &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">mergeTrees</span><span class="params">(TreeNode root1, TreeNode root2)</span> &#123;</span><br><span class="line">        <span class="comment">// 递归终止条件1：root1为空，直接返回root2</span></span><br><span class="line">        <span class="keyword">if</span> (root1 == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> root2;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 递归终止条件2：root2为空，直接返回root1</span></span><br><span class="line">        <span class="keyword">if</span> (root2 == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> root1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 合并当前节点值（原地合并，无需新建节点）</span></span><br><span class="line">        root1.val += root2.val;</span><br><span class="line">        <span class="comment">// 递归合并左子树，结果赋值给root1的左子节点</span></span><br><span class="line">        root1.left = mergeTrees(root1.left, root2.left);</span><br><span class="line">        <span class="comment">// 递归合并右子树，结果赋值给root1的右子节点</span></span><br><span class="line">        root1.right = mergeTrees(root1.right, root2.right);</span><br><span class="line">        <span class="comment">// 返回合并后的当前节点</span></span><br><span class="line">        <span class="keyword">return</span> root1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-代码核心点逐行解释"><a href="#3-2-代码核心点逐行解释" class="headerlink" title="3.2 代码核心点逐行解释"></a>3.2 代码核心点逐行解释</h3><h4 id="（1）递归终止条件"><a href="#（1）递归终止条件" class="headerlink" title="（1）递归终止条件"></a>（1）递归终止条件</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (root1 == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> root2;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (root2 == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> root1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>核心逻辑：覆盖所有节点存在性差异的场景，避免空指针异常；</li>
+<li>价值：无需额外判断子节点是否为空，递归会自然处理所有边界情况（如单侧子树为空）。</li>
+</ul>
+<h4 id="（2）当前节点值合并"><a href="#（2）当前节点值合并" class="headerlink" title="（2）当前节点值合并"></a>（2）当前节点值合并</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root1.val += root2.val;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>原地合并优化：直接修改root1的节点值，而非新建TreeNode对象，节省O(min(m,n))的空间开销；</li>
+<li>逻辑合理性：两个节点均非空时，按规则合并值，是整棵树合并的基础。</li>
+</ul>
+<h4 id="（3）递归合并子树"><a href="#（3）递归合并子树" class="headerlink" title="（3）递归合并子树"></a>（3）递归合并子树</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root1.left = mergeTrees(root1.left, root2.left);</span><br><span class="line">root1.right = mergeTrees(root1.right, root2.right);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>子问题分解：将“合并整棵树”拆解为“合并左子树”和“合并右子树”两个子问题，符合递归的核心思想；</li>
+<li>赋值逻辑：将子树合并的结果赋值给当前节点的左&#x2F;右子节点，完成整棵树的逐层合并。</li>
+</ul>
+<h4 id="（4）返回合并结果"><a href="#（4）返回合并结果" class="headerlink" title="（4）返回合并结果"></a>（4）返回合并结果</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> root1;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>核心逻辑：当前节点处理完成后，返回该节点作为上层递归的子树合并结果；</li>
+<li>最终结果：递归到根节点时，返回的root1即为合并后的完整二叉树根节点。</li>
+</ul>
+<h2 id="4、算法性能分析"><a href="#4、算法性能分析" class="headerlink" title="4、算法性能分析"></a>4、算法性能分析</h2><p>本解法是合并二叉树的<strong>基础最优解</strong>，兼顾效率和理解性，完全适配题目输入规模。</p>
+<h3 id="4-1-时间复杂度：O-min-m-n"><a href="#4-1-时间复杂度：O-min-m-n" class="headerlink" title="4.1 时间复杂度：O(min(m, n))"></a>4.1 时间复杂度：O(min(m, n))</h3><ul>
+<li><code>m</code>：第一棵树的节点数；</li>
+<li><code>n</code>：第二棵树的节点数；</li>
+<li>核心耗时：仅遍历两棵树中「重叠部分+非重叠的剩余部分」的节点，每个节点仅处理一次，总遍历次数为min(m,n)；</li>
+<li>适配性：面对2000个节点的输入规模，O(min(m,n))的时间复杂度无超时风险。</li>
+</ul>
+<h3 id="4-2-空间复杂度：O-min-m-n"><a href="#4-2-空间复杂度：O-min-m-n" class="headerlink" title="4.2 空间复杂度：O(min(m, n))"></a>4.2 空间复杂度：O(min(m, n))</h3><ul>
+<li>空间开销主要来自：递归调用栈的深度（等于树的高度）；</li>
+<li>最坏情况：树为链式结构（如所有节点只有左子树），栈深度为min(m,n)；</li>
+<li>最优情况：树为完全二叉树，栈深度为log(min(m,n))；</li>
+<li>优化点：原地合并避免了新建节点的空间开销，是基础解法的最优空间复杂度。</li>
+</ul>
+<h3 id="4-3-核心优势"><a href="#4-3-核心优势" class="headerlink" title="4.3 核心优势"></a>4.3 核心优势</h3><ol>
+<li><strong>逻辑直观</strong>：完全贴合二叉树的递归定义，合并规则与递归分解思路高度契合；</li>
+<li><strong>代码简洁</strong>：核心逻辑仅10行左右，无冗余判断，面试书写效率高；</li>
+<li><strong>空间高效</strong>：原地合并策略节省额外节点空间，空间复杂度最优；</li>
+<li><strong>兼容性强</strong>：天然适配所有边界场景（空树、单侧子树为空、链式树）；</li>
+<li><strong>扩展性强</strong>：是理解迭代解法的基础，掌握后可快速迁移至非递归实现。</li>
+</ol>
+<h2 id="5、经典示例手动模拟（直观理解）"><a href="#5、经典示例手动模拟（直观理解）" class="headerlink" title="5、经典示例手动模拟（直观理解）"></a>5、经典示例手动模拟（直观理解）</h2><p>以<strong>示例1</strong>为例，手动模拟代码执行过程（核心步骤）：</p>
+<h3 id="5-1-初始化"><a href="#5-1-初始化" class="headerlink" title="5.1 初始化"></a>5.1 初始化</h3><p>root1为树1的根节点（val&#x3D;1），root2为树2的根节点（val&#x3D;2）。</p>
+<h3 id="5-2-递归执行流程"><a href="#5-2-递归执行流程" class="headerlink" title="5.2 递归执行流程"></a>5.2 递归执行流程</h3><table>
+<thead>
+<tr>
+<th>递归层级</th>
+<th>处理节点</th>
+<th>操作</th>
+<th>递归调用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1（根）</td>
+<td>root1(1)、root2(2)</td>
+<td>root1.val &#x3D; 1+2&#x3D;3</td>
+<td>调用mergeTrees(左1, 左2)、mergeTrees(右1, 右2)</td>
+</tr>
+<tr>
+<td>2（左）</td>
+<td>左1(3)、左2(1)</td>
+<td>root1.val &#x3D; 3+1&#x3D;4</td>
+<td>调用mergeTrees(左1的左, 左2的左)、mergeTrees(左1的右, 左2的右)</td>
+</tr>
+<tr>
+<td>3（左左）</td>
+<td>左1的左(5)、左2的左(null)</td>
+<td>触发终止条件，返回5</td>
+<td>无（叶子节点）</td>
+</tr>
+<tr>
+<td>3（左右）</td>
+<td>左1的右(null)、左2的右(4)</td>
+<td>触发终止条件，返回4</td>
+<td>无（叶子节点）</td>
+</tr>
+<tr>
+<td>2（右）</td>
+<td>右1(2)、右2(3)</td>
+<td>root1.val &#x3D; 2+3&#x3D;5</td>
+<td>调用mergeTrees(右1的左, 右2的左)、mergeTrees(右1的右, 右2的右)</td>
+</tr>
+<tr>
+<td>3（右左）</td>
+<td>右1的左(null)、右2的左(null)</td>
+<td>触发终止条件，返回null</td>
+<td>无</td>
+</tr>
+<tr>
+<td>3（右右）</td>
+<td>右1的右(null)、右2的右(7)</td>
+<td>触发终止条件，返回7</td>
+<td>无（叶子节点）</td>
+</tr>
+</tbody></table>
+<h3 id="5-3-最终结果"><a href="#5-3-最终结果" class="headerlink" title="5.3 最终结果"></a>5.3 最终结果</h3><p>递归回溯后，root1的结构变为示例1的合并树，返回该节点即为最终结果。</p>
+<h2 id="6、拓展思考（面试高频考点）"><a href="#6、拓展思考（面试高频考点）" class="headerlink" title="6、拓展思考（面试高频考点）"></a>6、拓展思考（面试高频考点）</h2><h3 id="6-1-边界情况天然适配"><a href="#6-1-边界情况天然适配" class="headerlink" title="6.1 边界情况天然适配"></a>6.1 边界情况天然适配</h3><p>本解法无需额外处理各类边界场景，代码天然兼容：</p>
+<ol>
+<li><strong>空树合并</strong>：如root1为空、root2非空，直接返回root2；反之同理；</li>
+<li><strong>单节点树合并</strong>：如root1&#x3D;[1]、root2&#x3D;[2]，合并后为[3]；</li>
+<li><strong>单侧子树为空</strong>：如root1左子树为空、root2左子树非空，直接将root2左子树赋值给root1左子树；</li>
+<li><strong>链式树合并</strong>：如两棵树均为链式结构，递归会逐层处理每个节点，无异常。</li>
+</ol>
+<h3 id="6-2-面试高频追问：非递归（迭代）解法"><a href="#6-2-面试高频追问：非递归（迭代）解法" class="headerlink" title="6.2 面试高频追问：非递归（迭代）解法"></a>6.2 面试高频追问：非递归（迭代）解法</h3><p>递归解法的核心是利用栈&#x2F;队列模拟递归调用栈，核心思路如下：</p>
+<h4 id="简洁代码实现"><a href="#简洁代码实现" class="headerlink" title="简洁代码实现"></a>简洁代码实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> TreeNode <span class="title function_">mergeTrees</span><span class="params">(TreeNode root1, TreeNode root2)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (root1 == <span class="literal">null</span>) <span class="keyword">return</span> root2;</span><br><span class="line">    <span class="keyword">if</span> (root2 == <span class="literal">null</span>) <span class="keyword">return</span> root1;</span><br><span class="line">    <span class="comment">// 用队列存储待合并的节点对</span></span><br><span class="line">    Queue&lt;TreeNode[]&gt; queue = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">    queue.offer(<span class="keyword">new</span> <span class="title class_">TreeNode</span>[]&#123;root1, root2&#125;);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">        TreeNode[] nodes = queue.poll();</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">n1</span> <span class="operator">=</span> nodes[<span class="number">0</span>], n2 = nodes[<span class="number">1</span>];</span><br><span class="line">        <span class="comment">// 合并当前节点值</span></span><br><span class="line">        n1.val += n2.val;</span><br><span class="line">        <span class="comment">// 处理左子节点</span></span><br><span class="line">        <span class="keyword">if</span> (n1.left != <span class="literal">null</span> &amp;&amp; n2.left != <span class="literal">null</span>) &#123;</span><br><span class="line">            queue.offer(<span class="keyword">new</span> <span class="title class_">TreeNode</span>[]&#123;n1.left, n2.left&#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (n1.left == <span class="literal">null</span>) &#123;</span><br><span class="line">            n1.left = n2.left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 处理右子节点</span></span><br><span class="line">        <span class="keyword">if</span> (n1.right != <span class="literal">null</span> &amp;&amp; n2.right != <span class="literal">null</span>) &#123;</span><br><span class="line">            queue.offer(<span class="keyword">new</span> <span class="title class_">TreeNode</span>[]&#123;n1.right, n2.right&#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (n1.right == <span class="literal">null</span>) &#123;</span><br><span class="line">            n1.right = n2.right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> root1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="迭代解法价值"><a href="#迭代解法价值" class="headerlink" title="迭代解法价值"></a>迭代解法价值</h4><ul>
+<li>时间复杂度：仍为O(min(m,n))，与递归解法一致；</li>
+<li>空间复杂度：最优为O(min(m,n))（队列存储节点对），避免递归栈的深度限制（如极深的链式树）；</li>
+<li>适用场景：面试中考察对递归与迭代转换的理解，是进阶考点。</li>
+</ul>
+<h3 id="6-3-进阶问题：非原地合并（新建树）"><a href="#6-3-进阶问题：非原地合并（新建树）" class="headerlink" title="6.3 进阶问题：非原地合并（新建树）"></a>6.3 进阶问题：非原地合并（新建树）</h3><p>若题目要求不修改原树结构，只需将“原地修改root1”改为“新建TreeNode”：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">mergeTrees</span><span class="params">(TreeNode root1, TreeNode root2)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (root1 == <span class="literal">null</span>) <span class="keyword">return</span> root2;</span><br><span class="line">        <span class="keyword">if</span> (root2 == <span class="literal">null</span>) <span class="keyword">return</span> root1;</span><br><span class="line">        <span class="comment">// 新建节点存储合并后的值</span></span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeNode</span>(root1.val + root2.val);</span><br><span class="line">        node.left = mergeTrees(root1.left, root2.left);</span><br><span class="line">        node.right = mergeTrees(root1.right, root2.right);</span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h4><ul>
+<li>优点：不修改输入的两棵树，符合“无副作用”的编程规范；</li>
+<li>缺点：额外占用O(min(m,n))的空间存储新节点，空间复杂度略高于原地合并。</li>
+</ul>
+<h2 id="7、总结"><a href="#7、总结" class="headerlink" title="7、总结"></a>7、总结</h2><p>合并二叉树的<strong>递归解法</strong>是本题的<strong>基础最优解</strong>，也是理解树结构操作类问题的核心，本文核心总结如下：</p>
+<ol>
+<li>二叉树合并的核心规则是“值相加、空节点替换”，递归终止条件完美覆盖节点存在性差异；</li>
+<li>递归的核心价值是将“整棵树合并”拆解为“节点合并+子树合并”，符合树的递归定义；</li>
+<li>核心代码需牢记：终止条件→合并当前节点值→递归合并子树→返回结果；</li>
+<li>面试中可通过“迭代解法”展示对递归的深层理解，通过“非原地合并”适配不同题目要求；</li>
+<li>解法具备强扩展性，可适配空树、链式树、非原地合并等拓展场景。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/">https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E9%80%92%E5%BD%92/">递归</a><a class="post-meta__tags" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a></div><div class="post_share"><div class="social-share" data-image="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/22/c9a90bf6008eac99.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-543/" title="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/21/7a9e2f8d82269d01.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-094/" title="Leetcode-094:二叉树的中序遍历-递归极简实现（附先序&#x2F;后序&#x2F;迭代写法）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/17/51b7e278b47e3782.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-094:二叉树的中序遍历-递归极简实现（附先序&#x2F;后序&#x2F;迭代写法）</div></div></a></div><div><a href="/2026/02/06/leetcode/leetcodehot100/date2026_1/study-leetcode-101/" title="Leetcode-101:对称二叉树-递归法极简实现"><img class="cover" src="/images/photo2024/study_java/leetcode101.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-06</div><div class="title">Leetcode-101:对称二叉树-递归法极简实现</div></div></a></div><div><a href="/2026/02/06/leetcode/leetcodehot100/date2026_1/study-leetcode-104/" title="Leetcode-104:二叉树的最大深度-递归法极简实现"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-06/17/b7cf04bdb604e246.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-06</div><div class="title">Leetcode-104:二叉树的最大深度-递归法极简实现</div></div></a></div><div><a href="/2025/11/15/leetcode/leetcodehot100/date2026_1/study-leetcode-226/" title="Leetcode-226:翻转二叉树-递归后序遍历法（经典二叉树操作）"><img class="cover" src="/images/photo2024/study_java/leetcode226.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-15</div><div class="title">Leetcode-226:翻转二叉树-递归后序遍历法（经典二叉树操作）</div></div></a></div><div><a href="/2026/01/31/leetcode/leetcodehot100/date2026_1/study-leetcode-236/" title="Leetcode-236:二叉树的最近公共祖先-递归后序遍历法"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-31</div><div class="title">Leetcode-236:二叉树的最近公共祖先-递归后序遍历法</div></div></a></div><div><a href="/2026/02/04/leetcode/leetcodehot100/date2026_1/study-leetcode-002/" title="Leetcode-002:两数相加-链表版（迭代+递归双解法）"><img class="cover" src="/images/photo2024/study_java/leetcode002.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-04</div><div class="title">Leetcode-002:两数相加-链表版（迭代+递归双解法）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%A2%98%E7%9B%AE"><span class="toc-text">1、题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E7%A4%BA"><span class="toc-text">提示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-text">2、分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%97%AE%E9%A2%98%E6%A0%B8%E5%BF%83%EF%BC%9A%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%90%88%E5%B9%B6%E8%A7%84%E5%88%99%EF%BC%9F"><span class="toc-text">2.1 问题核心：如何定义二叉树的合并规则？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%A0%B8%E5%BF%83%E9%9A%BE%E7%82%B9%EF%BC%9A%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E8%8A%82%E7%82%B9%E5%AD%98%E5%9C%A8%E6%80%A7%E5%B7%AE%E5%BC%82%EF%BC%9F"><span class="toc-text">2.2 核心难点：如何处理节点存在性差异？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%A0%B8%E5%BF%83%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-text">2.3 核心解题思路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%A8%8B%E5%BA%8F%EF%BC%9A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0%E5%90%88%E5%B9%B6%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-text">3、程序：递归实现合并二叉树</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="toc-text">3.1 完整代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%BB%A3%E7%A0%81%E6%A0%B8%E5%BF%83%E7%82%B9%E9%80%90%E8%A1%8C%E8%A7%A3%E9%87%8A"><span class="toc-text">3.2 代码核心点逐行解释</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E9%80%92%E5%BD%92%E7%BB%88%E6%AD%A2%E6%9D%A1%E4%BB%B6"><span class="toc-text">（1）递归终止条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%BD%93%E5%89%8D%E8%8A%82%E7%82%B9%E5%80%BC%E5%90%88%E5%B9%B6"><span class="toc-text">（2）当前节点值合并</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E9%80%92%E5%BD%92%E5%90%88%E5%B9%B6%E5%AD%90%E6%A0%91"><span class="toc-text">（3）递归合并子树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E8%BF%94%E5%9B%9E%E5%90%88%E5%B9%B6%E7%BB%93%E6%9E%9C"><span class="toc-text">（4）返回合并结果</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%AE%97%E6%B3%95%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-text">4、算法性能分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9AO-min-m-n"><span class="toc-text">4.1 时间复杂度：O(min(m, n))</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9AO-min-m-n"><span class="toc-text">4.2 空间复杂度：O(min(m, n))</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="toc-text">4.3 核心优势</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E7%BB%8F%E5%85%B8%E7%A4%BA%E4%BE%8B%E6%89%8B%E5%8A%A8%E6%A8%A1%E6%8B%9F%EF%BC%88%E7%9B%B4%E8%A7%82%E7%90%86%E8%A7%A3%EF%BC%89"><span class="toc-text">5、经典示例手动模拟（直观理解）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">5.1 初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E9%80%92%E5%BD%92%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">5.2 递归执行流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%9C%80%E7%BB%88%E7%BB%93%E6%9E%9C"><span class="toc-text">5.3 最终结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%8B%93%E5%B1%95%E6%80%9D%E8%80%83%EF%BC%88%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%EF%BC%89"><span class="toc-text">6、拓展思考（面试高频考点）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E8%BE%B9%E7%95%8C%E6%83%85%E5%86%B5%E5%A4%A9%E7%84%B6%E9%80%82%E9%85%8D"><span class="toc-text">6.1 边界情况天然适配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%BF%BD%E9%97%AE%EF%BC%9A%E9%9D%9E%E9%80%92%E5%BD%92%EF%BC%88%E8%BF%AD%E4%BB%A3%EF%BC%89%E8%A7%A3%E6%B3%95"><span class="toc-text">6.2 面试高频追问：非递归（迭代）解法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E6%B4%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-text">简洁代码实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%AD%E4%BB%A3%E8%A7%A3%E6%B3%95%E4%BB%B7%E5%80%BC"><span class="toc-text">迭代解法价值</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E8%BF%9B%E9%98%B6%E9%97%AE%E9%A2%98%EF%BC%9A%E9%9D%9E%E5%8E%9F%E5%9C%B0%E5%90%88%E5%B9%B6%EF%BC%88%E6%96%B0%E5%BB%BA%E6%A0%91%EF%BC%89"><span class="toc-text">6.3 进阶问题：非原地合并（新建树）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-text">优缺点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">7、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/" title="Leetcode-617:合并二叉树-递归经典解法（基础最优版）"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/22/c9a90bf6008eac99.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-617:合并二叉树-递归经典解法（基础最优版）"/></a><div class="content"><a class="title" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/" title="Leetcode-617:合并二叉树-递归经典解法（基础最优版）">Leetcode-617:合并二叉树-递归经典解法（基础最优版）</a><time datetime="2026-03-01T14:00:00.000Z" title="Created 2026-03-01 22:00:00">2026-03-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-543/" title="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/21/7a9e2f8d82269d01.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法"/></a><div class="content"><a class="title" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-543/" title="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法">Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法</a><time datetime="2026-03-01T13:30:00.000Z" title="Created 2026-03-01 21:30:00">2026-03-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-461/" title="Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）"><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/10/16aa00d989422edd~tplv-t2oaga2asx-zoom-crop-mark:1956:1956:1956:1101.image" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）"/></a><div class="content"><a class="title" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-461/" title="Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）">Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）</a><time datetime="2026-03-01T12:00:00.000Z" title="Created 2026-03-01 20:00:00">2026-03-01</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

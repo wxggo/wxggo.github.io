@@ -1,0 +1,327 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode-049:字母异位词分组-哈希表+排序经典解法（基础最优版） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解Leetcode字母异位词分组的哈希表+排序解法，核心剖析异位词判断逻辑与哈希表分组原理，手把手拆解代码优化思路，是理解字符串分组类问题的基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode-049:字母异位词分组-哈希表+排序经典解法（基础最优版）">
+<meta property="og:url" content="https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-049/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="详解Leetcode字母异位词分组的哈希表+排序解法，核心剖析异位词判断逻辑与哈希表分组原理，手把手拆解代码优化思路，是理解字符串分组类问题的基础">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/16/8062733509650190.jpg">
+<meta property="article:published_time" content="2026-03-01T06:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T06:00:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="数组">
+<meta property="article:tag" content="字符串">
+<meta property="article:tag" content="哈希表">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/16/8062733509650190.jpg"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-049/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode-049:字母异位词分组-哈希表+排序经典解法（基础最优版）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-01 14:00:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/16/8062733509650190.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"/><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode-049:字母异位词分组-哈希表+排序经典解法（基础最优版）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-03-01T06:00:00.000Z" title="Created 2026-03-01 14:00:00">2026-03-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-01T06:00:00.000Z" title="Updated 2026-03-01 14:00:00">2026-03-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Java学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Leetcode-Hot100/">Leetcode Hot100</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">2.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>10mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode-049:字母异位词分组-哈希表+排序经典解法（基础最优版）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>字母异位词分组是Leetcode字符串模块的<strong>经典高频题</strong>，也是面试中考察「哈希表应用+字符串处理」的核心题目之一。本题的核心难点在于<strong>如何高效判断两个字符串是否为字母异位词</strong>，并完成分组存储。其中「哈希表+字符串排序」是<strong>最直观、最易理解的基础最优解</strong>，该解法通过将异位词排序后转化为相同的「特征键」，利用哈希表的O(1)查询特性完成分组。</p>
+<h2 id="1、题目"><a href="#1、题目" class="headerlink" title="1、题目"></a>1、题目</h2><p>给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>示例 1：<br>输入：strs &#x3D; [“eat”, “tea”, “tan”, “ate”, “nat”, “bat”]<br>输出：[[“bat”],[“nat”,”tan”],[“ate”,”eat”,”tea”]]<br>解释：”eat&#x2F;tea&#x2F;ate”为一组（字母相同仅排列不同），”tan&#x2F;nat”为一组，”bat”单独一组。</p>
+<p>示例 2：<br>输入：strs &#x3D; [“”]<br>输出：[[“”]]<br>解释：空字符串无字母，单独作为一组。</p>
+<p>示例 3：<br>输入：strs &#x3D; [“a”]<br>输出：[[“a”]]<br>解释：单个字符无排列差异，单独作为一组。</p>
+<h3 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h3><ul>
+<li><code>1 &lt;= strs.length &lt;= 10^4</code></li>
+<li><code>0 &lt;= strs[i].length &lt;= 100</code></li>
+<li><code>strs[i]</code> 仅包含小写字母</li>
+</ul>
+<h2 id="2、分析"><a href="#2、分析" class="headerlink" title="2、分析"></a>2、分析</h2><h3 id="2-1-问题核心：如何定义并识别字母异位词？"><a href="#2-1-问题核心：如何定义并识别字母异位词？" class="headerlink" title="2.1 问题核心：如何定义并识别字母异位词？"></a>2.1 问题核心：如何定义并识别字母异位词？</h3><p>字母异位词的本质是「字符组成完全相同，仅排列顺序不同」，因此<strong>所有异位词经过相同规则的处理后，必然能得到一个完全相同的「特征标识」</strong>。</p>
+<p>比如 “eat”、”tea”、”ate” 排序后都会得到 “aet”，这个统一的结果就是它们的「特征标识」—— 这是判断异位词的核心依据，也是分组的关键。</p>
+<h3 id="2-2-核心难点：如何高效分组存储异位词？"><a href="#2-2-核心难点：如何高效分组存储异位词？" class="headerlink" title="2.2 核心难点：如何高效分组存储异位词？"></a>2.2 核心难点：如何高效分组存储异位词？</h3><p>暴力解法的思路是，对每个字符串，逐一和已分组的字符串对比是否为异位词，若匹配则加入对应组，否则新建组。但该方法的时间复杂度为O(n²k)（n为字符串数量，k为字符串长度），面对10^4的数组长度会超时。</p>
+<p><strong>哈希表+排序</strong>是解决该难点的最优思路：</p>
+<ol>
+<li>对每个字符串排序生成「特征键」；</li>
+<li>以「特征键」为key、异位词列表为value构建哈希表；</li>
+<li>遍历字符串时，根据「特征键」直接定位分组，O(1)完成添加操作；<br>整体时间复杂度优化至O(nk logk)（排序单个字符串的时间为O(k logk)，n个字符串总排序时间为O(nk logk)）。</li>
+</ol>
+<h3 id="2-3-核心解题思路"><a href="#2-3-核心解题思路" class="headerlink" title="2.3 核心解题思路"></a>2.3 核心解题思路</h3><ol>
+<li><strong>初始化哈希表</strong>：创建<code>Map&lt;String, List&lt;String&gt;&gt;</code>，用于存储「特征键-异位词列表」的映射；</li>
+<li><strong>遍历处理每个字符串</strong>：<ul>
+<li>将字符串转为字符数组并排序，生成「特征键」；</li>
+<li>若哈希表中存在该键，将当前字符串添加到对应列表；</li>
+<li>若不存在，新建列表并将当前字符串加入，再将键值对存入哈希表；</li>
+</ul>
+</li>
+<li><strong>转换结果并返回</strong>：将哈希表中所有value（异位词列表）收集为List返回。</li>
+</ol>
+<h2 id="3、程序：哈希表-排序实现字母异位词分组"><a href="#3、程序：哈希表-排序实现字母异位词分组" class="headerlink" title="3、程序：哈希表+排序实现字母异位词分组"></a>3、程序：哈希表+排序实现字母异位词分组</h2><h3 id="3-1-完整代码"><a href="#3-1-完整代码" class="headerlink" title="3.1 完整代码"></a>3.1 完整代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;String&gt;&gt; <span class="title function_">groupAnagrams</span><span class="params">(String[] strs)</span> &#123;</span><br><span class="line">        <span class="comment">// 定义哈希表：key为排序后的特征字符串，value为对应异位词列表</span></span><br><span class="line">        Map&lt;String, List&lt;String&gt;&gt; m = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="comment">// 遍历所有字符串</span></span><br><span class="line">        <span class="keyword">for</span> (String s : strs) &#123;</span><br><span class="line">            <span class="comment">// 1. 将字符串转为字符数组，便于排序</span></span><br><span class="line">            <span class="type">char</span>[] sortedS = s.toCharArray();</span><br><span class="line">            <span class="comment">// 2. 排序字符数组，生成特征键（所有异位词排序后键相同）</span></span><br><span class="line">            Arrays.sort(sortedS);</span><br><span class="line">            <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(sortedS);</span><br><span class="line">            <span class="comment">// 3. 根据特征键处理分组</span></span><br><span class="line">            <span class="keyword">if</span> (m.containsKey(key)) &#123;</span><br><span class="line">                <span class="comment">// 存在该键，直接将当前字符串加入对应列表</span></span><br><span class="line">                m.get(key).add(s);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 不存在该键，新建列表并存入哈希表</span></span><br><span class="line">                List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">                list.add(s);</span><br><span class="line">                m.put(key, list);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 4. 将哈希表的所有值（异位词列表）转为List返回</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(m.values());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-代码核心点逐行解释"><a href="#3-2-代码核心点逐行解释" class="headerlink" title="3.2 代码核心点逐行解释"></a>3.2 代码核心点逐行解释</h3><h4 id="（1）哈希表定义"><a href="#（1）哈希表定义" class="headerlink" title="（1）哈希表定义"></a>（1）哈希表定义</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, List&lt;String&gt;&gt; m = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<ul>
+<li>核心逻辑：key是排序后的「特征字符串」（如”aet”），value是该特征对应的所有异位词（如[“eat”,”tea”,”ate”]）；</li>
+<li>作用：利用哈希表O(1)的查询&#x2F;插入特性，快速完成分组定位。</li>
+</ul>
+<h4 id="（2）生成特征键"><a href="#（2）生成特征键" class="headerlink" title="（2）生成特征键"></a>（2）生成特征键</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span>[] sortedS = s.toCharArray();</span><br><span class="line">Arrays.sort(sortedS);</span><br><span class="line"><span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(sortedS);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>字符数组转换：字符串是不可变类型，转为字符数组才能排序；</li>
+<li>排序操作：Arrays.sort()对字符数组按字典序排序，保证所有异位词生成相同的key；</li>
+<li>核心价值：将「字符排列不同但组成相同」的字符串，转化为完全相同的key，实现异位词的统一标识。</li>
+</ul>
+<h4 id="（3）分组逻辑优化"><a href="#（3）分组逻辑优化" class="headerlink" title="（3）分组逻辑优化"></a>（3）分组逻辑优化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (m.containsKey(key)) &#123;</span><br><span class="line">    m.get(key).add(s);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    list.add(s);</span><br><span class="line">    m.put(key, list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>简化操作：原代码中「get列表→add元素→put回哈希表」可简化为直接<code>m.get(key).add(s)</code>（HashMap的get方法返回的是列表引用，修改引用即可）；</li>
+<li>逻辑合理性：存在key则复用已有列表，不存在则新建，保证每个key对应唯一的异位词列表。</li>
+</ul>
+<h4 id="（4）结果转换"><a href="#（4）结果转换" class="headerlink" title="（4）结果转换"></a>（4）结果转换</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(m.values());</span><br></pre></td></tr></table></figure>
+<ul>
+<li>核心逻辑：HashMap的values()方法返回所有value的集合（Collection&lt;List<String>&gt;），直接传入ArrayList构造器即可转为题目要求的List&lt;List<String>&gt;；</li>
+<li>简洁性：无需手动遍历哈希表，一行代码完成结果转换。</li>
+</ul>
+<h2 id="4、算法性能分析"><a href="#4、算法性能分析" class="headerlink" title="4、算法性能分析"></a>4、算法性能分析</h2><p>本解法是字母异位词分组的<strong>基础最优解</strong>，兼顾效率和理解性，完全适配题目输入规模。</p>
+<h3 id="4-1-时间复杂度：O-nk-logk"><a href="#4-1-时间复杂度：O-nk-logk" class="headerlink" title="4.1 时间复杂度：O(nk logk)"></a>4.1 时间复杂度：O(nk logk)</h3><ul>
+<li><code>n</code>：字符串数组的长度；</li>
+<li><code>k</code>：字符串的最大长度；</li>
+<li>核心耗时：对每个字符串排序的时间为O(k logk)，n个字符串总排序时间为O(nk logk)；哈希表的查询&#x2F;插入操作均为O(1)，总耗时可忽略；</li>
+<li>适配性：面对10^4的字符串数量和100的字符串长度，O(nk logk)的时间复杂度完全满足要求，无超时风险。</li>
+</ul>
+<h3 id="4-2-空间复杂度：O-nk"><a href="#4-2-空间复杂度：O-nk" class="headerlink" title="4.2 空间复杂度：O(nk)"></a>4.2 空间复杂度：O(nk)</h3><ul>
+<li>空间开销主要来自：<ol>
+<li>哈希表存储的所有字符串（总长度为nk）；</li>
+<li>排序时的字符数组（单次排序空间为O(k)，可复用，不计入总复杂度）；</li>
+</ol>
+</li>
+<li>必要性：存储所有字符串是分组的必然开销，该空间复杂度为基础解法的最优值。</li>
+</ul>
+<h3 id="4-3-核心优势"><a href="#4-3-核心优势" class="headerlink" title="4.3 核心优势"></a>4.3 核心优势</h3><ol>
+<li><strong>逻辑直观</strong>：完全贴合异位词的定义，排序生成特征键的思路易理解、易推导；</li>
+<li><strong>代码简洁</strong>：核心逻辑仅10行左右，无冗余操作，面试书写效率高；</li>
+<li><strong>兼容性强</strong>：天然适配所有边界场景（空字符串、单字符、超长字符串）；</li>
+<li><strong>扩展性强</strong>：是理解计数优化版的基础，掌握后可快速迁移至更优解法。</li>
+</ol>
+<h2 id="5、经典示例手动模拟（直观理解）"><a href="#5、经典示例手动模拟（直观理解）" class="headerlink" title="5、经典示例手动模拟（直观理解）"></a>5、经典示例手动模拟（直观理解）</h2><p>以<strong>示例1：strs &#x3D; [“eat”, “tea”, “tan”, “ate”, “nat”, “bat”]</strong> 为例，手动模拟代码执行过程：</p>
+<h3 id="5-1-初始化"><a href="#5-1-初始化" class="headerlink" title="5.1 初始化"></a>5.1 初始化</h3><p>哈希表<code>m</code>为空。</p>
+<h3 id="5-2-遍历处理每个字符串"><a href="#5-2-遍历处理每个字符串" class="headerlink" title="5.2 遍历处理每个字符串"></a>5.2 遍历处理每个字符串</h3><table>
+<thead>
+<tr>
+<th>字符串</th>
+<th>字符数组</th>
+<th>排序后字符数组</th>
+<th>特征键</th>
+<th>哈希表操作</th>
+<th>哈希表状态（key→value）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“eat”</td>
+<td>[‘e’,’a’,’t’]</td>
+<td>[‘a’,’e’,’t’]</td>
+<td>“aet”</td>
+<td>新建列表存入</td>
+<td>“aet”→[“eat”]</td>
+</tr>
+<tr>
+<td>“tea”</td>
+<td>[‘t’,’e’,’a’]</td>
+<td>[‘a’,’e’,’t’]</td>
+<td>“aet”</td>
+<td>添加到列表</td>
+<td>“aet”→[“eat”,”tea”]</td>
+</tr>
+<tr>
+<td>“tan”</td>
+<td>[‘t’,’a’,’n’]</td>
+<td>[‘a’,’n’,’t’]</td>
+<td>“ant”</td>
+<td>新建列表存入</td>
+<td>“aet”→[“eat”,”tea”]；”ant”→[“tan”]</td>
+</tr>
+<tr>
+<td>“ate”</td>
+<td>[‘a’,’t’,’e’]</td>
+<td>[‘a’,’e’,’t’]</td>
+<td>“aet”</td>
+<td>添加到列表</td>
+<td>“aet”→[“eat”,”tea”,”ate”]</td>
+</tr>
+<tr>
+<td>“nat”</td>
+<td>[‘n’,’a’,’t’]</td>
+<td>[‘a’,’n’,’t’]</td>
+<td>“ant”</td>
+<td>添加到列表</td>
+<td>“aet”→[“eat”,”tea”,”ate”]；”ant”→[“tan”,”nat”]</td>
+</tr>
+<tr>
+<td>“bat”</td>
+<td>[‘b’,’a’,’t’]</td>
+<td>[‘a’,’b’,’t’]</td>
+<td>“abt”</td>
+<td>新建列表存入</td>
+<td>“aet”→[“eat”,”tea”,”ate”]；”ant”→[“tan”,”nat”]；”abt”→[“bat”]</td>
+</tr>
+</tbody></table>
+<h3 id="5-3-转换结果"><a href="#5-3-转换结果" class="headerlink" title="5.3 转换结果"></a>5.3 转换结果</h3><p>哈希表的values为<code>[[&quot;eat&quot;,&quot;tea&quot;,&quot;ate&quot;], [&quot;tan&quot;,&quot;nat&quot;], [&quot;bat&quot;]]</code>，转为List后即为最终输出。</p>
+<h2 id="6、拓展思考（面试高频考点）"><a href="#6、拓展思考（面试高频考点）" class="headerlink" title="6、拓展思考（面试高频考点）"></a>6、拓展思考（面试高频考点）</h2><h3 id="6-1-边界情况天然适配"><a href="#6-1-边界情况天然适配" class="headerlink" title="6.1 边界情况天然适配"></a>6.1 边界情况天然适配</h3><p>本解法无需额外处理各类边界场景，代码天然兼容：</p>
+<ol>
+<li><strong>空字符串</strong>：如strs &#x3D; [“”], 排序后key仍为””，哈希表存入[“”]，返回[[“]]，正确；</li>
+<li><strong>单字符字符串</strong>：如strs &#x3D; [“a”], 排序后key为”a”，返回[[“a”]]，正确；</li>
+<li><strong>全相同字符串</strong>：如strs &#x3D; [“aaa”,”aaa”], 排序后key均为”aaa”，返回[[“aaa”,”aaa”]]，正确；</li>
+<li><strong>全不同字符串</strong>：如strs &#x3D; [“a”,”b”,”c”], 每个字符串生成唯一key，返回[[“a”],[“b”],[“c”]]，正确。</li>
+</ol>
+<h3 id="6-2-面试高频追问：空间-时间优化（计数法）"><a href="#6-2-面试高频追问：空间-时间优化（计数法）" class="headerlink" title="6.2 面试高频追问：空间&#x2F;时间优化（计数法）"></a>6.2 面试高频追问：空间&#x2F;时间优化（计数法）</h3><p>哈希表+排序解法的时间瓶颈在「字符串排序」（O(k logk)），面试中面试官大概率会追问<strong>如何将时间复杂度优化至O(nk)</strong> ，核心思路是「字符计数替代排序」：</p>
+<h4 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h4><ol>
+<li>对每个字符串，统计每个小写字母的出现次数（如”eat”统计为a:1, e:1, t:1）；</li>
+<li>将计数结果转为「特征键」（如”a1e1t1”）；</li>
+<li>以计数生成的key为哈希表键，完成分组。</li>
+</ol>
+<h4 id="简洁代码实现"><a href="#简洁代码实现" class="headerlink" title="简洁代码实现"></a>简洁代码实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;List&lt;String&gt;&gt; <span class="title function_">groupAnagrams</span><span class="params">(String[] strs)</span> &#123;</span><br><span class="line">    Map&lt;String, List&lt;String&gt;&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String s : strs) &#123;</span><br><span class="line">        <span class="comment">// 初始化计数数组（26个小写字母）</span></span><br><span class="line">        <span class="type">int</span>[] count = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">26</span>];</span><br><span class="line">        <span class="comment">// 统计每个字符出现次数</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">char</span> c : s.toCharArray()) &#123;</span><br><span class="line">            count[c - <span class="string">&#x27;a&#x27;</span>]++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 生成计数特征键（如a1e1t1）</span></span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">26</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (count[i] != <span class="number">0</span>) &#123;</span><br><span class="line">                sb.append((<span class="type">char</span>) (<span class="string">&#x27;a&#x27;</span> + i)).append(count[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> sb.toString();</span><br><span class="line">        <span class="comment">// 哈希表分组</span></span><br><span class="line">        map.computeIfAbsent(key, k -&gt; <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;()).add(s);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(map.values());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="优化价值"><a href="#优化价值" class="headerlink" title="优化价值"></a>优化价值</h4><ul>
+<li>时间复杂度：统计字符次数为O(k)，生成key为O(26)（常数级），总时间复杂度降至O(nk)；</li>
+<li>空间复杂度：仍为O(nk)，但避免了排序的额外空间开销；</li>
+<li>核心API：<code>computeIfAbsent</code>是Java8+的HashMap便捷API，等价于「判断key是否存在，不存在则新建值，最终返回值」，简化代码书写。</li>
+</ul>
+<h3 id="6-3-进阶问题：区分大小写-包含特殊字符"><a href="#6-3-进阶问题：区分大小写-包含特殊字符" class="headerlink" title="6.3 进阶问题：区分大小写&#x2F;包含特殊字符"></a>6.3 进阶问题：区分大小写&#x2F;包含特殊字符</h3><p>若题目拓展为「字符串包含大写字母&#x2F;数字&#x2F;特殊字符」，只需调整「特征键生成规则」：</p>
+<ol>
+<li>区分大小写：将计数数组长度扩展为52（26大写+26小写），或排序时保留大小写；</li>
+<li>包含特殊字符：统计所有可能字符的ASCII码，或直接排序（兼容性更强）。</li>
+</ol>
+<h2 id="7、总结"><a href="#7、总结" class="headerlink" title="7、总结"></a>7、总结</h2><p>字母异位词分组的<strong>哈希表+排序解法</strong>是本题的<strong>基础最优解</strong>，也是理解字符串分组类问题的核心，本文核心总结如下：</p>
+<ol>
+<li>异位词的核心特征是「字符组成相同」，排序是生成统一特征键的最直观方式；</li>
+<li>哈希表的核心价值是O(1)定位分组，将暴力的O(n²k)时间复杂度优化至O(nk logk)；</li>
+<li>核心代码需牢记：排序生成key→哈希表分组→收集values返回；</li>
+<li>面试中可通过「字符计数法」将时间复杂度优化至O(nk)，是进阶最优写法；</li>
+<li>解法具备强扩展性，可适配空字符串、特殊字符、大小写区分等拓展场景。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-049/">https://wxggo.github.io/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-049/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E7%BB%84/">数组</a><a class="post-meta__tags" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/">字符串</a><a class="post-meta__tags" href="/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/">哈希表</a></div><div class="post_share"><div class="social-share" data-image="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/16/8062733509650190.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-062/" title="Leetcode-062:不同路径-动态规划经典解法（初始化技巧版）"><img class="cover" src="/images/photo2024/study_java/leetcode062.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Leetcode-062:不同路径-动态规划经典解法（初始化技巧版）</div></div></a></div><div class="next-post pull-right"><a href="/2026/02/28/leetcode/leetcodehot100/date2026_1/study-leetcode-048/" title="Leetcode-048:旋转图像（矩阵）-转置+翻转经典解法（原地修改版）"><img class="cover" src="/images/photo2024/study_java/leetcode048_2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Leetcode-048:旋转图像（矩阵）-转置+翻转经典解法（原地修改版）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-003/" title="Leetcode-003:无重复字符的最长子串-滑动窗口极简实现"><img class="cover" src="https://img2.baidu.com/it/u=883228725,2281386555&fm=253&fmt=auto&app=138&f=JPEG?w=552&h=406" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-003:无重复字符的最长子串-滑动窗口极简实现</div></div></a></div><div><a href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-448/" title="Leetcode-448:找到所有数组中消失的数字-哈希集合法+原地标记最优解（空间优化版）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/21/fe3beac25e44681b.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-01</div><div class="title">Leetcode-448:找到所有数组中消失的数字-哈希集合法+原地标记最优解（空间优化版）</div></div></a></div><div><a href="/2024/09/30/leetcode/leetcode_else/study-leetcode-026/" title="Leetcode-026&amp;027：双指针法搞定数组原地修改"><img class="cover" src="/images/photo2024/study_python/python001.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-30</div><div class="title">Leetcode-026&amp;027：双指针法搞定数组原地修改</div></div></a></div><div><a href="/2025/02/25/leetcode/leetcodehot100/date2026_1/study-leetcode-001/" title="Leetcode-001:两数之和-哈希表一次遍历最优解"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-25</div><div class="title">Leetcode-001:两数之和-哈希表一次遍历最优解</div></div></a></div><div><a href="/2026/02/06/leetcode/leetcodehot100/date2026_1/study-leetcode-004/" title="Leetcode-004:寻找两个有序数组的中位数-二分查找（时间O(log(min(m,n)))）"><img class="cover" src="/images/photo2024/study_java/leetcode004.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-06</div><div class="title">Leetcode-004:寻找两个有序数组的中位数-二分查找（时间O(log(min(m,n)))）</div></div></a></div><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-005/" title="Leetcode-005:最长回文子串-中心扩展法极简实现"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/15/3443dab7b8dca2d7.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-005:最长回文子串-中心扩展法极简实现</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%A2%98%E7%9B%AE"><span class="toc-text">1、题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E7%A4%BA"><span class="toc-text">提示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-text">2、分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%97%AE%E9%A2%98%E6%A0%B8%E5%BF%83%EF%BC%9A%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E5%B9%B6%E8%AF%86%E5%88%AB%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%EF%BC%9F"><span class="toc-text">2.1 问题核心：如何定义并识别字母异位词？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%A0%B8%E5%BF%83%E9%9A%BE%E7%82%B9%EF%BC%9A%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%88%86%E7%BB%84%E5%AD%98%E5%82%A8%E5%BC%82%E4%BD%8D%E8%AF%8D%EF%BC%9F"><span class="toc-text">2.2 核心难点：如何高效分组存储异位词？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%A0%B8%E5%BF%83%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-text">2.3 核心解题思路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%A8%8B%E5%BA%8F%EF%BC%9A%E5%93%88%E5%B8%8C%E8%A1%A8-%E6%8E%92%E5%BA%8F%E5%AE%9E%E7%8E%B0%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D%E5%88%86%E7%BB%84"><span class="toc-text">3、程序：哈希表+排序实现字母异位词分组</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="toc-text">3.1 完整代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%BB%A3%E7%A0%81%E6%A0%B8%E5%BF%83%E7%82%B9%E9%80%90%E8%A1%8C%E8%A7%A3%E9%87%8A"><span class="toc-text">3.2 代码核心点逐行解释</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%93%88%E5%B8%8C%E8%A1%A8%E5%AE%9A%E4%B9%89"><span class="toc-text">（1）哈希表定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%94%9F%E6%88%90%E7%89%B9%E5%BE%81%E9%94%AE"><span class="toc-text">（2）生成特征键</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%88%86%E7%BB%84%E9%80%BB%E8%BE%91%E4%BC%98%E5%8C%96"><span class="toc-text">（3）分组逻辑优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E7%BB%93%E6%9E%9C%E8%BD%AC%E6%8D%A2"><span class="toc-text">（4）结果转换</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%AE%97%E6%B3%95%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-text">4、算法性能分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9AO-nk-logk"><span class="toc-text">4.1 时间复杂度：O(nk logk)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%9AO-nk"><span class="toc-text">4.2 空间复杂度：O(nk)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="toc-text">4.3 核心优势</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E7%BB%8F%E5%85%B8%E7%A4%BA%E4%BE%8B%E6%89%8B%E5%8A%A8%E6%A8%A1%E6%8B%9F%EF%BC%88%E7%9B%B4%E8%A7%82%E7%90%86%E8%A7%A3%EF%BC%89"><span class="toc-text">5、经典示例手动模拟（直观理解）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">5.1 初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E9%81%8D%E5%8E%86%E5%A4%84%E7%90%86%E6%AF%8F%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">5.2 遍历处理每个字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E8%BD%AC%E6%8D%A2%E7%BB%93%E6%9E%9C"><span class="toc-text">5.3 转换结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%8B%93%E5%B1%95%E6%80%9D%E8%80%83%EF%BC%88%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%EF%BC%89"><span class="toc-text">6、拓展思考（面试高频考点）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E8%BE%B9%E7%95%8C%E6%83%85%E5%86%B5%E5%A4%A9%E7%84%B6%E9%80%82%E9%85%8D"><span class="toc-text">6.1 边界情况天然适配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E8%BF%BD%E9%97%AE%EF%BC%9A%E7%A9%BA%E9%97%B4-%E6%97%B6%E9%97%B4%E4%BC%98%E5%8C%96%EF%BC%88%E8%AE%A1%E6%95%B0%E6%B3%95%EF%BC%89"><span class="toc-text">6.2 面试高频追问：空间&#x2F;时间优化（计数法）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-text">核心思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E6%B4%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-text">简洁代码实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E4%BB%B7%E5%80%BC"><span class="toc-text">优化价值</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E8%BF%9B%E9%98%B6%E9%97%AE%E9%A2%98%EF%BC%9A%E5%8C%BA%E5%88%86%E5%A4%A7%E5%B0%8F%E5%86%99-%E5%8C%85%E5%90%AB%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6"><span class="toc-text">6.3 进阶问题：区分大小写&#x2F;包含特殊字符</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">7、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/" title="Leetcode-617:合并二叉树-递归经典解法（基础最优版）"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/22/c9a90bf6008eac99.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-617:合并二叉树-递归经典解法（基础最优版）"/></a><div class="content"><a class="title" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-617/" title="Leetcode-617:合并二叉树-递归经典解法（基础最优版）">Leetcode-617:合并二叉树-递归经典解法（基础最优版）</a><time datetime="2026-03-01T14:00:00.000Z" title="Created 2026-03-01 22:00:00">2026-03-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-543/" title="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-01/21/7a9e2f8d82269d01.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法"/></a><div class="content"><a class="title" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-543/" title="Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法">Leetcode-543:二叉树的直径-深度优先搜索（DFS）经典解法</a><time datetime="2026-03-01T13:30:00.000Z" title="Created 2026-03-01 21:30:00">2026-03-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-461/" title="Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）"><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/10/16aa00d989422edd~tplv-t2oaga2asx-zoom-crop-mark:1956:1956:1956:1101.image" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）"/></a><div class="content"><a class="title" href="/2026/03/01/leetcode/leetcodehot100/date2026_1/study-leetcode-461/" title="Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）">Leetcode-0461:汉明距离-位运算经典解法（基础+简洁版）</a><time datetime="2026-03-01T12:00:00.000Z" title="Created 2026-03-01 20:00:00">2026-03-01</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By wxg</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
