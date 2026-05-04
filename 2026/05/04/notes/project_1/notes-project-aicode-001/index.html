@@ -1,0 +1,659 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现 | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本文整理我对 AI 编程小助手项目的学习与复现过程。该项目基于 Spring Boot 3、Java 21、LangChain4j、通义千问、Vue 和 SSE 实现，围绕智能编程学习、求职辅导、代码答疑、RAG 检索增强、工具调用、MCP 接入、安全护轨和流式响应等功能展开。本文重点记录项目结构、核心模块、复现流程、关键代码理解、调试问题以及我对 Agent 代码开发助手类项目的个人理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现">
+<meta property="og:url" content="https://wxggo.github.io/2026/05/04/notes/project_1/notes-project-aicode-001/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="本文整理我对 AI 编程小助手项目的学习与复现过程。该项目基于 Spring Boot 3、Java 21、LangChain4j、通义千问、Vue 和 SSE 实现，围绕智能编程学习、求职辅导、代码答疑、RAG 检索增强、工具调用、MCP 接入、安全护轨和流式响应等功能展开。本文重点记录项目结构、核心模块、复现流程、关键代码理解、调试问题以及我对 Agent 代码开发助手类项目的个人理解。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wxggo.github.io/images/photo2024/notes_project/notes-project-aicode-001/cover.png">
+<meta property="article:published_time" content="2026-05-04T11:30:00.000Z">
+<meta property="article:modified_time" content="2026-05-04T11:30:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="AI编程助手">
+<meta property="article:tag" content="LangChain4j">
+<meta property="article:tag" content="Spring Boot">
+<meta property="article:tag" content="大模型应用">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wxggo.github.io/images/photo2024/notes_project/notes-project-aicode-001/cover.png"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/05/04/notes/project_1/notes-project-aicode-001/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-04 19:30:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">49</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/photo2024/notes_project/notes-project-aicode-001/cover.png')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-04T11:30:00.000Z" title="发表于 2026-05-04 19:30:00">2026-05-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-04T11:30:00.000Z" title="更新于 2026-05-04 19:30:00">2026-05-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A1%B9%E7%9B%AE%E5%9B%9E%E9%A1%BE/">项目回顾</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>22分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/images/photo2024/notes_project/notes-project-aicode-001/cover.png');"></div><article class="post-content" id="article-container"><blockquote>
+<p>本文是对 <strong>AI 编程小助手 - LangChain4j 实战项目</strong> 的一次学习复现整理。这个项目的目标不是简单地调用一次大模型 API，而是把大模型接入、Prompt 设计、会话记忆、流式响应、RAG 检索增强、Tool Calling 工具调用、MCP 工具扩展、安全护轨和前端聊天界面串成一个相对完整的 AI 应用。<br>我在复现过程中主要关注后端 Agent 服务的组织方式、LangChain4j 的工程化使用、前后端流式通信、RAG 和工具调用的接入方式，以及这类“代码开发助手”项目和普通聊天机器人的区别。</p>
+</blockquote>
+<hr>
+<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>最近在学习 AI 应用开发时，我明显感觉到一个变化：<br>以前做项目更多是围绕 CRUD、权限、数据库、接口设计展开，而现在很多项目开始围绕“大模型能力如何接入业务系统”展开。</p>
+<p>这次复现的项目是一个 <strong>AI 编程小助手</strong>。从表面上看，它像是一个面向程序员的聊天机器人，可以回答学习路线、求职面试、代码问题等内容；但真正把代码跑起来并阅读后端实现后，我发现它并不是一个简单的 <code>Controller 调大模型接口</code> 的 Demo，而是更接近一个小型 Agent 应用原型。</p>
+<p>它大致串起了下面这些能力：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">用户输入</span><br><span class="line">   ↓</span><br><span class="line">前端聊天界面</span><br><span class="line">   ↓</span><br><span class="line">SSE 流式请求</span><br><span class="line">   ↓</span><br><span class="line">Spring Boot 后端接口</span><br><span class="line">   ↓</span><br><span class="line">LangChain4j AI Service</span><br><span class="line">   ↓</span><br><span class="line">会话记忆 / Prompt / RAG / Tool Calling / MCP / 安全护轨</span><br><span class="line">   ↓</span><br><span class="line">通义千问模型</span><br><span class="line">   ↓</span><br><span class="line">流式返回答案</span><br></pre></td></tr></tbody></table></figure>
+
+<p>我这次复现主要想解决几个问题：</p>
+<ol>
+<li>如何用 Java 技术栈开发一个 AI 对话应用；</li>
+<li>LangChain4j 在项目中到底承担什么角色；</li>
+<li>AI Service、ChatModel、StreamingChatModel、ChatMemory 之间如何协作；</li>
+<li>RAG、工具调用、MCP、安全护轨分别解决什么问题；</li>
+<li>为什么 Agent 代码开发助手不能只停留在“问答机器人”层面；</li>
+<li>如果后续自己扩展一个代码开发助手，还可以从哪些方向继续做。</li>
+</ol>
+<blockquote>
+<p>先放点复现过程中的截图占位，后续可以替换成自己的项目运行截图：</p>
+</blockquote>
+<div style="display: flex; justify-content: center; gap: 12px; margin: 10px 0;">
+  <img src="/images/photo2024/notes_project/notes-project-aicode-001/aicode(1).png" alt="前端聊天界面" width="700">
+</div>
+
+<div style="display: flex; justify-content: center; gap: 12px; margin: 10px 0;">
+  <img src="/images/photo2024/notes_project/notes-project-aicode-001/aicode(2).png" alt="前端聊天界面" width="700">
+</div>
+
+<hr>
+<h2 id="二、项目目标与整体方案"><a href="#二、项目目标与整体方案" class="headerlink" title="二、项目目标与整体方案"></a>二、项目目标与整体方案</h2><h3 id="2-1-项目定位"><a href="#2-1-项目定位" class="headerlink" title="2.1 项目定位"></a>2.1 项目定位</h3><p>这个项目的定位是一个面向程序员的 AI 编程学习与求职辅导助手。它主要覆盖三类场景：</p>
+<table>
+<thead>
+<tr>
+<th align="left">场景</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">编程学习导师</td>
+<td align="left">根据用户问题给出学习路线、技术选型建议和学习资料方向</td>
+</tr>
+<tr>
+<td align="left">求职面试助手</td>
+<td align="left">辅助准备简历、面试题、项目亮点和八股文</td>
+</tr>
+<tr>
+<td align="left">代码答疑专家</td>
+<td align="left">解答编程技术问题，给出代码示例和排查思路</td>
+</tr>
+</tbody></table>
+<p>如果只从产品形态来看，它像一个聊天应用；但从技术实现来看，它实际上是一个 <strong>基于大模型的 Agent 应用雏形</strong>。</p>
+<p>它不仅让模型回答问题，还给模型配置了：</p>
+<ol>
+<li>系统提示词；</li>
+<li>会话记忆；</li>
+<li>结构化输出；</li>
+<li>RAG 本地知识库检索；</li>
+<li>面试题搜索工具；</li>
+<li>MCP 联网搜索工具；</li>
+<li>输入安全护轨；</li>
+<li>流式输出能力；</li>
+<li>前端 Markdown 渲染能力。</li>
+</ol>
+<hr>
+<h3 id="2-2-技术栈组成"><a href="#2-2-技术栈组成" class="headerlink" title="2.2 技术栈组成"></a>2.2 技术栈组成</h3><p>我复现时整理出的主要技术栈如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">模块</th>
+<th align="left">技术</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">后端框架</td>
+<td align="left">Spring Boot 3</td>
+</tr>
+<tr>
+<td align="left">编程语言</td>
+<td align="left">Java 21</td>
+</tr>
+<tr>
+<td align="left">AI 应用框架</td>
+<td align="left">LangChain4j</td>
+</tr>
+<tr>
+<td align="left">大模型</td>
+<td align="left">通义千问 Qwen</td>
+</tr>
+<tr>
+<td align="left">Embedding 模型</td>
+<td align="left">通义千问 Embedding</td>
+</tr>
+<tr>
+<td align="left">RAG 存储</td>
+<td align="left">InMemoryEmbeddingStore</td>
+</tr>
+<tr>
+<td align="left">工具调用</td>
+<td align="left">LangChain4j <code>@Tool</code></td>
+</tr>
+<tr>
+<td align="left">MCP</td>
+<td align="left">BigModel Web Search MCP</td>
+</tr>
+<tr>
+<td align="left">前端框架</td>
+<td align="left">Vue 3</td>
+</tr>
+<tr>
+<td align="left">构建工具</td>
+<td align="left">Maven、Vite</td>
+</tr>
+<tr>
+<td align="left">前后端通信</td>
+<td align="left">SSE / Server-Sent Events</td>
+</tr>
+<tr>
+<td align="left">页面渲染</td>
+<td align="left">Markdown 渲染</td>
+</tr>
+</tbody></table>
+<p>项目整体架构可以理解为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────┐</span><br><span class="line">│      Vue 前端页面      │</span><br><span class="line">│  - 聊天输入框          │</span><br><span class="line">│  - Markdown 展示       │</span><br><span class="line">│  - EventSource 接收流  │</span><br><span class="line">└──────────┬───────────┘</span><br><span class="line">           │ SSE</span><br><span class="line">           ↓</span><br><span class="line">┌──────────────────────┐</span><br><span class="line">│   Spring Boot 后端     │</span><br><span class="line">│  - AiController       │</span><br><span class="line">│  - REST API           │</span><br><span class="line">│  - SSE 封装           │</span><br><span class="line">└──────────┬───────────┘</span><br><span class="line">           ↓</span><br><span class="line">┌──────────────────────┐</span><br><span class="line">│    LangChain4j 层      │</span><br><span class="line">│  - AI Service         │</span><br><span class="line">│  - ChatModel          │</span><br><span class="line">│  - StreamingModel     │</span><br><span class="line">│  - ChatMemory         │</span><br><span class="line">│  - RAG Retriever      │</span><br><span class="line">│  - Tool Provider      │</span><br><span class="line">│  - Guardrail          │</span><br><span class="line">└──────────┬───────────┘</span><br><span class="line">           ↓</span><br><span class="line">┌──────────────────────┐</span><br><span class="line">│      大模型服务        │</span><br><span class="line">│  - 通义千问对话模型    │</span><br><span class="line">│  - 通义千问向量模型    │</span><br><span class="line">│  - MCP 搜索服务        │</span><br><span class="line">└──────────────────────┘</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="三、环境准备与项目启动"><a href="#三、环境准备与项目启动" class="headerlink" title="三、环境准备与项目启动"></a>三、环境准备与项目启动</h2><h3 id="3-1-后端环境"><a href="#3-1-后端环境" class="headerlink" title="3.1 后端环境"></a>3.1 后端环境</h3><p>复现项目之前，需要先准备 Java 和 Maven 环境。</p>
+<p>我的本地环境大致如下：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">JDK: Java 21</span><br><span class="line">Maven: 3.9.x</span><br><span class="line">IDE: IntelliJ IDEA</span><br><span class="line">后端端口: 8081</span><br><span class="line">接口前缀: /api</span><br></pre></td></tr></tbody></table></figure>
+
+<p>后端配置文件中比较关键的是大模型 API Key：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">ai-code-helper</span></span><br><span class="line"></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">context-path:</span> <span class="string">/api</span></span><br><span class="line"></span><br><span class="line"><span class="attr">langchain4j:</span></span><br><span class="line">  <span class="attr">community:</span></span><br><span class="line">    <span class="attr">dashscope:</span></span><br><span class="line">      <span class="attr">chat-model:</span></span><br><span class="line">        <span class="attr">model-name:</span> <span class="string">qwen-max</span></span><br><span class="line">        <span class="attr">api-key:</span> <span class="string">${DASH_SCOPE_API_KEY}</span></span><br><span class="line">      <span class="attr">streaming-chat-model:</span></span><br><span class="line">        <span class="attr">model-name:</span> <span class="string">qwen-max</span></span><br><span class="line">        <span class="attr">api-key:</span> <span class="string">${DASH_SCOPE_API_KEY}</span></span><br><span class="line">      <span class="attr">embedding-model:</span></span><br><span class="line">        <span class="attr">model-name:</span> <span class="string">text-embedding-v4</span></span><br><span class="line">        <span class="attr">api-key:</span> <span class="string">${DASH_SCOPE_API_KEY}</span></span><br><span class="line"></span><br><span class="line"><span class="attr">bigmodel:</span></span><br><span class="line">  <span class="attr">api-key:</span> <span class="string">${BIGMODEL_API_KEY}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里我没有直接把 Key 写死在 <code>application.yml</code> 中，而是改成通过环境变量读取。<br>这样做更安全，也方便后续推送到 GitHub 时避免误提交密钥。</p>
+<hr>
+<h3 id="3-2-后端启动"><a href="#3-2-后端启动" class="headerlink" title="3.2 后端启动"></a>3.2 后端启动</h3><p>后端启动流程比较直接：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 克隆项目</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/liyupi/ai-code-helper.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入项目目录</span></span><br><span class="line"><span class="built_in">cd</span> ai-code-helper</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置环境变量</span></span><br><span class="line"><span class="comment"># DASH_SCOPE_API_KEY=你的通义千问API Key</span></span><br><span class="line"><span class="comment"># BIGMODEL_API_KEY=你的BigModel API Key</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动后端</span></span><br><span class="line">mvn spring-boot:run</span><br></pre></td></tr></tbody></table></figure>
+
+<p>启动成功后，后端接口地址类似：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8081/api/ai/chat</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="3-3-前端启动"><a href="#3-3-前端启动" class="headerlink" title="3.3 前端启动"></a>3.3 前端启动</h3><p>前端项目在 <code>ai-code-helper-frontend</code> 目录下，使用 Vue + Vite。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ai-code-helper-frontend</span><br><span class="line"></span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">npm run dev</span><br></pre></td></tr></tbody></table></figure>
+
+<p>前端默认访问地址：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:5173</span><br></pre></td></tr></tbody></table></figure>
+
+<p>复现时需要注意前端请求地址是否和后端端口、接口前缀一致。<br>因为后端设置了：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">context-path:</span> <span class="string">/api</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>所以最终接口不是 <code>/ai/chat</code>，而是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/api/ai/chat</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="四、后端核心模块理解"><a href="#四、后端核心模块理解" class="headerlink" title="四、后端核心模块理解"></a>四、后端核心模块理解</h2><h3 id="4-1-AiController：对外暴露聊天接口"><a href="#4-1-AiController：对外暴露聊天接口" class="headerlink" title="4.1 AiController：对外暴露聊天接口"></a>4.1 AiController：对外暴露聊天接口</h3><p>项目后端的入口主要是 <code>AiController</code>。<br>它的作用很简单：接收前端传来的 <code>memoryId</code> 和 <code>message</code>，然后调用 AI Service 的流式对话方法。</p>
+<p>简化后的逻辑如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping("/ai")</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> AiCodeHelperService aiCodeHelperService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping("/chat")</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;ServerSentEvent&lt;String&gt;&gt; <span class="title function_">chat</span><span class="params">(<span class="type">int</span> memoryId, String message)</span> {</span><br><span class="line">        <span class="keyword">return</span> aiCodeHelperService.chatStream(memoryId, message)</span><br><span class="line">                .map(chunk -&gt; ServerSentEvent.builder(chunk).build());</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这个接口有两个关键点：</p>
+<ol>
+<li>返回值是 <code>Flux&lt;ServerSentEvent&lt;String&gt;&gt;</code>；</li>
+<li>调用的是 <code>chatStream(memoryId, message)</code>。</li>
+</ol>
+<p>也就是说，后端不是等模型完整回答完再一次性返回，而是模型生成一点、后端推送一点，前端就能看到类似“打字机”的效果。</p>
+<p>这也是 AI 聊天应用中体验很重要的一部分。</p>
+<hr>
+<h3 id="4-2-AiCodeHelperService：AI-能力接口"><a href="#4-2-AiCodeHelperService：AI-能力接口" class="headerlink" title="4.2 AiCodeHelperService：AI 能力接口"></a>4.2 AiCodeHelperService：AI 能力接口</h3><p><code>AiCodeHelperService</code> 是项目中非常关键的接口。<br>它不是普通 Service，而是 LangChain4j 用来声明 AI 能力的接口。</p>
+<p>简化后可以理解为：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@InputGuardrails({SafeInputGuardrail.class})</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">AiCodeHelperService</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SystemMessage(fromResource = "system-prompt.txt")</span></span><br><span class="line">    String <span class="title function_">chat</span><span class="params">(String userMessage)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SystemMessage(fromResource = "system-prompt.txt")</span></span><br><span class="line">    Report <span class="title function_">chatForReport</span><span class="params">(String userMessage)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">record</span> <span class="title class_">Report</span><span class="params">(String name, List&lt;String&gt; suggestionList)</span> {}</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SystemMessage(fromResource = "system-prompt.txt")</span></span><br><span class="line">    Result&lt;List&lt;String&gt;&gt; <span class="title function_">chatWithRag</span><span class="params">(String userMessage)</span>;</span><br><span class="line"></span><br><span class="line">    Flux&lt;String&gt; <span class="title function_">chatStream</span><span class="params">(<span class="meta">@MemoryId</span> <span class="type">int</span> memoryId, <span class="meta">@UserMessage</span> String userMessage)</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里面有几个我觉得很值得学习的点：</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>chat</code></td>
+<td align="left">普通文本对话</td>
+</tr>
+<tr>
+<td align="left"><code>chatForReport</code></td>
+<td align="left">结构化输出，返回学习报告</td>
+</tr>
+<tr>
+<td align="left"><code>chatWithRag</code></td>
+<td align="left">结合本地知识库进行回答</td>
+</tr>
+<tr>
+<td align="left"><code>chatStream</code></td>
+<td align="left">流式对话，支持会话记忆</td>
+</tr>
+</tbody></table>
+<p>它把不同 AI 能力封装成了接口方法。<br>这比自己在每个业务方法里手动拼 Prompt、调用模型 API、解析结果要清晰很多。</p>
+<hr>
+<h3 id="4-3-AiCodeHelperServiceFactory：手动构建-AI-Service"><a href="#4-3-AiCodeHelperServiceFactory：手动构建-AI-Service" class="headerlink" title="4.3 AiCodeHelperServiceFactory：手动构建 AI Service"></a>4.3 AiCodeHelperServiceFactory：手动构建 AI Service</h3><p>项目里没有直接使用 <code>@AiService</code> 注解，而是通过工厂类手动构建 AI Service。<br>这种写法虽然稍微多一点代码，但灵活性更高，可以把模型、记忆、RAG、工具、MCP 等能力都组装进去。</p>
+<p>简化逻辑如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AiCodeHelperServiceFactory</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ChatModel myQwenChatModel;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> StreamingChatModel qwenStreamingChatModel;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ContentRetriever contentRetriever;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> McpToolProvider mcpToolProvider;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> AiCodeHelperService <span class="title function_">aiCodeHelperService</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> AiServices.builder(AiCodeHelperService.class)</span><br><span class="line">                .chatModel(myQwenChatModel)</span><br><span class="line">                .streamingChatModel(qwenStreamingChatModel)</span><br><span class="line">                .chatMemory(MessageWindowChatMemory.withMaxMessages(<span class="number">10</span>))</span><br><span class="line">                .chatMemoryProvider(memoryId -&gt; MessageWindowChatMemory.withMaxMessages(<span class="number">10</span>))</span><br><span class="line">                .contentRetriever(contentRetriever)</span><br><span class="line">                .tools(<span class="keyword">new</span> <span class="title class_">InterviewQuestionTool</span>())</span><br><span class="line">                .toolProvider(mcpToolProvider)</span><br><span class="line">                .build();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这段代码基本上就是整个 Agent 的“组装现场”。</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">普通模型        → chatModel</span><br><span class="line">流式模型        → streamingChatModel</span><br><span class="line">会话记忆        → chatMemory / chatMemoryProvider</span><br><span class="line">本地知识库      → contentRetriever</span><br><span class="line">自定义工具      → tools</span><br><span class="line">MCP 外部工具    → toolProvider</span><br><span class="line">安全护轨        → 在 Service 接口上声明</span><br></pre></td></tr></tbody></table></figure>
+
+<p>我理解下来，LangChain4j 在这里的作用类似一个 Agent 编排层：<br>它负责把用户输入、系统提示词、历史消息、检索内容、工具调用和模型响应统一组织起来。</p>
+<hr>
+<h2 id="五、模型配置与流式响应"><a href="#五、模型配置与流式响应" class="headerlink" title="五、模型配置与流式响应"></a>五、模型配置与流式响应</h2><h3 id="5-1-通义千问模型配置"><a href="#5-1-通义千问模型配置" class="headerlink" title="5.1 通义千问模型配置"></a>5.1 通义千问模型配置</h3><p>项目使用的是通义千问模型。<br>在配置类中，通过 <code>QwenChatModel.builder()</code> 构建普通对话模型：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = "langchain4j.community.dashscope.chat-model")</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">QwenChatModelConfig</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String modelName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String apiKey;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ChatModelListener chatModelListener;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ChatModel <span class="title function_">myQwenChatModel</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> QwenChatModel.builder()</span><br><span class="line">                .apiKey(apiKey)</span><br><span class="line">                .modelName(modelName)</span><br><span class="line">                .listeners(List.of(chatModelListener))</span><br><span class="line">                .build();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的重点不是模型名称，而是这种配置方式：</p>
+<ol>
+<li>模型参数从配置文件读取；</li>
+<li>模型对象交给 Spring 容器管理；</li>
+<li>可以挂载 Listener 做日志和可观测性；</li>
+<li>后续替换模型时不用改业务层代码。</li>
+</ol>
+<hr>
+<h3 id="5-2-为什么要用-StreamingChatModel"><a href="#5-2-为什么要用-StreamingChatModel" class="headerlink" title="5.2 为什么要用 StreamingChatModel"></a>5.2 为什么要用 StreamingChatModel</h3><p>如果是普通接口，用户需要等模型完整生成后才能看到回答。<br>但在 AI 聊天场景中，用户更希望模型边生成边展示。</p>
+<p>流式响应链路可以理解为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">大模型逐 token 生成</span><br><span class="line">        ↓</span><br><span class="line">LangChain4j 输出 Flux</span><br><span class="line">        ↓</span><br><span class="line">Spring Boot 封装 SSE</span><br><span class="line">        ↓</span><br><span class="line">前端 EventSource 接收</span><br><span class="line">        ↓</span><br><span class="line">页面逐步追加 Markdown 内容</span><br></pre></td></tr></tbody></table></figure>
+
+<p>前端接收 SSE 的伪代码如下：</p>
+<figure class="highlight javascript"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="title class_">EventSource</span>(</span><br><span class="line">  <span class="string">`/api/ai/chat?memoryId=<span class="subst">${memoryId}</span>&amp;message=<span class="subst">${<span class="built_in">encodeURIComponent</span>(message)}</span>`</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">eventSource.<span class="property">onmessage</span> = <span class="function">(<span class="params">event</span>) =&gt;</span> {</span><br><span class="line">  answer.<span class="property">value</span> += event.<span class="property">data</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">eventSource.<span class="property">onerror</span> = <span class="function">() =&gt;</span> {</span><br><span class="line">  eventSource.<span class="title function_">close</span>()</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这种方式的好处是：</p>
+<ol>
+<li>用户不用一直等待空白页面；</li>
+<li>长回答体验更好；</li>
+<li>前端实现相对简单；</li>
+<li>后端不需要 WebSocket 也能完成单向流式推送。</li>
+</ol>
+<hr>
+<h2 id="六、RAG-检索增强学习"><a href="#六、RAG-检索增强学习" class="headerlink" title="六、RAG 检索增强学习"></a>六、RAG 检索增强学习</h2><h3 id="6-1-为什么需要-RAG"><a href="#6-1-为什么需要-RAG" class="headerlink" title="6.1 为什么需要 RAG"></a>6.1 为什么需要 RAG</h3><p>普通大模型虽然能力很强，但它不一定知道项目中的私有文档、课程资料、公司内部规范或者本地知识库。<br>如果希望 AI 编程助手回答“基于指定资料”的问题，就需要引入 RAG。</p>
+<p>RAG 的核心流程是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">准备文档</span><br><span class="line">   ↓</span><br><span class="line">文档切分</span><br><span class="line">   ↓</span><br><span class="line">向量化</span><br><span class="line">   ↓</span><br><span class="line">存入向量库</span><br><span class="line">   ↓</span><br><span class="line">用户提问</span><br><span class="line">   ↓</span><br><span class="line">问题向量化</span><br><span class="line">   ↓</span><br><span class="line">检索相关片段</span><br><span class="line">   ↓</span><br><span class="line">连同问题一起交给大模型</span><br><span class="line">   ↓</span><br><span class="line">生成更贴近资料的回答</span><br></pre></td></tr></tbody></table></figure>
+
+<p>在这个项目中，RAG 配置主要由 <code>RagConfig</code> 完成。</p>
+<hr>
+<h3 id="6-2-文档加载与切分"><a href="#6-2-文档加载与切分" class="headerlink" title="6.2 文档加载与切分"></a>6.2 文档加载与切分</h3><p>项目从本地目录加载文档：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Document&gt; documents =</span><br><span class="line">        FileSystemDocumentLoader.loadDocuments(<span class="string">"src/main/resources/docs"</span>);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后按照段落进行切分：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">DocumentByParagraphSplitter</span> <span class="variable">paragraphSplitter</span> <span class="operator">=</span></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">DocumentByParagraphSplitter</span>(<span class="number">1000</span>, <span class="number">200</span>);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的两个参数可以理解为：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>1000</code></td>
+<td align="left">每个文本片段最大字符数</td>
+</tr>
+<tr>
+<td align="left"><code>200</code></td>
+<td align="left">相邻片段之间的重叠字符数</td>
+</tr>
+</tbody></table>
+<p>重叠的意义是避免切分时把上下文截断。<br>比如一个知识点的前半句在上一个片段，后半句在下一个片段，如果没有重叠，模型可能拿不到完整语义。</p>
+<hr>
+<h3 id="6-3-向量存储与内容检索"><a href="#6-3-向量存储与内容检索" class="headerlink" title="6.3 向量存储与内容检索"></a>6.3 向量存储与内容检索</h3><p>项目使用 <code>EmbeddingStoreIngestor</code> 把文档写入向量存储：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">EmbeddingStoreIngestor</span> <span class="variable">ingestor</span> <span class="operator">=</span> EmbeddingStoreIngestor.builder()</span><br><span class="line">        .documentSplitter(paragraphSplitter)</span><br><span class="line">        .embeddingModel(qwenEmbeddingModel)</span><br><span class="line">        .embeddingStore(embeddingStore)</span><br><span class="line">        .build();</span><br><span class="line"></span><br><span class="line">ingestor.ingest(documents);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后通过 <code>EmbeddingStoreContentRetriever</code> 构建检索器：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ContentRetriever</span> <span class="variable">contentRetriever</span> <span class="operator">=</span></span><br><span class="line">        EmbeddingStoreContentRetriever.builder()</span><br><span class="line">                .embeddingStore(embeddingStore)</span><br><span class="line">                .embeddingModel(qwenEmbeddingModel)</span><br><span class="line">                .maxResults(<span class="number">5</span>)</span><br><span class="line">                .minScore(<span class="number">0.75</span>)</span><br><span class="line">                .build();</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里我觉得最关键的是两个参数：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>maxResults(5)</code></td>
+<td align="left">最多取 5 个相关片段</td>
+</tr>
+<tr>
+<td align="left"><code>minScore(0.75)</code></td>
+<td align="left">过滤掉相关度较低的片段</td>
+</tr>
+</tbody></table>
+<p>复现时我遇到过一个问题：<br>如果 <code>minScore</code> 设置太高，模型经常检索不到内容；如果设置太低，又会把不太相关的片段带进去，导致回答跑偏。</p>
+<p>所以 RAG 并不是“接上向量库就结束”，检索参数、文档质量、切分方式都会影响最终效果。</p>
+<hr>
+<h2 id="七、工具调用与-MCP-接入"><a href="#七、工具调用与-MCP-接入" class="headerlink" title="七、工具调用与 MCP 接入"></a>七、工具调用与 MCP 接入</h2><h3 id="7-1-Tool-Calling：让模型调用自定义方法"><a href="#7-1-Tool-Calling：让模型调用自定义方法" class="headerlink" title="7.1 Tool Calling：让模型调用自定义方法"></a>7.1 Tool Calling：让模型调用自定义方法</h3><p>项目中提供了一个 <code>InterviewQuestionTool</code>，用于根据关键词搜索面试题。</p>
+<p>简化代码如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InterviewQuestionTool</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Tool(</span></span><br><span class="line"><span class="meta">        name = "interviewQuestionSearch",</span></span><br><span class="line"><span class="meta">        value = """</span></span><br><span class="line"><span class="meta">                Retrieves relevant interview questions from mianshiya.com</span></span><br><span class="line"><span class="meta">                based on a keyword.</span></span><br><span class="line"><span class="meta">                """</span></span><br><span class="line"><span class="meta">    )</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">searchInterviewQuestions</span><span class="params">(</span></span><br><span class="line"><span class="params">            <span class="meta">@P(value = "the keyword to search")</span> String keyword</span></span><br><span class="line"><span class="params">    )</span> {</span><br><span class="line">        List&lt;String&gt; questions = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">encodedKeyword</span> <span class="operator">=</span></span><br><span class="line">                URLEncoder.encode(keyword, StandardCharsets.UTF_8);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span></span><br><span class="line">                <span class="string">"https://www.mianshiya.com/search/all?searchText="</span> + encodedKeyword;</span><br><span class="line"></span><br><span class="line">        Document doc;</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            doc = Jsoup.connect(url)</span><br><span class="line">                    .userAgent(<span class="string">"Mozilla/5.0"</span>)</span><br><span class="line">                    .timeout(<span class="number">5000</span>)</span><br><span class="line">                    .get();</span><br><span class="line">        } <span class="keyword">catch</span> (IOException e) {</span><br><span class="line">            log.error(<span class="string">"get web error"</span>, e);</span><br><span class="line">            <span class="keyword">return</span> e.getMessage();</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="type">Elements</span> <span class="variable">questionElements</span> <span class="operator">=</span> doc.select(<span class="string">".ant-table-cell &gt; a"</span>);</span><br><span class="line">        questionElements.forEach(el -&gt; questions.add(el.text().trim()));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> String.join(<span class="string">"\n"</span>, questions);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这部分让我对 Agent 有了更直观的理解：</p>
+<blockquote>
+<p>普通聊天机器人只能“说”；<br>Agent 更进一步，可以在需要时“调用工具”，拿到外部结果后再组织回答。</p>
+</blockquote>
+<p>例如用户问：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">帮我找一些 Redis 高频面试题</span><br></pre></td></tr></tbody></table></figure>
+
+<p>模型可以判断需要调用 <code>interviewQuestionSearch</code> 工具，传入关键词 <code>Redis</code>，拿到题目列表后再整理成回答。</p>
+<hr>
+<h3 id="7-2-MCP：把外部能力标准化接进来"><a href="#7-2-MCP：把外部能力标准化接进来" class="headerlink" title="7.2 MCP：把外部能力标准化接进来"></a>7.2 MCP：把外部能力标准化接进来</h3><p>除了手写工具，项目还接入了 MCP 工具。<br>MCP 可以理解为一种把外部工具提供给大模型调用的协议。</p>
+<p>项目中 <code>McpConfig</code> 的核心逻辑如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">McpConfig</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value("${bigmodel.api-key}")</span></span><br><span class="line">    <span class="keyword">private</span> String apiKey;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> McpToolProvider <span class="title function_">mcpToolProvider</span><span class="params">()</span> {</span><br><span class="line">        <span class="type">McpTransport</span> <span class="variable">transport</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpMcpTransport</span>.Builder()</span><br><span class="line">                .sseUrl(<span class="string">"https://open.bigmodel.cn/api/mcp/web_search/sse?Authorization="</span> + apiKey)</span><br><span class="line">                .logRequests(<span class="literal">true</span>)</span><br><span class="line">                .logResponses(<span class="literal">true</span>)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="type">McpClient</span> <span class="variable">mcpClient</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DefaultMcpClient</span>.Builder()</span><br><span class="line">                .key(<span class="string">"yupiMcpClient"</span>)</span><br><span class="line">                .transport(transport)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> McpToolProvider.builder()</span><br><span class="line">                .mcpClients(mcpClient)</span><br><span class="line">                .build();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>我理解 MCP 的价值在于：<br>如果每个工具都手写一套接入方式，项目会越来越乱；而 MCP 可以把工具能力抽象成统一协议，让模型更容易发现和调用外部工具。</p>
+<p>对于一个代码开发助手来说，未来可以扩展的 MCP 工具非常多，比如：</p>
+<ol>
+<li>GitHub 仓库读取；</li>
+<li>文档搜索；</li>
+<li>API 文档查询；</li>
+<li>代码执行沙箱；</li>
+<li>数据库结构分析；</li>
+<li>CI 日志分析；</li>
+<li>Issue / PR 总结；</li>
+<li>项目依赖检查。</li>
+</ol>
+<p>这也是它和普通 AI 问答项目拉开差距的地方。</p>
+<hr>
+<h2 id="八、安全护轨与输入过滤"><a href="#八、安全护轨与输入过滤" class="headerlink" title="八、安全护轨与输入过滤"></a>八、安全护轨与输入过滤</h2><h3 id="8-1-为什么需要-Guardrail"><a href="#8-1-为什么需要-Guardrail" class="headerlink" title="8.1 为什么需要 Guardrail"></a>8.1 为什么需要 Guardrail</h3><p>大模型应用不能只关注“回答得好不好”，还要关注“能不能安全回答”。<br>项目中通过 <code>SafeInputGuardrail</code> 做了一个简单的输入安全检查。</p>
+<p>简化代码如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SafeInputGuardrail</span> <span class="keyword">implements</span> <span class="title class_">InputGuardrail</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; sensitiveWords =</span><br><span class="line">            Set.of(<span class="string">"kill"</span>, <span class="string">"evil"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> InputGuardrailResult <span class="title function_">validate</span><span class="params">(UserMessage userMessage)</span> {</span><br><span class="line">        <span class="type">String</span> <span class="variable">inputText</span> <span class="operator">=</span> userMessage.singleText().toLowerCase();</span><br><span class="line"></span><br><span class="line">        String[] words = inputText.split(<span class="string">"\\W+"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (String word : words) {</span><br><span class="line">            <span class="keyword">if</span> (sensitiveWords.contains(word)) {</span><br><span class="line">                <span class="keyword">return</span> fatal(<span class="string">"Sensitive word detected: "</span> + word);</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> success();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这个示例比较简单，只是检测敏感词，但它说明了一个关键思路：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">用户输入</span><br><span class="line">   ↓</span><br><span class="line">安全护轨检查</span><br><span class="line">   ↓</span><br><span class="line">通过后进入模型</span><br><span class="line">   ↓</span><br><span class="line">不通过则拒绝或中断</span><br></pre></td></tr></tbody></table></figure>
+
+<p>在真实项目中，护轨可以继续扩展：</p>
+<ol>
+<li>敏感词检测；</li>
+<li>Prompt 注入检测；</li>
+<li>越权请求检测；</li>
+<li>隐私信息识别；</li>
+<li>危险代码生成限制；</li>
+<li>工具调用权限控制。</li>
+</ol>
+<hr>
+<h3 id="8-2-我对安全护轨的理解"><a href="#8-2-我对安全护轨的理解" class="headerlink" title="8.2 我对安全护轨的理解"></a>8.2 我对安全护轨的理解</h3><p>复现前我觉得安全护轨只是“过滤一下关键词”。<br>但看完整体链路后，我发现它在 Agent 项目里更重要。</p>
+<p>因为 Agent 不只是生成文本，它可能会调用工具。<br>一旦工具能访问外部网络、文件、数据库或代码执行环境，就必须控制模型“什么时候能调用、能调用什么、调用参数是否安全”。</p>
+<p>所以后续如果继续扩展这个项目，我会把安全护轨放在三个位置：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入前护轨：判断用户请求是否安全</span><br><span class="line">工具前护轨：判断是否允许调用某个工具</span><br><span class="line">输出后护轨：判断模型回答是否包含危险内容</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="九、前端聊天界面复现"><a href="#九、前端聊天界面复现" class="headerlink" title="九、前端聊天界面复现"></a>九、前端聊天界面复现</h2><h3 id="9-1-前端承担的任务"><a href="#9-1-前端承担的任务" class="headerlink" title="9.1 前端承担的任务"></a>9.1 前端承担的任务</h3><p>前端主要负责：</p>
+<ol>
+<li>展示聊天窗口；</li>
+<li>获取用户输入；</li>
+<li>调用后端 SSE 接口；</li>
+<li>接收流式内容；</li>
+<li>使用 Markdown 渲染回答；</li>
+<li>区分用户消息和 AI 消息。</li>
+</ol>
+<p>前端整体逻辑可以概括为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">用户输入问题</span><br><span class="line">      ↓</span><br><span class="line">点击发送</span><br><span class="line">      ↓</span><br><span class="line">创建用户消息</span><br><span class="line">      ↓</span><br><span class="line">创建 AI 空消息</span><br><span class="line">      ↓</span><br><span class="line">EventSource 请求后端</span><br><span class="line">      ↓</span><br><span class="line">不断接收分片内容</span><br><span class="line">      ↓</span><br><span class="line">追加到 AI 消息中</span><br><span class="line">      ↓</span><br><span class="line">Markdown 渲染展示</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="9-2-流式展示的关键点"><a href="#9-2-流式展示的关键点" class="headerlink" title="9.2 流式展示的关键点"></a>9.2 流式展示的关键点</h3><p>我复现时发现，流式输出最容易出现的问题是：</p>
+<ol>
+<li>中文内容中间断开；</li>
+<li>Markdown 代码块还没生成完就开始渲染；</li>
+<li>后端异常时前端不知道如何关闭连接；</li>
+<li>用户连续点击发送导致多个 EventSource 同时存在。</li>
+</ol>
+<p>可以加入一些状态控制：</p>
+<figure class="highlight javascript"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> loading = <span class="title function_">ref</span>(<span class="literal">false</span>)</span><br><span class="line"><span class="keyword">let</span> eventSource = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sendMessage</span>(<span class="params"></span>) {</span><br><span class="line">  <span class="keyword">if</span> (loading.<span class="property">value</span>) {</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  loading.<span class="property">value</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  eventSource = <span class="keyword">new</span> <span class="title class_">EventSource</span>(url)</span><br><span class="line"></span><br><span class="line">  eventSource.<span class="property">onmessage</span> = <span class="function">(<span class="params">event</span>) =&gt;</span> {</span><br><span class="line">    currentAiMessage.<span class="property">content</span> += event.<span class="property">data</span></span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  eventSource.<span class="property">onerror</span> = <span class="function">() =&gt;</span> {</span><br><span class="line">    loading.<span class="property">value</span> = <span class="literal">false</span></span><br><span class="line">    eventSource.<span class="title function_">close</span>()</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>虽然这个项目的前端不复杂，但它已经覆盖了 AI 聊天产品中最核心的体验：<br><strong>输入问题 → 流式生成 → Markdown 展示</strong>。</p>
+<hr>
+<h2 id="十、复现过程中的问题与处理"><a href="#十、复现过程中的问题与处理" class="headerlink" title="十、复现过程中的问题与处理"></a>十、复现过程中的问题与处理</h2><h3 id="10-1-API-Key-不要直接写死"><a href="#10-1-API-Key-不要直接写死" class="headerlink" title="10.1 API Key 不要直接写死"></a>10.1 API Key 不要直接写死</h3><p>一开始为了图方便，我差点直接把 API Key 写在 <code>application.yml</code> 中。<br>后来改成了环境变量方式：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">api-key:</span> <span class="string">${DASH_SCOPE_API_KEY}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>这样更适合上传代码，也方便不同环境切换。</p>
+<hr>
+<h3 id="10-2-前端接口路径容易写错"><a href="#10-2-前端接口路径容易写错" class="headerlink" title="10.2 前端接口路径容易写错"></a>10.2 前端接口路径容易写错</h3><p>后端配置了：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">context-path:</span> <span class="string">/api</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>Controller 又配置了：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping("/ai")</span></span><br><span class="line"><span class="meta">@GetMapping("/chat")</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>所以完整接口应该是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/api/ai/chat</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果前端只写 <code>/ai/chat</code>，就会出现 404。</p>
+<hr>
+<h3 id="10-3-SSE-不能用普通-axios-请求处理"><a href="#10-3-SSE-不能用普通-axios-请求处理" class="headerlink" title="10.3 SSE 不能用普通 axios 请求处理"></a>10.3 SSE 不能用普通 axios 请求处理</h3><p>一开始我下意识想用 axios 调接口，但 SSE 更适合用浏览器原生的 <code>EventSource</code>。</p>
+<figure class="highlight javascript"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="title class_">EventSource</span>(url)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这样才能持续接收后端推送的数据。</p>
+<hr>
+<h3 id="10-4-RAG-文档目录不能为空"><a href="#10-4-RAG-文档目录不能为空" class="headerlink" title="10.4 RAG 文档目录不能为空"></a>10.4 RAG 文档目录不能为空</h3><p>如果 <code>src/main/resources/docs</code> 目录下没有准备文档，RAG 检索就没有内容。<br>所以复现时我放了一些测试文档，例如：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">src/main/resources/docs/</span><br><span class="line">├── java-learning.md</span><br><span class="line">├── springboot-interview.md</span><br><span class="line">└── project-experience.md</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后测试类似问题：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">根据我的知识库，帮我规划 Spring Boot 学习路线</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这样才能看出 RAG 是否真的参与了回答。</p>
+<hr>
+<h3 id="10-5-工具调用结果依赖外部页面结构"><a href="#10-5-工具调用结果依赖外部页面结构" class="headerlink" title="10.5 工具调用结果依赖外部页面结构"></a>10.5 工具调用结果依赖外部页面结构</h3><p><code>InterviewQuestionTool</code> 使用 Jsoup 解析网页：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Elements</span> <span class="variable">questionElements</span> <span class="operator">=</span> doc.select(<span class="string">".ant-table-cell &gt; a"</span>);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这种方式比较直观，但也有一个问题：<br>如果目标网站页面结构变化，CSS 选择器可能失效。</p>
+<p>后续可以考虑：</p>
+<ol>
+<li>增加异常兜底；</li>
+<li>缓存搜索结果；</li>
+<li>换成稳定 API；</li>
+<li>对工具返回结果做结构化封装。</li>
+</ol>
+<hr>
+<h2 id="十一、最终实现效果"><a href="#十一、最终实现效果" class="headerlink" title="十一、最终实现效果"></a>十一、最终实现效果</h2><p>复现完成后，项目可以实现以下功能：</p>
+<ol>
+<li>前端可以输入问题并展示 AI 回答；</li>
+<li>后端可以通过 SSE 流式返回模型结果；</li>
+<li>不同 <code>memoryId</code> 可以区分不同会话上下文；</li>
+<li>系统提示词可以约束 AI 助手的回答风格；</li>
+<li>RAG 可以加载本地文档并参与回答；</li>
+<li>自定义工具可以搜索面试题；</li>
+<li>MCP 可以接入外部搜索能力；</li>
+<li>安全护轨可以在模型调用前拦截部分输入；</li>
+<li>Markdown 内容可以在前端较好地展示；</li>
+<li>项目整体形成了一个较完整的 AI 编程助手 Demo。</li>
+</ol>
+<p>当然，这个项目仍然是学习型项目，不是完整商业产品。<br>比如用户体系、持久化会话、权限控制、工具调用审计、向量库持久化、生产部署、日志监控等能力还可以继续扩展。</p>
+<hr>
+<h2 id="十二、个人收获"><a href="#十二、个人收获" class="headerlink" title="十二、个人收获"></a>十二、个人收获</h2><p>这次复现对我最大的帮助，是让我把“调用大模型 API”和“开发 AI 应用”区分开了。</p>
+<p>以前我理解的 AI 应用大概是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户输入 → 调模型 → 返回答案</span><br></pre></td></tr></tbody></table></figure>
+
+<p>但这个项目让我看到更完整的链路：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">用户输入</span><br><span class="line">   ↓</span><br><span class="line">Prompt 约束</span><br><span class="line">   ↓</span><br><span class="line">会话记忆</span><br><span class="line">   ↓</span><br><span class="line">知识库检索</span><br><span class="line">   ↓</span><br><span class="line">工具选择</span><br><span class="line">   ↓</span><br><span class="line">MCP 外部能力</span><br><span class="line">   ↓</span><br><span class="line">安全护轨</span><br><span class="line">   ↓</span><br><span class="line">模型生成</span><br><span class="line">   ↓</span><br><span class="line">流式输出</span><br><span class="line">   ↓</span><br><span class="line">前端展示</span><br></pre></td></tr></tbody></table></figure>
+
+<p>我的主要收获有以下几点。</p>
+<h3 id="1-LangChain4j-更像是-AI-应用的编排层"><a href="#1-LangChain4j-更像是-AI-应用的编排层" class="headerlink" title="1. LangChain4j 更像是 AI 应用的编排层"></a>1. LangChain4j 更像是 AI 应用的编排层</h3><p>它不是简单封装模型 API，而是把模型、记忆、RAG、工具、Prompt、结构化输出等能力组织起来。<br>这对 Java 后端开发者很友好，因为可以继续使用熟悉的 Spring Boot 工程方式。</p>
+<hr>
+<h3 id="2-Agent-的关键是“能不能使用工具”"><a href="#2-Agent-的关键是“能不能使用工具”" class="headerlink" title="2. Agent 的关键是“能不能使用工具”"></a>2. Agent 的关键是“能不能使用工具”</h3><p>普通聊天机器人只回答文本。<br>而 Agent 代码开发助手应该能读取文档、搜索资料、分析代码、调用接口，甚至辅助执行部分开发流程。</p>
+<p>这个项目中的 <code>InterviewQuestionTool</code> 和 MCP 搜索工具虽然简单，但已经体现了 Agent 的基本思想。</p>
+<hr>
+<h3 id="3-RAG-解决的是“回答依据”的问题"><a href="#3-RAG-解决的是“回答依据”的问题" class="headerlink" title="3. RAG 解决的是“回答依据”的问题"></a>3. RAG 解决的是“回答依据”的问题</h3><p>没有 RAG 时，模型回答更多依赖自身知识。<br>有了 RAG 后，可以把本地文档、项目经验、面试题库、学习资料接入进来，让回答更贴近指定资料。</p>
+<p>但 RAG 的效果很依赖文档质量和切分策略，不能只看功能有没有跑通。</p>
+<hr>
+<h3 id="4-流式响应直接影响用户体验"><a href="#4-流式响应直接影响用户体验" class="headerlink" title="4. 流式响应直接影响用户体验"></a>4. 流式响应直接影响用户体验</h3><p>AI 应用里，响应时间往往比较长。<br>如果没有流式输出，用户会觉得系统卡住了。<br>SSE 虽然实现简单，但已经能明显提升聊天体验。</p>
+<hr>
+<h3 id="5-安全护轨在-Agent-项目中必须提前考虑"><a href="#5-安全护轨在-Agent-项目中必须提前考虑" class="headerlink" title="5. 安全护轨在 Agent 项目中必须提前考虑"></a>5. 安全护轨在 Agent 项目中必须提前考虑</h3><p>如果 AI 只是回答文本，风险相对有限。<br>但一旦 AI 可以调用工具，安全问题就会放大。<br>后续做代码开发助手时，工具权限、参数校验、调用日志都应该认真设计。</p>
+<hr>
+<h2 id="十三、后续优化方向"><a href="#十三、后续优化方向" class="headerlink" title="十三、后续优化方向"></a>十三、后续优化方向</h2><p>如果继续在这个项目基础上扩展，我觉得可以从以下方向入手：</p>
+<ol>
+<li><p><strong>会话持久化</strong><br>当前内存会话重启后会丢失，可以接入 Redis 或数据库。</p>
+</li>
+<li><p><strong>用户系统</strong><br>增加登录、用户隔离、历史记录、个人知识库等功能。</p>
+</li>
+<li><p><strong>向量库持久化</strong><br>将 <code>InMemoryEmbeddingStore</code> 替换为 Milvus、PGVector、Elasticsearch 或 Redis Vector。</p>
+</li>
+<li><p><strong>代码仓库分析工具</strong><br>支持上传或绑定 GitHub 仓库，让 AI 分析项目结构、生成 README、总结模块职责。</p>
+</li>
+<li><p><strong>更多 MCP 工具</strong><br>接入文档搜索、Issue 查询、CI 日志分析、依赖漏洞检查等能力。</p>
+</li>
+<li><p><strong>输出结构化报告</strong><br>针对学习路线、简历修改、项目优化建议，生成固定格式报告。</p>
+</li>
+<li><p><strong>工具调用审计</strong><br>记录模型调用了什么工具、传了什么参数、返回了什么结果。</p>
+</li>
+<li><p><strong>前端体验优化</strong><br>增加会话列表、停止生成、重新生成、复制代码、代码高亮等功能。</p>
+</li>
+</ol>
+<hr>
+<h2 id="十四、总结"><a href="#十四、总结" class="headerlink" title="十四、总结"></a>十四、总结</h2><p>这次 AI 编程小助手项目复现，让我对 Java 技术栈下的大模型应用开发有了更完整的认识。</p>
+<p>如果用一句话总结这个项目：</p>
+<blockquote>
+<p>它不是一个简单的 AI 聊天框，而是一个把 Spring Boot、LangChain4j、大模型、RAG、工具调用、MCP、安全护轨和 Vue 前端串起来的 Agent 应用练习项目。</p>
+</blockquote>
+<p>对我来说，最大的收获不是学会了某一个 API，而是理解了一个 AI 应用的基本结构：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">模型是核心能力，</span><br><span class="line">Prompt 是行为约束，</span><br><span class="line">记忆是上下文，</span><br><span class="line">RAG 是外部知识，</span><br><span class="line">工具是行动能力，</span><br><span class="line">护轨是安全边界，</span><br><span class="line">前端体验决定用户是否愿意继续使用。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>后续如果要做一个真正可用的 Agent 代码开发助手，我认为不能只停留在“帮我解释代码”或“帮我写函数”这类问答能力上，而应该继续往项目级能力扩展，例如：</p>
+<ol>
+<li>读取项目目录；</li>
+<li>理解模块依赖；</li>
+<li>分析报错日志；</li>
+<li>生成修改方案；</li>
+<li>调用工具验证结果；</li>
+<li>输出可落地的代码变更建议。</li>
+</ol>
+<p>这也是我觉得这个项目最有价值的地方：<br>它用一个相对轻量的实战项目，把 AI 应用开发中最重要的几块能力都串了一遍。</p>
+<hr>
+<h2 id="十五、核心流程伪代码"><a href="#十五、核心流程伪代码" class="headerlink" title="十五、核心流程伪代码"></a>十五、核心流程伪代码</h2><p>最后用一段伪代码总结整个 AI 编程助手的运行流程。</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 后端核心流程伪代码</span></span><br><span class="line"></span><br><span class="line">用户访问前端页面</span><br><span class="line">        ↓</span><br><span class="line">输入编程学习 / 面试 / 代码问题</span><br><span class="line">        ↓</span><br><span class="line">前端通过 EventSource 请求 /api/ai/chat</span><br><span class="line">        ↓</span><br><span class="line">AiController 接收 memoryId 和 message</span><br><span class="line">        ↓</span><br><span class="line">调用 aiCodeHelperService.chatStream(memoryId, message)</span><br><span class="line">        ↓</span><br><span class="line">LangChain4j 自动组装上下文：</span><br><span class="line">    - system-prompt.txt</span><br><span class="line">    - 当前用户输入</span><br><span class="line">    - 指定 memoryId 的历史消息</span><br><span class="line">    - RAG 检索结果</span><br><span class="line">    - 可用工具列表</span><br><span class="line">    - MCP 工具列表</span><br><span class="line">    - 输入安全护轨</span><br><span class="line">        ↓</span><br><span class="line">调用 StreamingChatModel</span><br><span class="line">        ↓</span><br><span class="line">模型边生成边返回 token</span><br><span class="line">        ↓</span><br><span class="line">Spring Boot 封装为 Server-Sent Events</span><br><span class="line">        ↓</span><br><span class="line">前端持续接收并追加内容</span><br><span class="line">        ↓</span><br><span class="line">Markdown 渲染为最终回答</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight javascript"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前端核心流程伪代码</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sendMessage</span>(<span class="params"></span>) {</span><br><span class="line">  <span class="title function_">addUserMessage</span>(inputText)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> aiMessage = <span class="title function_">addEmptyAiMessage</span>()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> eventSource = <span class="keyword">new</span> <span class="title class_">EventSource</span>(</span><br><span class="line">    <span class="string">`/api/ai/chat?memoryId=<span class="subst">${memoryId}</span>&amp;message=<span class="subst">${<span class="built_in">encodeURIComponent</span>(inputText)}</span>`</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  eventSource.<span class="property">onmessage</span> = <span class="function">(<span class="params">event</span>) =&gt;</span> {</span><br><span class="line">    aiMessage.<span class="property">content</span> += event.<span class="property">data</span></span><br><span class="line">    <span class="title function_">renderMarkdown</span>(aiMessage.<span class="property">content</span>)</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  eventSource.<span class="property">onerror</span> = <span class="function">() =&gt;</span> {</span><br><span class="line">    eventSource.<span class="title function_">close</span>()</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// Agent 能力链路总结</span><br><span class="line"></span><br><span class="line">用户问题</span><br><span class="line">  → 安全检查</span><br><span class="line">  → 会话记忆</span><br><span class="line">  → 系统提示词约束</span><br><span class="line">  → 判断是否需要 RAG</span><br><span class="line">  → 判断是否需要调用工具</span><br><span class="line">  → 判断是否需要 MCP 搜索</span><br><span class="line">  → 大模型生成答案</span><br><span class="line">  → SSE 流式返回</span><br><span class="line">  → 前端 Markdown 展示</span><br></pre></td></tr></tbody></table></figure>
+<hr>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li>项目介绍文章：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/7cNh7ndeiWiHBjnkTkz_Zg">AI 编程小助手项目介绍</a></li>
+<li>开源项目仓库：<a target="_blank" rel="noopener" href="https://github.com/liyupi/ai-code-helper">liyupi/ai-code-helper</a></li>
+<li>LangChain4j 官方文档：<a target="_blank" rel="noopener" href="https://docs.langchain4j.dev/">https://docs.langchain4j.dev/</a></li>
+<li>Spring Boot 官方文档：<a target="_blank" rel="noopener" href="https://spring.io/projects/spring-boot">https://spring.io/projects/spring-boot</a></li>
+<li>通义千问 DashScope 文档：<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/dashscope/">https://help.aliyun.com/zh/dashscope/</a></li>
+<li>Vue 官方文档：<a target="_blank" rel="noopener" href="https://vuejs.org/">https://vuejs.org/</a></li>
+<li>Server-Sent Events MDN 文档：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events">https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/05/04/notes/project_1/notes-project-aicode-001/">https://wxggo.github.io/2026/05/04/notes/project_1/notes-project-aicode-001/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://wxggo.github.io" target="_blank">WXGのBlog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI%E7%BC%96%E7%A8%8B%E5%8A%A9%E6%89%8B/">AI编程助手</a><a class="post-meta__tags" href="/tags/LangChain4j/">LangChain4j</a><a class="post-meta__tags" href="/tags/Spring-Boot/">Spring Boot</a><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BA%94%E7%94%A8/">大模型应用</a></div><div class="post_share"><div class="social-share" data-image="/images/photo2024/notes_project/notes-project-aicode-001/cover.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2026/04/30/notes/project_1/notes-project-sky-001/" title="Notes-项目复盘:苍穹外卖后端项目学习总结"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-04-30/17/cfb2377989db5623.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Notes-项目复盘:苍穹外卖后端项目学习总结</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">49</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%A1%B9%E7%9B%AE%E7%9B%AE%E6%A0%87%E4%B8%8E%E6%95%B4%E4%BD%93%E6%96%B9%E6%A1%88"><span class="toc-text">二、项目目标与整体方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%A1%B9%E7%9B%AE%E5%AE%9A%E4%BD%8D"><span class="toc-text">2.1 项目定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%8A%80%E6%9C%AF%E6%A0%88%E7%BB%84%E6%88%90"><span class="toc-text">2.2 技术栈组成</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87%E4%B8%8E%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8"><span class="toc-text">三、环境准备与项目启动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%90%8E%E7%AB%AF%E7%8E%AF%E5%A2%83"><span class="toc-text">3.1 后端环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%90%8E%E7%AB%AF%E5%90%AF%E5%8A%A8"><span class="toc-text">3.2 后端启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%89%8D%E7%AB%AF%E5%90%AF%E5%8A%A8"><span class="toc-text">3.3 前端启动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%90%8E%E7%AB%AF%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97%E7%90%86%E8%A7%A3"><span class="toc-text">四、后端核心模块理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-AiController%EF%BC%9A%E5%AF%B9%E5%A4%96%E6%9A%B4%E9%9C%B2%E8%81%8A%E5%A4%A9%E6%8E%A5%E5%8F%A3"><span class="toc-text">4.1 AiController：对外暴露聊天接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-AiCodeHelperService%EF%BC%9AAI-%E8%83%BD%E5%8A%9B%E6%8E%A5%E5%8F%A3"><span class="toc-text">4.2 AiCodeHelperService：AI 能力接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-AiCodeHelperServiceFactory%EF%BC%9A%E6%89%8B%E5%8A%A8%E6%9E%84%E5%BB%BA-AI-Service"><span class="toc-text">4.3 AiCodeHelperServiceFactory：手动构建 AI Service</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%A8%A1%E5%9E%8B%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94"><span class="toc-text">五、模型配置与流式响应</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E9%80%9A%E4%B9%89%E5%8D%83%E9%97%AE%E6%A8%A1%E5%9E%8B%E9%85%8D%E7%BD%AE"><span class="toc-text">5.1 通义千问模型配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8-StreamingChatModel"><span class="toc-text">5.2 为什么要用 StreamingChatModel</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81RAG-%E6%A3%80%E7%B4%A2%E5%A2%9E%E5%BC%BA%E5%AD%A6%E4%B9%A0"><span class="toc-text">六、RAG 检索增强学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-RAG"><span class="toc-text">6.1 为什么需要 RAG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E6%96%87%E6%A1%A3%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%88%87%E5%88%86"><span class="toc-text">6.2 文档加载与切分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%90%91%E9%87%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%86%85%E5%AE%B9%E6%A3%80%E7%B4%A2"><span class="toc-text">6.3 向量存储与内容检索</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E4%B8%8E-MCP-%E6%8E%A5%E5%85%A5"><span class="toc-text">七、工具调用与 MCP 接入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-Tool-Calling%EF%BC%9A%E8%AE%A9%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-text">7.1 Tool Calling：让模型调用自定义方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-MCP%EF%BC%9A%E6%8A%8A%E5%A4%96%E9%83%A8%E8%83%BD%E5%8A%9B%E6%A0%87%E5%87%86%E5%8C%96%E6%8E%A5%E8%BF%9B%E6%9D%A5"><span class="toc-text">7.2 MCP：把外部能力标准化接进来</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%AE%89%E5%85%A8%E6%8A%A4%E8%BD%A8%E4%B8%8E%E8%BE%93%E5%85%A5%E8%BF%87%E6%BB%A4"><span class="toc-text">八、安全护轨与输入过滤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-Guardrail"><span class="toc-text">8.1 为什么需要 Guardrail</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E6%88%91%E5%AF%B9%E5%AE%89%E5%85%A8%E6%8A%A4%E8%BD%A8%E7%9A%84%E7%90%86%E8%A7%A3"><span class="toc-text">8.2 我对安全护轨的理解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%89%8D%E7%AB%AF%E8%81%8A%E5%A4%A9%E7%95%8C%E9%9D%A2%E5%A4%8D%E7%8E%B0"><span class="toc-text">九、前端聊天界面复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E5%89%8D%E7%AB%AF%E6%89%BF%E6%8B%85%E7%9A%84%E4%BB%BB%E5%8A%A1"><span class="toc-text">9.1 前端承担的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E6%B5%81%E5%BC%8F%E5%B1%95%E7%A4%BA%E7%9A%84%E5%85%B3%E9%94%AE%E7%82%B9"><span class="toc-text">9.2 流式展示的关键点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%A4%8D%E7%8E%B0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%8E%E5%A4%84%E7%90%86"><span class="toc-text">十、复现过程中的问题与处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-API-Key-%E4%B8%8D%E8%A6%81%E7%9B%B4%E6%8E%A5%E5%86%99%E6%AD%BB"><span class="toc-text">10.1 API Key 不要直接写死</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E5%89%8D%E7%AB%AF%E6%8E%A5%E5%8F%A3%E8%B7%AF%E5%BE%84%E5%AE%B9%E6%98%93%E5%86%99%E9%94%99"><span class="toc-text">10.2 前端接口路径容易写错</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-SSE-%E4%B8%8D%E8%83%BD%E7%94%A8%E6%99%AE%E9%80%9A-axios-%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86"><span class="toc-text">10.3 SSE 不能用普通 axios 请求处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-RAG-%E6%96%87%E6%A1%A3%E7%9B%AE%E5%BD%95%E4%B8%8D%E8%83%BD%E4%B8%BA%E7%A9%BA"><span class="toc-text">10.4 RAG 文档目录不能为空</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E7%BB%93%E6%9E%9C%E4%BE%9D%E8%B5%96%E5%A4%96%E9%83%A8%E9%A1%B5%E9%9D%A2%E7%BB%93%E6%9E%84"><span class="toc-text">10.5 工具调用结果依赖外部页面结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E6%9C%80%E7%BB%88%E5%AE%9E%E7%8E%B0%E6%95%88%E6%9E%9C"><span class="toc-text">十一、最终实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E4%B8%AA%E4%BA%BA%E6%94%B6%E8%8E%B7"><span class="toc-text">十二、个人收获</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-LangChain4j-%E6%9B%B4%E5%83%8F%E6%98%AF-AI-%E5%BA%94%E7%94%A8%E7%9A%84%E7%BC%96%E6%8E%92%E5%B1%82"><span class="toc-text">1. LangChain4j 更像是 AI 应用的编排层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Agent-%E7%9A%84%E5%85%B3%E9%94%AE%E6%98%AF%E2%80%9C%E8%83%BD%E4%B8%8D%E8%83%BD%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E2%80%9D"><span class="toc-text">2. Agent 的关键是“能不能使用工具”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-RAG-%E8%A7%A3%E5%86%B3%E7%9A%84%E6%98%AF%E2%80%9C%E5%9B%9E%E7%AD%94%E4%BE%9D%E6%8D%AE%E2%80%9D%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">3. RAG 解决的是“回答依据”的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E7%9B%B4%E6%8E%A5%E5%BD%B1%E5%93%8D%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C"><span class="toc-text">4. 流式响应直接影响用户体验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%AE%89%E5%85%A8%E6%8A%A4%E8%BD%A8%E5%9C%A8-Agent-%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%BF%85%E9%A1%BB%E6%8F%90%E5%89%8D%E8%80%83%E8%99%91"><span class="toc-text">5. 安全护轨在 Agent 项目中必须提前考虑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E5%90%8E%E7%BB%AD%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91"><span class="toc-text">十三、后续优化方向</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">十四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%94%E3%80%81%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">十五、核心流程伪代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-text">参考链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/04/notes/project_1/notes-project-aicode-001/" title="Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现"><img src="/images/photo2024/notes_project/notes-project-aicode-001/cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现"></a><div class="content"><a class="title" href="/2026/05/04/notes/project_1/notes-project-aicode-001/" title="Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现">Notes-项目复盘:基于LangChain4j的AI编程小助手学习与复现</a><time datetime="2026-05-04T11:30:00.000Z" title="发表于 2026-05-04 19:30:00">2026-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/30/notes/project_1/notes-project-sky-001/" title="Notes-项目复盘:苍穹外卖后端项目学习总结"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-04-30/17/cfb2377989db5623.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Notes-项目复盘:苍穹外卖后端项目学习总结"></a><div class="content"><a class="title" href="/2026/04/30/notes/project_1/notes-project-sky-001/" title="Notes-项目复盘:苍穹外卖后端项目学习总结">Notes-项目复盘:苍穹外卖后端项目学习总结</a><time datetime="2026-04-30T11:30:00.000Z" title="发表于 2026-04-30 19:30:00">2026-04-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/30/notes/review_1/notes-review-Bike-001/" title="Notes-竞赛复盘:全国大学生智能汽车竞赛单车越野组总结"><img src="/images/photo2024/notes_review/notes-review-Bike-001/%E6%99%BA%E8%83%BD%E8%BD%A6%20(3).jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Notes-竞赛复盘:全国大学生智能汽车竞赛单车越野组总结"></a><div class="content"><a class="title" href="/2026/04/30/notes/review_1/notes-review-Bike-001/" title="Notes-竞赛复盘:全国大学生智能汽车竞赛单车越野组总结">Notes-竞赛复盘:全国大学生智能汽车竞赛单车越野组总结</a><time datetime="2026-04-30T11:30:00.000Z" title="发表于 2026-04-30 19:30:00">2026-04-30</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 - 2026 By wxg</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>
