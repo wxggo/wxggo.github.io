@@ -1,6 +1,6 @@
 (function () {
-  const LOCAL_API_BASE = 'http://118.190.203.52:8081/api';
-  const PROD_API_BASE = 'http://118.190.203.52:8081/api';
+  const LOCAL_API_BASE = 'https://agent.wxggo.jphulab.cn/api';
+  const PROD_API_BASE = 'https://agent.wxggo.jphulab.cn/api';
   const API_BASE = (window.WXGGO_AGENT_API_BASE ||
     window.WXGGO_AGENT_PROD_API_BASE ||
     ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? LOCAL_API_BASE : PROD_API_BASE)
@@ -71,35 +71,62 @@
   }
 
   function renderInlineMarkdown(text) {
-    let html = escapeHtml(text);
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    const codeSegments = [];
+    let html = escapeHtml(text).replace(/`([^`]+)`/g, function (_, code) {
+      const token = `\u0000CODE_${codeSegments.length}\u0000`;
+      codeSegments.push(`<code>${code}</code>`);
+      return token;
+    });
+
     html = html.replace(/\[([^\]]+)]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
     html = html.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>');
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    html = html.replace(/\u0000CODE_(\d+)\u0000/g, function (_, index) {
+      return codeSegments[Number(index)] || '';
+    });
     return html;
   }
 
   function renderMarkdown(text) {
-    const lines = text.split(/\r?\n/);
     const html = [];
-    let listOpen = false;
+    let listOpen = '';
 
     function closeList() {
       if (listOpen) {
-        html.push('</ul>');
-        listOpen = false;
+        html.push(`</${listOpen}>`);
+        listOpen = '';
       }
     }
 
-    lines.forEach(function (line) {
+    function openList(tag) {
+      if (listOpen === tag) return;
+      closeList();
+      html.push(`<${tag}>`);
+      listOpen = tag;
+    }
+
+    function renderListItem(tag, content) {
+      openList(tag);
+      html.push(`<li>${renderInlineMarkdown(content)}</li>`);
+    }
+
+    function renderParagraph(content) {
+      html.push(`<p>${renderInlineMarkdown(content)}</p>`);
+    }
+
+    function normalizeLine(line) {
+      return line.replace(/\\n/g, '\n');
+    }
+
+    normalizeLine(text).split(/\r?\n/).forEach(function (line) {
       const trimmed = line.trim();
       if (!trimmed) {
         closeList();
-        html.push('<br>');
         return;
       }
 
-      const heading = trimmed.match(/^(#{1,4})\s+(.+)$/);
+      const heading = trimmed.match(/^(#{1,6})\s*(.+)$/);
       if (heading) {
         closeList();
         const level = Math.min(heading[1].length + 2, 6);
@@ -109,16 +136,25 @@
 
       const listItem = trimmed.match(/^[-*]\s+(.+)$/);
       if (listItem) {
-        if (!listOpen) {
-          html.push('<ul>');
-          listOpen = true;
-        }
-        html.push(`<li>${renderInlineMarkdown(listItem[1])}</li>`);
+        renderListItem('ul', listItem[1]);
+        return;
+      }
+
+      const orderedItem = trimmed.match(/^\d+[.)]\s+(.+)$/);
+      if (orderedItem) {
+        renderListItem('ol', orderedItem[1]);
+        return;
+      }
+
+      const blockquote = trimmed.match(/^>\s+(.+)$/);
+      if (blockquote) {
+        closeList();
+        html.push(`<blockquote>${renderInlineMarkdown(blockquote[1])}</blockquote>`);
         return;
       }
 
       closeList();
-      html.push(`<p>${renderInlineMarkdown(trimmed)}</p>`);
+      renderParagraph(trimmed);
     });
 
     closeList();
@@ -204,11 +240,13 @@
     }
 
     function setRootPosition(left, top, persist) {
-      const rect = root.getBoundingClientRect();
-      const maxLeft = Math.max(12, window.innerWidth - rect.width - 12);
-      const maxTop = Math.max(12, window.innerHeight - rect.height - 12);
-      const nextLeft = Math.min(Math.max(12, left), maxLeft);
-      const nextTop = Math.min(Math.max(12, top), maxTop);
+      const bounds = getDragBounds();
+      const minLeft = 12 - bounds.leftOffset;
+      const minTop = 12 - bounds.topOffset;
+      const maxLeft = window.innerWidth - bounds.rightOffset - 12;
+      const maxTop = window.innerHeight - bounds.bottomOffset - 12;
+      const nextLeft = Math.min(Math.max(minLeft, left), Math.max(minLeft, maxLeft));
+      const nextTop = Math.min(Math.max(minTop, top), Math.max(minTop, maxTop));
       root.style.left = `${nextLeft}px`;
       root.style.top = `${nextTop}px`;
       root.style.right = 'auto';
@@ -216,6 +254,32 @@
       if (persist) {
         localStorage.setItem(POSITION_KEY, JSON.stringify({ left: nextLeft, top: nextTop }));
       }
+    }
+
+    function getDragBounds() {
+      const rect = root.getBoundingClientRect();
+      const bounds = {
+        leftOffset: 0,
+        topOffset: 0,
+        rightOffset: rect.width,
+        bottomOffset: rect.height
+      };
+
+      if (!root.classList.contains('wxggo-agent--open') || root.classList.contains('wxggo-agent--expanded')) {
+        return bounds;
+      }
+
+      const panelRect = panel.getBoundingClientRect();
+      bounds.leftOffset = Math.min(bounds.leftOffset, panelRect.left - rect.left);
+      bounds.topOffset = Math.min(bounds.topOffset, panelRect.top - rect.top);
+      bounds.rightOffset = Math.max(bounds.rightOffset, panelRect.right - rect.left);
+      bounds.bottomOffset = Math.max(bounds.bottomOffset, panelRect.bottom - rect.top);
+      return bounds;
+    }
+
+    function keepAgentInViewport() {
+      const rect = root.getBoundingClientRect();
+      setRootPosition(rect.left, rect.top, Boolean(root.style.left && root.style.top));
     }
 
     function setExpanded(expanded) {
@@ -229,7 +293,10 @@
     function setOpen(open) {
       root.classList.toggle('wxggo-agent--open', open);
       panel.setAttribute('aria-hidden', String(!open));
-      if (open) input.focus();
+      if (open) {
+        keepAgentInViewport();
+        input.focus();
+      }
     }
 
     function addMessage(role, text) {
@@ -351,7 +418,8 @@
     function bindDrag(handle) {
       handle.addEventListener('pointerdown', function (event) {
         if (event.button !== 0 || root.classList.contains('wxggo-agent--expanded')) return;
-        if (event.target.closest('button, textarea, a')) return;
+        const interactiveElement = event.target.closest('button, textarea, input, select, a');
+        if (interactiveElement && interactiveElement !== handle) return;
 
         const startX = event.clientX;
         const startY = event.clientY;
@@ -417,10 +485,7 @@
       });
     });
     window.addEventListener('resize', function () {
-      const rect = root.getBoundingClientRect();
-      if (root.style.left && root.style.top) {
-        setRootPosition(rect.left, rect.top, true);
-      }
+      keepAgentInViewport();
     });
 
     restorePosition();
