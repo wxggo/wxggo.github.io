@@ -1,10 +1,14 @@
 (function () {
-  const LOCAL_API_BASE = 'https://agent.wxggo.jphulab.cn/api';
+  const LOCAL_API_BASE = 'http://118.190.203.52:8081/api';
   const PROD_API_BASE = 'https://agent.wxggo.jphulab.cn/api';
-  const API_BASE = (window.WXGGO_AGENT_API_BASE ||
-    window.WXGGO_AGENT_PROD_API_BASE ||
-    ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? LOCAL_API_BASE : PROD_API_BASE)
-  ).replace(/\/$/, '');
+  const FALLBACK_API_BASES = [
+    'https://agent.wxggo.jphulab.cn/api',
+    'http://agent.wxggo.jphulab.cn/api',
+    'https://118.190.203.52:8081/api',
+    'http://118.190.203.52:8081/api'
+  ];
+  const API_BASES = getConfiguredApiBases();
+  let activeApiBase = API_BASES[0] || '';
   const MEMORY_KEY = 'wxggo-agent-memory-id';
   const POSITION_KEY = 'wxggo-agent-position';
   const EXPANDED_KEY = 'wxggo-agent-expanded';
@@ -45,6 +49,65 @@
     restore: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M16 3v3a2 2 0 0 0 2 2h3"/><path d="M8 21v-3a2 2 0 0 0-2-2H3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>',
     close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
   };
+
+  function normalizeApiBase(base) {
+    return String(base || '').trim().replace(/\/$/, '');
+  }
+
+  function appendApiBases(target, bases) {
+    if (!bases) return;
+    const values = Array.isArray(bases) ? bases : String(bases).split(',');
+    values.forEach(function (base) {
+      const normalized = normalizeApiBase(base);
+      if (normalized && target.indexOf(normalized) === -1) {
+        target.push(normalized);
+      }
+    });
+  }
+
+  function getConfiguredApiBases() {
+    const bases = [];
+    appendApiBases(bases, window.WXGGO_AGENT_API_BASES);
+    appendApiBases(bases, window.WXGGO_AGENT_API_BASE);
+    appendApiBases(bases, window.WXGGO_AGENT_PROD_API_BASE);
+    appendApiBases(bases, (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? LOCAL_API_BASE : PROD_API_BASE);
+    appendApiBases(bases, FALLBACK_API_BASES);
+    return bases;
+  }
+
+  function getApiBasesInPriorityOrder() {
+    if (!activeApiBase) return API_BASES.slice();
+    return [activeApiBase].concat(API_BASES.filter(function (base) {
+      return base !== activeApiBase;
+    }));
+  }
+
+  function rememberWorkingApiBase(apiBase) {
+    activeApiBase = apiBase;
+  }
+
+  function fetchJsonWithFallback(path) {
+    const bases = getApiBasesInPriorityOrder();
+    let index = 0;
+
+    function requestNext() {
+      const apiBase = bases[index];
+      if (!apiBase) return Promise.reject(new Error('No API base configured'));
+      return fetch(`${apiBase}${path}`)
+        .then(function (response) {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          rememberWorkingApiBase(apiBase);
+          return response.json();
+        })
+        .catch(function (error) {
+          index += 1;
+          if (index >= bases.length) throw error;
+          return requestNext();
+        });
+    }
+
+    return requestNext();
+  }
 
   function getMemoryId() {
     const saved = localStorage.getItem(MEMORY_KEY);
@@ -359,11 +422,7 @@
 
     function loadModelOptions() {
       renderModelOptions(DEFAULT_MODELS);
-      fetch(`${API_BASE}/ai/models`)
-        .then(function (response) {
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          return response.json();
-        })
+      fetchJsonWithFallback('/ai/models')
         .then(function (data) {
           renderModelOptions(data.models || DEFAULT_MODELS);
         })
@@ -379,7 +438,9 @@
         addMessage('assistant', TEXT.noSse);
         return;
       }
-      if (API_BASE.indexOf('your-domain.example') !== -1) {
+      if (!API_BASES.length || API_BASES.every(function (apiBase) {
+        return apiBase.indexOf('your-domain.example') !== -1;
+      })) {
         addMessage('assistant', TEXT.notConfigured);
         return;
       }
@@ -391,28 +452,41 @@
       const assistantMessage = addMessage('assistant', '');
       assistantMessage.classList.add('is-waiting');
 
-      const chatUrl = new URL(`${API_BASE}/ai/chat`);
-      chatUrl.searchParams.set('memoryId', getMemoryId());
-      chatUrl.searchParams.set('message', question);
-      chatUrl.searchParams.set('modelKey', currentModelKey);
-
+      const apiBases = getApiBasesInPriorityOrder();
+      let apiBaseIndex = 0;
       let received = false;
-      currentSource = new EventSource(chatUrl.toString());
-      currentSource.onmessage = function (event) {
-        received = true;
-        assistantMessage.classList.remove('is-waiting');
-        appendMessage(assistantMessage, event.data);
-        messages.scrollTop = messages.scrollHeight;
-      };
-      currentSource.onerror = function () {
-        closeCurrentSource();
-        assistantMessage.classList.remove('is-waiting');
-        if (!received) {
-          assistantMessage.dataset.raw = TEXT.networkError;
-          updateMessage(assistantMessage);
-        }
-        setBusy(false);
-      };
+
+      function openChatSource(apiBase) {
+        const chatUrl = new URL(`${apiBase}/ai/chat`);
+        chatUrl.searchParams.set('memoryId', getMemoryId());
+        chatUrl.searchParams.set('message', question);
+        chatUrl.searchParams.set('modelKey', currentModelKey);
+
+        currentSource = new EventSource(chatUrl.toString());
+        currentSource.onmessage = function (event) {
+          received = true;
+          rememberWorkingApiBase(apiBase);
+          assistantMessage.classList.remove('is-waiting');
+          appendMessage(assistantMessage, event.data);
+          messages.scrollTop = messages.scrollHeight;
+        };
+        currentSource.onerror = function () {
+          closeCurrentSource();
+          if (!received && apiBaseIndex < apiBases.length - 1) {
+            apiBaseIndex += 1;
+            openChatSource(apiBases[apiBaseIndex]);
+            return;
+          }
+          assistantMessage.classList.remove('is-waiting');
+          if (!received) {
+            assistantMessage.dataset.raw = TEXT.networkError;
+            updateMessage(assistantMessage);
+          }
+          setBusy(false);
+        };
+      }
+
+      openChatSource(apiBases[apiBaseIndex]);
     }
 
     function bindDrag(handle) {
