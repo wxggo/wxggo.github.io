@@ -1,0 +1,644 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP） | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="后端面试八股总结，包含 SSE 与 WebSocket 的选择、RAG概念与流程、RAG检索优化、结构化输出与 Spring AI 实现、MCP协议与 Spring AI 客户端/服务端实现，附30秒口述版，用于面试备战与知识点复盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）">
+<meta property="og:url" content="https://wxggo.github.io/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="后端面试八股总结，包含 SSE 与 WebSocket 的选择、RAG概念与流程、RAG检索优化、结构化输出与 Spring AI 实现、MCP协议与 Spring AI 客户端/服务端实现，附30秒口述版，用于面试备战与知识点复盘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg">
+<meta property="article:published_time" content="2026-05-21T11:03:00.000Z">
+<meta property="article:modified_time" content="2026-05-21T11:03:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="面试">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="Agent">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-21 19:03:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="/css/agent-assistant.css"><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">85</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-21T11:03:00.000Z" title="发表于 2026-05-21 19:03:00">2026-05-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-21T11:03:00.000Z" title="更新于 2026-05-21 19:03:00">2026-05-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%E5%A4%A7%E6%A8%A1%E5%9E%8B/">AI大模型</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg');"></div><article class="post-content" id="article-container"><blockquote>
+<p>本文用于<strong>面试复习&amp;口头表达训练</strong>，所有知识点整理自高频面试题，方便背诵与快速回顾<br>参考来源：面试鸭 <a target="_blank" rel="noopener" href="https://www.mianshiya.com/">https://www.mianshiya.com/</a></p>
+</blockquote>
+<hr>
+<h2 id="Question006-什么是-SSE？为什么-AI-应用接口选择-SSE-而不是-WebSocket？"><a href="#Question006-什么是-SSE？为什么-AI-应用接口选择-SSE-而不是-WebSocket？" class="headerlink" title="Question006: 什么是 SSE？为什么 AI 应用接口选择 SSE 而不是 WebSocket？"></a>Question006: 什么是 SSE？为什么 AI 应用接口选择 SSE 而不是 WebSocket？</h2><h3 id="知识点详解"><a href="#知识点详解" class="headerlink" title="知识点详解"></a>知识点详解</h3><p>SSE 全称是 <strong>Server-Sent Events</strong>，中文一般叫<strong>服务器发送事件</strong>。它是一种基于 HTTP 协议的<strong>服务端向客户端单向推送</strong>技术，浏览器端可以通过 <code>EventSource</code> 接收服务端持续推送的数据。</p>
+<p>在 AI 应用里，SSE 最常见的场景就是<strong>流式输出大模型回复</strong>。比如用户问一个问题后，模型不是等整段答案生成完再返回，而是一个 token、一个词、一个句子地逐步返回，前端就可以像“打字机”一样实时展示内容。</p>
+<p>从通信模型看：</p>
+<ol>
+<li><strong>普通 HTTP 请求</strong>：客户端请求一次，服务端返回一次，适合短响应；</li>
+<li><strong>SSE</strong>：客户端建立连接后，服务端可以持续向客户端推送消息，适合服务端持续产生数据；</li>
+<li><strong>WebSocket</strong>：客户端和服务端建立全双工连接，双方都可以随时主动发送消息，适合强实时双向交互。</li>
+</ol>
+<p>AI 应用接口常选 SSE，而不是 WebSocket，核心原因可以从下面几方面回答：</p>
+<ol>
+<li><strong>通信方向更匹配</strong><ul>
+<li>大模型流式回答主要是“服务端生成内容，然后推给客户端”；</li>
+<li>客户端通常只需要先发送一次问题，后续就是等待模型不断返回结果；</li>
+<li>这种场景本质上是<strong>服务端到客户端的单向数据流</strong>，正好符合 SSE 模型；</li>
+<li>WebSocket 虽然能力更强，但它的双向通信在普通 AI 问答流式输出里不一定用得上。</li>
+</ul>
+</li>
+<li><strong>实现成本更低</strong><ul>
+<li>SSE 基于标准 HTTP，不需要额外设计一套复杂的连接协议；</li>
+<li>前端使用原生 <code>EventSource</code> 或 <code>fetch</code> 读取流即可；</li>
+<li>后端只要返回 <code>Content-Type: text/event-stream</code>，按事件格式持续写出数据；</li>
+<li>WebSocket 需要管理连接生命周期、心跳、断线重连、消息协议、连接池等，工程复杂度更高。</li>
+</ul>
+</li>
+<li><strong>对网关和基础设施更友好</strong><ul>
+<li>SSE 走 HTTP，通常更容易通过 Nginx、API Gateway、负载均衡和鉴权中间件；</li>
+<li>对现有 REST API 架构改造成本较低；</li>
+<li>AI 接口常常还需要接入鉴权、限流、日志、审计等 HTTP 体系能力，SSE 更容易复用。</li>
+</ul>
+</li>
+<li><strong>浏览器自带重连机制</strong><ul>
+<li>SSE 规范中包含自动重连机制；</li>
+<li>可以通过 <code>id</code> / <code>Last-Event-ID</code> 记录事件位置；</li>
+<li>网络短暂中断后，客户端可以带着最后收到的事件 ID 重新连接，服务端可选择从断点继续推送；</li>
+<li>WebSocket 的重连、恢复、消息补偿通常需要业务自己实现。</li>
+</ul>
+</li>
+<li><strong>更适合“文本流”场景</strong><ul>
+<li>SSE 本身就是面向文本事件流设计的；</li>
+<li>大模型返回的 token、片段、结束标记、错误信息，都可以封装成事件；</li>
+<li>例如 <code>event: message</code>、<code>event: done</code>、<code>data: xxx</code>，语义非常清晰。</li>
+</ul>
+</li>
+</ol>
+<h3 id="代码示例（Spring-WebFlux-Spring-AI-风格）"><a href="#代码示例（Spring-WebFlux-Spring-AI-风格）" class="headerlink" title="代码示例（Spring WebFlux / Spring AI 风格）"></a>代码示例（Spring WebFlux / Spring AI 风格）</h3><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)</span></span><br><span class="line"><span class="keyword">public</span> Flux&lt;ServerSentEvent&lt;String&gt;&gt; <span class="title function_">streamChat</span><span class="params">(<span class="meta">@RequestParam</span> String prompt)</span> {</span><br><span class="line">    <span class="keyword">return</span> chatClient</span><br><span class="line">            .prompt(prompt)</span><br><span class="line">            .stream()</span><br><span class="line">            .content()</span><br><span class="line">            .map(token -&gt; ServerSentEvent.builder(token)</span><br><span class="line">                    .event(<span class="string">"message"</span>)</span><br><span class="line">                    .build())</span><br><span class="line">            .concatWithValues(ServerSentEvent.builder(<span class="string">"[DONE]"</span>)</span><br><span class="line">                    .event(<span class="string">"done"</span>)</span><br><span class="line">                    .build());</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>前端接收示例：</p>
+<figure class="highlight javascript"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> <span class="title class_">EventSource</span>(<span class="string">"/chat/stream?prompt=介绍一下RAG"</span>);</span><br><span class="line"></span><br><span class="line">source.<span class="title function_">addEventListener</span>(<span class="string">"message"</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> {</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">"模型输出片段："</span>, event.<span class="property">data</span>);</span><br><span class="line">});</span><br><span class="line"></span><br><span class="line">source.<span class="title function_">addEventListener</span>(<span class="string">"done"</span>, <span class="function">() =&gt;</span> {</span><br><span class="line">  source.<span class="title function_">close</span>();</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="核心提醒"><a href="#核心提醒" class="headerlink" title="核心提醒"></a>核心提醒</h3><p>SSE 不是 WebSocket 的替代品，而是适合不同场景的技术选择。<br>如果是<strong>AI 流式输出、日志推送、通知推送</strong>这类服务端单向推送场景，SSE 简单、稳定、够用；如果是<strong>在线聊天室、协同编辑、游戏对战、实时双向控制</strong>这类强双向交互场景，WebSocket 更合适。</p>
+<h3 id="30秒口述版"><a href="#30秒口述版" class="headerlink" title="30秒口述版"></a>30秒口述版</h3><p>SSE 是基于 HTTP 的服务端单向推送技术，浏览器可以用 EventSource 接收流式数据。AI 应用里，大模型回答通常是服务端不断把 token 推给前端，本质是单向输出，所以 SSE 更简单、更贴合 HTTP 体系，也自带重连机制。WebSocket 适合真正需要双向实时交互的场景，比如聊天室和协同编辑；普通 AI 流式问答用 SSE 更轻量。</p>
+<blockquote>
+<p><strong>参考链接</strong>：<a target="_blank" rel="noopener" href="https://www.mianshiya.com/bank/1929747035048828930/question/1929742310761943041">https://www.mianshiya.com/bank/1929747035048828930/question/1929742310761943041</a></p>
+</blockquote>
+<hr>
+<h2 id="Question007-什么是-RAG？RAG-的主要流程是什么？"><a href="#Question007-什么是-RAG？RAG-的主要流程是什么？" class="headerlink" title="Question007: 什么是 RAG？RAG 的主要流程是什么？"></a>Question007: 什么是 RAG？RAG 的主要流程是什么？</h2><h3 id="知识点详解-1"><a href="#知识点详解-1" class="headerlink" title="知识点详解"></a>知识点详解</h3><p>RAG 全称是 <strong>Retrieval Augmented Generation</strong>，中文叫<strong>检索增强生成</strong>。</p>
+<p>一句话解释：<strong>RAG 就是让大模型在回答之前，先去外部知识库查资料，再基于查到的资料生成答案。</strong></p>
+<p>大模型本身有两个典型短板：</p>
+<ol>
+<li><strong>知识有滞后性</strong><ul>
+<li>模型训练完成后，参数里的知识就相对固定了；</li>
+<li>它不知道训练之后发生的新事情；</li>
+<li>对企业内部新文档、新制度、新接口也天然不了解。</li>
+</ul>
+</li>
+<li><strong>容易产生幻觉</strong><ul>
+<li>模型可能会根据语言模式“编”出看似合理但实际错误的答案；</li>
+<li>尤其是问公司内部文档、业务规则、接口参数时，单靠模型记忆风险很高。</li>
+</ul>
+</li>
+</ol>
+<p>RAG 的核心价值就是：<strong>把外部知识库挂到大模型旁边，让模型开卷考试。</strong></p>
+<h3 id="RAG-的主要流程"><a href="#RAG-的主要流程" class="headerlink" title="RAG 的主要流程"></a>RAG 的主要流程</h3><p>RAG 流程可以用三个字概括：<strong>找、缝、写</strong>。</p>
+<h4 id="1）找：先检索相关资料"><a href="#1）找：先检索相关资料" class="headerlink" title="1）找：先检索相关资料"></a>1）找：先检索相关资料</h4><p>用户提问后，系统不会直接把问题丢给大模型，而是先把问题转成向量，去向量数据库里检索相关文档片段。</p>
+<p>典型流程：</p>
+<ul>
+<li>对用户问题做 Embedding；</li>
+<li>在向量库中做相似度检索；</li>
+<li>找出和问题最相关的 TopK 文档片段；</li>
+<li>必要时结合关键词检索、元数据过滤、重排序等方式提升召回质量。</li>
+</ul>
+<p>例如用户问：</p>
+<blockquote>
+<p>“公司报销制度里，差旅住宿标准是多少？”</p>
+</blockquote>
+<p>系统应该先从知识库里检索“报销制度”“差旅住宿”“住宿标准”等相关文档片段。</p>
+<h4 id="2）缝：把资料和问题拼成-Prompt"><a href="#2）缝：把资料和问题拼成-Prompt" class="headerlink" title="2）缝：把资料和问题拼成 Prompt"></a>2）缝：把资料和问题拼成 Prompt</h4><p>检索到资料后，系统会把这些资料作为上下文，和用户原始问题一起拼成一个更完整的 Prompt。</p>
+<p>大致形式如下：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">请基于以下资料回答用户问题，不要编造资料中没有的信息。</span><br><span class="line"></span><br><span class="line">资料：</span><br><span class="line">1. ...</span><br><span class="line">2. ...</span><br><span class="line">3. ...</span><br><span class="line"></span><br><span class="line">用户问题：</span><br><span class="line">公司报销制度里，差旅住宿标准是多少？</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这一步的关键是：<strong>让模型知道应该依据哪些材料回答，而不是自由发挥。</strong></p>
+<h4 id="3）写：让大模型基于上下文生成答案"><a href="#3）写：让大模型基于上下文生成答案" class="headerlink" title="3）写：让大模型基于上下文生成答案"></a>3）写：让大模型基于上下文生成答案</h4><p>最后，把拼好的 Prompt 发给大模型。<br>模型根据检索到的资料生成回答，输出更准确、更可追溯的内容。</p>
+<p>如果检索内容足够准确，RAG 可以显著降低幻觉；但如果检索阶段找错了资料，后面模型再强也很难答对。</p>
+<h3 id="RAG-的完整工程链路"><a href="#RAG-的完整工程链路" class="headerlink" title="RAG 的完整工程链路"></a>RAG 的完整工程链路</h3><p>实际项目中，RAG 通常分为两个阶段：</p>
+<ol>
+<li><strong>离线知识入库</strong><ul>
+<li>文档采集：PDF、Word、网页、数据库、接口文档；</li>
+<li>文档清洗：去水印、页眉页脚、乱码、重复内容；</li>
+<li>文档切分：按标题、段落、小节等语义边界切块；</li>
+<li>向量化：使用 Embedding 模型把文本块转成向量；</li>
+<li>入库：存入 Milvus、Elasticsearch、pgvector、Pinecone 等检索系统。</li>
+</ul>
+</li>
+<li><strong>在线问答检索</strong><ul>
+<li>用户提问；</li>
+<li>问题向量化；</li>
+<li>检索相关文档；</li>
+<li>重排序和过滤；</li>
+<li>组装 Prompt；</li>
+<li>调用大模型生成答案；</li>
+<li>返回答案和引用来源。</li>
+</ul>
+</li>
+</ol>
+<h3 id="核心提醒-1"><a href="#核心提醒-1" class="headerlink" title="核心提醒"></a>核心提醒</h3><p>RAG 的重点不是“把资料塞给大模型”这么简单，而是<strong>检索质量决定生成质量</strong>。<br>如果文档切分差、Embedding 不匹配、检索策略不合理，最终答案依然会不准。</p>
+<div style="text-align: center; margin: 10px 0;">
+  <img src="/images/photo2024/questions_LLM/agent_question_007.png" alt="RAG主要流程" width="600">
+</div>
+
+<h3 id="30秒口述版-1"><a href="#30秒口述版-1" class="headerlink" title="30秒口述版"></a>30秒口述版</h3><p>RAG 是检索增强生成，就是让大模型先查资料再回答。流程可以概括为找、缝、写：先把用户问题向量化，到向量库里找相关文档片段；再把原问题和检索内容拼成 Prompt；最后让大模型基于资料生成答案。它主要解决模型知识滞后和幻觉问题，但效果很依赖分块和检索质量。</p>
+<blockquote>
+<p><strong>参考链接</strong>：<a target="_blank" rel="noopener" href="https://www.mianshiya.com/bank/1929747035048828930/question/1909864020422012930#heading-1">https://www.mianshiya.com/bank/1929747035048828930/question/1909864020422012930#heading-1</a></p>
+</blockquote>
+<hr>
+<h2 id="Question008-如何优化-RAG-的检索效果？"><a href="#Question008-如何优化-RAG-的检索效果？" class="headerlink" title="Question008: 如何优化 RAG 的检索效果？"></a>Question008: 如何优化 RAG 的检索效果？</h2><h3 id="知识点详解-2"><a href="#知识点详解-2" class="headerlink" title="知识点详解"></a>知识点详解</h3><p>RAG 检索效果差，问题通常不在大模型本身，而是在<strong>文档切片、查询理解、检索策略</strong>这三个环节。</p>
+<p>面试时可以按“三层优化法”回答：<strong>先优化数据，再优化查询，最后优化召回和排序。</strong></p>
+<hr>
+<h3 id="1）文档预处理：从源头提高知识库质量"><a href="#1）文档预处理：从源头提高知识库质量" class="headerlink" title="1）文档预处理：从源头提高知识库质量"></a>1）文档预处理：从源头提高知识库质量</h3><p>RAG 的第一步是把文档变成可检索的知识块。<br>如果原始文档质量差，后面 Embedding、向量检索、重排序都会受到影响。</p>
+<p>常见优化点：</p>
+<ol>
+<li><strong>清洗无效内容</strong><ul>
+<li>去掉页眉、页脚、水印、目录噪声；</li>
+<li>清理乱码、重复段落、广告、版权声明；</li>
+<li>对 PDF 解析错误、表格错位、换行异常做修复。</li>
+</ul>
+</li>
+<li><strong>按语义边界切分</strong><ul>
+<li>不建议简单按固定 512 tokens 一刀切；</li>
+<li>更推荐按标题、段落、小节、列表、代码块等语义结构切分；</li>
+<li>可以使用类似 <code>RecursiveCharacterTextSplitter</code> 的递归切分策略；</li>
+<li>先按大结构切，再按段落切，最后才按固定长度兜底。</li>
+</ul>
+</li>
+<li><strong>设置合理 chunk 大小</strong><ul>
+<li>chunk 太小：上下文不完整，答案缺关键条件；</li>
+<li>chunk 太大：召回不精准，还会占用 Prompt 空间；</li>
+<li>常见范围是 512～1024 tokens，具体要根据文档类型和模型窗口测试。</li>
+</ul>
+</li>
+<li><strong>增加 chunk overlap</strong><ul>
+<li>对相邻切片保留一定重叠区域；</li>
+<li>避免一句话或一个定义被切断；</li>
+<li>例如 overlap 设置为 50～100 tokens。</li>
+</ul>
+</li>
+<li><strong>补充元数据</strong><ul>
+<li>给每个切片加上来源文档、章节、标题、日期、作者、业务线等标签；</li>
+<li>查询时可按时间、部门、文档类型过滤；</li>
+<li>对企业知识库尤其重要。</li>
+</ul>
+</li>
+</ol>
+<h3 id="代码示例：语义递归分块"><a href="#代码示例：语义递归分块" class="headerlink" title="代码示例：语义递归分块"></a>代码示例：语义递归分块</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> RecursiveCharacterTextSplitter</span><br><span class="line"></span><br><span class="line">splitter = RecursiveCharacterTextSplitter(</span><br><span class="line">    chunk_size=<span class="number">800</span>,</span><br><span class="line">    chunk_overlap=<span class="number">80</span>,</span><br><span class="line">    separators=[<span class="string">"\\n## "</span>, <span class="string">"\\n### "</span>, <span class="string">"\\n\\n"</span>, <span class="string">"\\n"</span>, <span class="string">"。"</span>, <span class="string">"，"</span>, <span class="string">" "</span>, <span class="string">""</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">chunks = splitter.split_text(raw_document)</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="2）查询增强：让用户问题变得更适合检索"><a href="#2）查询增强：让用户问题变得更适合检索" class="headerlink" title="2）查询增强：让用户问题变得更适合检索"></a>2）查询增强：让用户问题变得更适合检索</h3><p>用户的自然语言问题经常不适合直接拿去检索。</p>
+<p>比如用户问：</p>
+<blockquote>
+<p>“鱼皮是谁？”</p>
+</blockquote>
+<p>但知识库里写的是：</p>
+<blockquote>
+<p>“程序员鱼皮，原名某某，是编程导航创始人……”</p>
+</blockquote>
+<p>这时直接用“鱼皮是谁”做向量检索，可能召回不稳定。<br>因此需要做<strong>查询增强</strong>，把口语化问题转换成更规范、更容易匹配的检索表达。</p>
+<p>常见做法：</p>
+<ol>
+<li><strong>查询重写</strong><ul>
+<li>用大模型把用户问题改写成更标准的检索句；</li>
+<li>例如“这个怎么报销？”改成“公司报销流程、报销材料、审批规则”。</li>
+</ul>
+</li>
+<li><strong>查询扩展</strong><ul>
+<li>为同一个问题生成多个角度的子查询；</li>
+<li>例如“如何优化 RAG 检索效果”可以扩展为：<ul>
+<li>“RAG 文档切分优化”</li>
+<li>“RAG query rewrite”</li>
+<li>“RAG hybrid search”</li>
+<li>“RAG rerank 重排序”</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>查询拆解</strong><ul>
+<li>对复杂问题拆成多个子问题分别检索；</li>
+<li>例如“对比 A 和 B 的价格、性能、适用场景”，可以拆成 A 的信息、B 的信息、对比维度三类检索。</li>
+</ul>
+</li>
+<li><strong>元数据过滤</strong><ul>
+<li>从问题中抽取时间、部门、产品、版本号等条件；</li>
+<li>用 metadata filter 缩小检索范围；</li>
+<li>例如“2024 年 Q4 的销售政策”可以加上 <code>year=2024</code>、<code>quarter=Q4</code>。</li>
+</ul>
+</li>
+</ol>
+<h3 id="代码示例：查询扩展伪代码"><a href="#代码示例：查询扩展伪代码" class="headerlink" title="代码示例：查询扩展伪代码"></a>代码示例：查询扩展伪代码</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">query = <span class="string">"如何优化 RAG 的检索效果？"</span></span><br><span class="line"></span><br><span class="line">expanded_queries = llm.generate([</span><br><span class="line">    <span class="string">"RAG 文档切分如何优化"</span>,</span><br><span class="line">    <span class="string">"RAG query rewrite 查询改写"</span>,</span><br><span class="line">    <span class="string">"RAG hybrid search BM25 向量检索"</span>,</span><br><span class="line">    <span class="string">"RAG rerank 重排序优化"</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line">results = []</span><br><span class="line"><span class="keyword">for</span> q <span class="keyword">in</span> expanded_queries:</span><br><span class="line">    results.extend(vector_store.search(q, top_k=<span class="number">5</span>))</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="3）混合检索与重排序：提高召回和精准度"><a href="#3）混合检索与重排序：提高召回和精准度" class="headerlink" title="3）混合检索与重排序：提高召回和精准度"></a>3）混合检索与重排序：提高召回和精准度</h3><p>单纯向量检索有一个致命问题：它擅长语义相似，但不擅长精确匹配。</p>
+<p>例如下面这些内容，关键词非常关键：</p>
+<ul>
+<li>专有名词；</li>
+<li>代码函数名；</li>
+<li>API 路径；</li>
+<li>错误码；</li>
+<li>数字；</li>
+<li>人名；</li>
+<li>产品型号。</li>
+</ul>
+<p>这些场景下，BM25 关键词检索往往比纯向量检索更可靠。</p>
+<p>因此更推荐使用<strong>混合检索</strong>：</p>
+<ol>
+<li><strong>向量检索</strong><ul>
+<li>适合语义相似；</li>
+<li>能处理“表达不一致但意思相近”的问题。</li>
+</ul>
+</li>
+<li><strong>关键词检索 / BM25</strong><ul>
+<li>适合精确匹配；</li>
+<li>对代码、数字、术语、接口路径更敏感。</li>
+</ul>
+</li>
+<li><strong>RRF 融合排序</strong><ul>
+<li>RRF 全称 Reciprocal Rank Fusion；</li>
+<li>可以把向量检索和关键词检索的结果合并排序；</li>
+<li>避免只依赖一种检索方式。</li>
+</ul>
+</li>
+<li><strong>Reranker 重排序</strong><ul>
+<li>第一阶段先召回较多候选，例如 Top50；</li>
+<li>第二阶段用 reranker 重新计算“问题-文档片段”的相关性；</li>
+<li>最终只保留 Top3～Top5 放进 Prompt。</li>
+</ul>
+</li>
+</ol>
+<h3 id="代码示例：混合检索伪代码"><a href="#代码示例：混合检索伪代码" class="headerlink" title="代码示例：混合检索伪代码"></a>代码示例：混合检索伪代码</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vector_results = vector_store.search(query, top_k=<span class="number">20</span>)</span><br><span class="line">bm25_results = keyword_store.search(query, top_k=<span class="number">20</span>)</span><br><span class="line"></span><br><span class="line">merged_results = rrf_fusion(vector_results, bm25_results)</span><br><span class="line">reranked_results = reranker.rank(query, merged_results)</span><br><span class="line"></span><br><span class="line">final_chunks = reranked_results[:<span class="number">5</span>]</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="核心提醒-2"><a href="#核心提醒-2" class="headerlink" title="核心提醒"></a>核心提醒</h3><p>RAG 检索优化不要一上来就调大模型参数。<br>正确顺序是：<strong>先看文档是否干净，再看分块是否合理，再看查询是否被正确理解，最后再看检索融合、rerank 和 topK 参数。</strong><br>如果检索结果本身不相关，后面生成阶段很难补救。</p>
+<h3 id="30秒口述版-2"><a href="#30秒口述版-2" class="headerlink" title="30秒口述版"></a>30秒口述版</h3><p>优化 RAG 检索效果可以从三层入手：第一是文档预处理，清洗噪声、按语义切分、加元数据；第二是查询增强，把用户口语化问题做重写、扩展和拆解；第三是检索策略，用向量检索加 BM25 混合召回，再用 RRF 和 reranker 重排序。核心原则是先保证召回资料准，再让模型生成答案。</p>
+<blockquote>
+<p><strong>参考链接</strong>：<a target="_blank" rel="noopener" href="https://www.mianshiya.com/bank/1929747035048828930/question/1929742545445736450#heading-0">https://www.mianshiya.com/bank/1929747035048828930/question/1929742545445736450#heading-0</a></p>
+</blockquote>
+<hr>
+<h2 id="Question009-什么是结构化输出？Spring-AI-是怎么实现结构化输出的？"><a href="#Question009-什么是结构化输出？Spring-AI-是怎么实现结构化输出的？" class="headerlink" title="Question009: 什么是结构化输出？Spring AI 是怎么实现结构化输出的？"></a>Question009: 什么是结构化输出？Spring AI 是怎么实现结构化输出的？</h2><h3 id="知识点详解-3"><a href="#知识点详解-3" class="headerlink" title="知识点详解"></a>知识点详解</h3><p>结构化输出就是让大模型不要返回一段自由文本，而是返回程序可以直接解析的数据结构，比如 <strong>JSON、XML、表格字段、Java Bean</strong> 等。</p>
+<p>普通输出可能是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">北京今天晴，气温 25 度。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>结构化输出则是：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"city"</span><span class="punctuation">:</span> <span class="string">"北京"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"weather"</span><span class="punctuation">:</span> <span class="string">"晴"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"temperature"</span><span class="punctuation">:</span> <span class="number">25</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>它的核心价值是：<strong>让大模型的输出能直接进入业务系统，而不是只能给人看。</strong></p>
+<p>例如：</p>
+<ul>
+<li>智能客服：提取用户意图、工单类型、紧急程度；</li>
+<li>简历解析：提取姓名、学历、技能、工作年限；</li>
+<li>订单助手：提取商品名、数量、地址、联系方式；</li>
+<li>RAG 问答：返回答案、引用来源、置信度；</li>
+<li>Agent 调用：返回工具名和工具参数。</li>
+</ul>
+<h3 id="为什么需要结构化输出？"><a href="#为什么需要结构化输出？" class="headerlink" title="为什么需要结构化输出？"></a>为什么需要结构化输出？</h3><ol>
+<li><strong>方便程序解析</strong><ul>
+<li>后端可以直接把 JSON 反序列化成对象；</li>
+<li>不需要再从自然语言里用正则硬提取字段。</li>
+</ul>
+</li>
+<li><strong>降低系统不确定性</strong><ul>
+<li>自由文本每次表达可能不同；</li>
+<li>结构化输出可以约束字段名、字段类型和返回格式。</li>
+</ul>
+</li>
+<li><strong>便于后续业务流转</strong><ul>
+<li>结构化结果可以直接入库、调用接口、触发工作流；</li>
+<li>比如把 <code>intent=refund</code> 的用户请求转给退款流程。</li>
+</ul>
+</li>
+<li><strong>适合和函数调用 / Agent 结合</strong><ul>
+<li>工具调用需要明确参数；</li>
+<li>参数格式越稳定，系统越容易自动化。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="Spring-AI-如何实现结构化输出？"><a href="#Spring-AI-如何实现结构化输出？" class="headerlink" title="Spring AI 如何实现结构化输出？"></a>Spring AI 如何实现结构化输出？</h3><p>Spring AI 里结构化输出的核心是 <code>StructuredOutputConverter</code>。</p>
+<p>它可以理解为同时做两件事：</p>
+<ol>
+<li><strong>调用前：提供格式说明</strong><ul>
+<li><code>StructuredOutputConverter</code> 实现了 <code>FormatProvider</code>；</li>
+<li>它会生成一段格式要求，追加到 Prompt 中；</li>
+<li>告诉模型必须按指定 JSON Schema 或对象结构返回。</li>
+</ul>
+</li>
+<li><strong>调用后：把文本转成 Java 对象</strong><ul>
+<li><code>StructuredOutputConverter</code> 同时也承担转换器角色；</li>
+<li>模型返回 JSON 字符串后，它会把 JSON 解析成 Java Bean、Map 或 List；</li>
+<li>底层通常借助 Jackson <code>ObjectMapper</code> 完成反序列化。</li>
+</ul>
+</li>
+</ol>
+<p>也就是说，Spring AI 的结构化输出不是“模型天然一定听话”，而是通过：</p>
+<blockquote>
+<p>Prompt 格式约束 + 输出文本解析 + Java 类型转换</p>
+</blockquote>
+<p>来完成结构化结果落地。</p>
+<h3 id="常见-Converter"><a href="#常见-Converter" class="headerlink" title="常见 Converter"></a>常见 Converter</h3><ol>
+<li><strong>BeanOutputConverter</strong><ul>
+<li>把模型输出解析成 Java Bean / Record；</li>
+<li>适合固定字段结构。</li>
+</ul>
+</li>
+<li><strong>MapOutputConverter</strong><ul>
+<li>把模型输出解析成 Map；</li>
+<li>适合字段不完全固定的场景。</li>
+</ul>
+</li>
+<li><strong>ListOutputConverter</strong><ul>
+<li>把模型输出解析成列表；</li>
+<li>适合关键词列表、标签列表、步骤列表等场景。</li>
+</ul>
+</li>
+</ol>
+<h3 id="代码示例：解析天气对象"><a href="#代码示例：解析天气对象" class="headerlink" title="代码示例：解析天气对象"></a>代码示例：解析天气对象</h3><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title class_">WeatherInfo</span><span class="params">(</span></span><br><span class="line"><span class="params">        String city,</span></span><br><span class="line"><span class="params">        String weather,</span></span><br><span class="line"><span class="params">        Integer temperature</span></span><br><span class="line"><span class="params">)</span> {}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">BeanOutputConverter&lt;WeatherInfo&gt; converter =</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">BeanOutputConverter</span>&lt;&gt;(WeatherInfo.class);</span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">format</span> <span class="operator">=</span> converter.getFormat();</span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">prompt</span> <span class="operator">=</span> <span class="string">"""</span></span><br><span class="line"><span class="string">        请提取用户问题中的天气信息，并按要求返回。</span></span><br><span class="line"><span class="string">        用户问题：北京今天晴，气温25度。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        返回格式要求：</span></span><br><span class="line"><span class="string">        %s</span></span><br><span class="line"><span class="string">        """</span>.formatted(format);</span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> chatClient.prompt(prompt)</span><br><span class="line">        .call()</span><br><span class="line">        .content();</span><br><span class="line"></span><br><span class="line"><span class="type">WeatherInfo</span> <span class="variable">weatherInfo</span> <span class="operator">=</span> converter.convert(content);</span><br><span class="line"></span><br><span class="line">System.out.println(weatherInfo.city());</span><br><span class="line">System.out.println(weatherInfo.weather());</span><br><span class="line">System.out.println(weatherInfo.temperature());</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="面试回答重点"><a href="#面试回答重点" class="headerlink" title="面试回答重点"></a>面试回答重点</h3><p>面试时可以这样组织：</p>
+<ol>
+<li>结构化输出是让模型返回 JSON/XML/对象等可解析格式；</li>
+<li>目的不是让人读，而是方便程序直接消费；</li>
+<li>Spring AI 通过 <code>StructuredOutputConverter</code> 实现；</li>
+<li>调用前由 <code>FormatProvider</code> 生成格式说明放进 Prompt；</li>
+<li>调用后用 Converter 把模型输出文本反序列化成 Java 对象；</li>
+<li>生产环境要做异常处理和结果校验，因为模型仍可能返回不合法 JSON。</li>
+</ol>
+<h3 id="核心提醒-3"><a href="#核心提醒-3" class="headerlink" title="核心提醒"></a>核心提醒</h3><p>结构化输出不是 100% 可靠的强约束。<br>实际项目中要配合低温度参数、清晰 Schema、输出校验、JSON 修复和失败重试机制。<br>不要默认模型每次都会严格返回合法 JSON，尤其是在复杂嵌套对象场景下。</p>
+<h3 id="30秒口述版-3"><a href="#30秒口述版-3" class="headerlink" title="30秒口述版"></a>30秒口述版</h3><p>结构化输出就是让大模型返回 JSON、XML 或 Java 对象这类程序能直接解析的格式，而不是普通自然语言。Spring AI 主要通过 StructuredOutputConverter 实现：调用前生成格式说明塞进 Prompt，引导模型按 Schema 返回；调用后再用 Converter 和 ObjectMapper 把返回文本解析成 Java Bean。生产环境还要做校验、异常处理和重试，因为模型不一定每次都严格输出合法 JSON。</p>
+<blockquote>
+<p><strong>参考链接</strong>：<a target="_blank" rel="noopener" href="https://www.mianshiya.com/bank/1929747035048828930/question/1929742301668691969#heading-0">https://www.mianshiya.com/bank/1929747035048828930/question/1929742301668691969#heading-0</a></p>
+</blockquote>
+<hr>
+<h2 id="Question010-什么是-MCP-模型上下文协议？如何利用-Spring-AI-实现-MCP-客户端和服务端？"><a href="#Question010-什么是-MCP-模型上下文协议？如何利用-Spring-AI-实现-MCP-客户端和服务端？" class="headerlink" title="Question010: 什么是 MCP 模型上下文协议？如何利用 Spring AI 实现 MCP 客户端和服务端？"></a>Question010: 什么是 MCP 模型上下文协议？如何利用 Spring AI 实现 MCP 客户端和服务端？</h2><h3 id="知识点详解-4"><a href="#知识点详解-4" class="headerlink" title="知识点详解"></a>知识点详解</h3><p>MCP 全称是 <strong>Model Context Protocol</strong>，中文叫<strong>模型上下文协议</strong>。</p>
+<p>它是一种面向 AI 应用的开放协议，目标是标准化大模型与外部工具、资源、服务之间的交互方式。</p>
+<p>可以把 MCP 理解成 AI 应用世界里的“USB 接口”：</p>
+<ul>
+<li>大模型应用是主机；</li>
+<li>外部工具、数据库、文件系统、业务 API 是设备；</li>
+<li>MCP 负责定义统一的连接和调用标准；</li>
+<li>这样 AI 应用就不用为每个工具单独写一套私有适配逻辑。</li>
+</ul>
+<h3 id="MCP-解决了什么问题？"><a href="#MCP-解决了什么问题？" class="headerlink" title="MCP 解决了什么问题？"></a>MCP 解决了什么问题？</h3><p>在没有 MCP 时，如果大模型要调用外部能力，通常需要为每个系统单独集成：</p>
+<ul>
+<li>查数据库写一套接口；</li>
+<li>调 GitHub 写一套接口；</li>
+<li>读本地文件写一套接口；</li>
+<li>查企业知识库再写一套接口；</li>
+<li>调天气、地图、日历、工单系统都要分别适配。</li>
+</ul>
+<p>这样会导致：</p>
+<ol>
+<li>工具接入成本高；</li>
+<li>协议不统一；</li>
+<li>不同 AI 应用之间难复用；</li>
+<li>权限、上下文、工具描述难标准化；</li>
+<li>Agent 能力扩展困难。</li>
+</ol>
+<p>MCP 的意义就是把这些外部能力抽象成标准的：</p>
+<ol>
+<li><strong>Tools</strong><ul>
+<li>可被模型调用的工具；</li>
+<li>例如查询天气、创建工单、执行 SQL、调用内部 API。</li>
+</ul>
+</li>
+<li><strong>Resources</strong><ul>
+<li>可读取的上下文资源；</li>
+<li>例如文件、数据库记录、文档、配置。</li>
+</ul>
+</li>
+<li><strong>Prompts</strong><ul>
+<li>可复用的提示模板；</li>
+<li>例如代码审查模板、日报总结模板、客服回复模板。</li>
+</ul>
+</li>
+</ol>
+<h3 id="MCP-的角色模型"><a href="#MCP-的角色模型" class="headerlink" title="MCP 的角色模型"></a>MCP 的角色模型</h3><p>MCP 通常可以理解为三层角色：</p>
+<ol>
+<li><strong>Host</strong><ul>
+<li>AI 应用本体；</li>
+<li>例如 IDE 插件、聊天机器人、智能客服系统。</li>
+</ul>
+</li>
+<li><strong>Client</strong><ul>
+<li>Host 内部的 MCP 客户端；</li>
+<li>负责连接 MCP Server，发现工具并发起调用。</li>
+</ul>
+</li>
+<li><strong>Server</strong><ul>
+<li>提供外部能力的一方；</li>
+<li>把工具、资源、Prompt 暴露给 MCP Client。</li>
+</ul>
+</li>
+</ol>
+<p>一句话：<strong>MCP Server 暴露能力，MCP Client 连接能力，Host 借助这些能力增强大模型。</strong></p>
+<hr>
+<h3 id="如何利用-Spring-AI-实现-MCP-服务端？"><a href="#如何利用-Spring-AI-实现-MCP-服务端？" class="headerlink" title="如何利用 Spring AI 实现 MCP 服务端？"></a>如何利用 Spring AI 实现 MCP 服务端？</h3><p>Spring AI 可以把 Spring Bean 中的方法注册为工具，并通过 MCP Server 暴露出去。</p>
+<p>核心步骤：</p>
+<ol>
+<li>引入 MCP Server 相关依赖；</li>
+<li>定义业务工具方法；</li>
+<li>用工具注解或 ToolCallbackProvider 暴露工具；</li>
+<li>配置 MCP Server 名称、版本、传输方式；</li>
+<li>启动服务，让客户端发现和调用工具。</li>
+</ol>
+<h3 id="服务端示例：暴露天气查询工具"><a href="#服务端示例：暴露天气查询工具" class="headerlink" title="服务端示例：暴露天气查询工具"></a>服务端示例：暴露天气查询工具</h3><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WeatherTool</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Tool(description = "根据城市名称查询当前天气")</span></span><br><span class="line">    <span class="keyword">public</span> WeatherResponse <span class="title function_">getWeather</span><span class="params">(</span></span><br><span class="line"><span class="params">            <span class="meta">@ToolParam(description = "城市名称，例如北京、上海")</span> String city)</span> {</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 实际项目中这里可以调用天气 API 或内部服务</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">WeatherResponse</span>(city, <span class="string">"晴"</span>, <span class="number">25</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title class_">WeatherResponse</span><span class="params">(</span></span><br><span class="line"><span class="params">        String city,</span></span><br><span class="line"><span class="params">        String weather,</span></span><br><span class="line"><span class="params">        Integer temperature</span></span><br><span class="line"><span class="params">)</span> {}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ToolConfig</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> MethodToolCallbackProvider <span class="title function_">weatherTools</span><span class="params">(WeatherTool weatherTool)</span> {</span><br><span class="line">        <span class="keyword">return</span> MethodToolCallbackProvider.builder()</span><br><span class="line">                .toolObjects(weatherTool)</span><br><span class="line">                .build();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>配置示例：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">server:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">weather-mcp-server</span></span><br><span class="line">        <span class="attr">version:</span> <span class="number">1.0</span><span class="number">.0</span></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>这样服务端就把 <code>getWeather</code> 暴露成了一个可被 MCP 客户端发现和调用的工具。</p>
+<hr>
+<h3 id="如何利用-Spring-AI-实现-MCP-客户端？"><a href="#如何利用-Spring-AI-实现-MCP-客户端？" class="headerlink" title="如何利用 Spring AI 实现 MCP 客户端？"></a>如何利用 Spring AI 实现 MCP 客户端？</h3><p>MCP Client 的核心作用是：</p>
+<ol>
+<li>连接一个或多个 MCP Server；</li>
+<li>拉取服务端暴露的工具列表；</li>
+<li>把这些工具注册给大模型；</li>
+<li>当模型判断需要调用工具时，由客户端完成工具调用；</li>
+<li>再把工具结果返回给模型生成最终答案。</li>
+</ol>
+<p>客户端配置思路：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">ai:</span></span><br><span class="line">    <span class="attr">mcp:</span></span><br><span class="line">      <span class="attr">client:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">demo-mcp-client</span></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>ChatClient 使用工具的伪代码：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ChatController</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ChatClient chatClient;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ToolCallbackProvider toolCallbackProvider;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ChatController</span><span class="params">(ChatClient.Builder builder,</span></span><br><span class="line"><span class="params">                          ToolCallbackProvider toolCallbackProvider)</span> {</span><br><span class="line">        <span class="built_in">this</span>.chatClient = builder.build();</span><br><span class="line">        <span class="built_in">this</span>.toolCallbackProvider = toolCallbackProvider;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping("/ask")</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">ask</span><span class="params">(<span class="meta">@RequestParam</span> String question)</span> {</span><br><span class="line">        <span class="keyword">return</span> chatClient.prompt(question)</span><br><span class="line">                .toolCallbacks(toolCallbackProvider)</span><br><span class="line">                .call()</span><br><span class="line">                .content();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>当用户问：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">北京今天适合穿什么？</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>模型可能先调用 MCP Server 暴露的 <code>getWeather("北京")</code> 工具，拿到天气结果后，再生成自然语言回答：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">北京今天晴，约 25 度，适合穿薄外套或长袖衬衫。</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="面试回答重点-1"><a href="#面试回答重点-1" class="headerlink" title="面试回答重点"></a>面试回答重点</h3><p>面试时不要只背概念，可以从“为什么需要协议”说起：</p>
+<ol>
+<li>MCP 是 Model Context Protocol，用来标准化模型和外部工具/资源的交互；</li>
+<li>它把工具、资源、Prompt 抽象成统一协议；</li>
+<li>好处是不同 AI 应用可以复用同一批工具服务；</li>
+<li>Spring AI 可以作为 MCP Server，把 Spring Bean 方法暴露成工具；</li>
+<li>Spring AI 也可以作为 MCP Client，连接外部 MCP Server，把工具注册给 ChatClient；</li>
+<li>最终模型就可以在对话中自动选择和调用外部工具。</li>
+</ol>
+<h3 id="核心提醒-4"><a href="#核心提醒-4" class="headerlink" title="核心提醒"></a>核心提醒</h3><p>MCP 的重点不是“又一个 RPC 框架”，而是<strong>面向大模型上下文和工具调用的标准化协议</strong>。<br>它关注的不只是怎么调接口，还包括工具描述、参数 Schema、资源暴露、Prompt 模板、模型可发现性和上下文组织方式。<br>回答时可以用“AI 应用的 USB 接口”来帮助面试官快速理解。</p>
+<h3 id="30秒口述版-4"><a href="#30秒口述版-4" class="headerlink" title="30秒口述版"></a>30秒口述版</h3><p>MCP 是 Model Context Protocol，模型上下文协议，用来统一大模型和外部工具、资源、服务的交互方式，可以理解为 AI 应用的 USB 接口。MCP Server 负责暴露工具和资源，MCP Client 负责连接服务端并把工具注册给模型。Spring AI 既可以实现服务端，把 Spring Bean 方法暴露成工具，也可以实现客户端，把 MCP 工具接入 ChatClient，让模型在对话中自动调用外部能力。</p>
+<blockquote>
+<p><strong>参考链接</strong>：<a target="_blank" rel="noopener" href="https://www.mianshiya.com/bank/1929747035048828930/question/1929742307838513153">https://www.mianshiya.com/bank/1929747035048828930/question/1929742307838513153</a></p>
+</blockquote>
+<hr>
+<h2 id="总结：这-5-个问题怎么串起来记？"><a href="#总结：这-5-个问题怎么串起来记？" class="headerlink" title="总结：这 5 个问题怎么串起来记？"></a>总结：这 5 个问题怎么串起来记？</h2><p>这 5 个问题其实对应 AI 应用开发的完整链路：</p>
+<ol>
+<li><strong>SSE</strong>：解决模型回答如何流式返回给前端；</li>
+<li><strong>RAG</strong>：解决模型如何接入外部知识库；</li>
+<li><strong>RAG 检索优化</strong>：解决外部知识怎么查得准；</li>
+<li><strong>结构化输出</strong>：解决模型结果如何被程序稳定解析；</li>
+<li><strong>MCP</strong>：解决模型如何标准化调用外部工具和服务。</li>
+</ol>
+<p>面试时可以按这条主线表达：</p>
+<blockquote>
+<p>一个完整 AI 应用里，用户提问后，系统可能先通过 RAG 检索知识库，再把上下文交给大模型生成答案；如果需要调用外部工具，可以通过 MCP 标准化接入；如果返回给前端，可以用 SSE 做流式输出；如果返回给后端系统处理，就要用结构化输出保证结果可解析。</p>
+</blockquote>
+<h3 id="复习口诀"><a href="#复习口诀" class="headerlink" title="复习口诀"></a>复习口诀</h3><blockquote>
+<p><strong>SSE 管输出，RAG 管查资料，优化管查得准，结构化管可解析，MCP 管工具接入。</strong></p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/">https://wxggo.github.io/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://wxggo.github.io" target="_blank">WXGのBlog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">大模型</a><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/RAG/">RAG</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a></div><div class="post_share"><div class="social-share" data-image="https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）"><img class="cover" src="https://inews.gtimg.com/om_bt/OL9oOM2ER4X0khjATglEUBzAFWWv8RjcvZIezqJAmcdBIAA/641" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2026/03/13/interview/LLM_1/study-LLM-AI%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-AI大模型问题：Question 001-005（大模型微调+RAG核心）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-13/21/088bb8e4543af9ec.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-13</div><div class="title">Interview-AI大模型问题：Question 001-005（大模型微调+RAG核心）</div></div></a></div><div><a href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）"><img class="cover" src="https://inews.gtimg.com/om_bt/OL9oOM2ER4X0khjATglEUBzAFWWv8RjcvZIezqJAmcdBIAA/641" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-21</div><div class="title">Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）</div></div></a></div><div><a href="/2026/03/13/notes/study_1/notes-study-LLM-002/" title="Notes-大模型学习:了解LLM中的RAG技术"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-13/21/27dc6c70466a6fba.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-13</div><div class="title">Notes-大模型学习:了解LLM中的RAG技术</div></div></a></div><div><a href="/2026/03/13/notes/study_1/notes-study-LLM-001/" title="Notes-大模型学习:LLM介绍与基础概念讲解"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-13/21/c2bd5da81cb95f66.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-13</div><div class="title">Notes-大模型学习:LLM介绍与基础概念讲解</div></div></a></div><div><a href="/2026/05/05/notes/project_1/notes-project-agent-001/" title="Notes-项目复盘：把 AI 编程小助手改造成博客数字人面试 Agent"><img class="cover" src="/images/photo2024/notes_project/notes-project-agent-001/wxggo_blog.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-05</div><div class="title">Notes-项目复盘：把 AI 编程小助手改造成博客数字人面试 Agent</div></div></a></div><div><a href="/2026/02/01/leetcodehot100/" title="Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-01</div><div class="title">Leetcode Hot100 刷题顺序+题型分类总结（面试/复习专用）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">85</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Question006-%E4%BB%80%E4%B9%88%E6%98%AF-SSE%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88-AI-%E5%BA%94%E7%94%A8%E6%8E%A5%E5%8F%A3%E9%80%89%E6%8B%A9-SSE-%E8%80%8C%E4%B8%8D%E6%98%AF-WebSocket%EF%BC%9F"><span class="toc-text">Question006: 什么是 SSE？为什么 AI 应用接口选择 SSE 而不是 WebSocket？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E8%A7%A3"><span class="toc-text">知识点详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%88Spring-WebFlux-Spring-AI-%E9%A3%8E%E6%A0%BC%EF%BC%89"><span class="toc-text">代码示例（Spring WebFlux / Spring AI 风格）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%8F%90%E9%86%92"><span class="toc-text">核心提醒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#30%E7%A7%92%E5%8F%A3%E8%BF%B0%E7%89%88"><span class="toc-text">30秒口述版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question007-%E4%BB%80%E4%B9%88%E6%98%AF-RAG%EF%BC%9FRAG-%E7%9A%84%E4%B8%BB%E8%A6%81%E6%B5%81%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">Question007: 什么是 RAG？RAG 的主要流程是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E8%A7%A3-1"><span class="toc-text">知识点详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAG-%E7%9A%84%E4%B8%BB%E8%A6%81%E6%B5%81%E7%A8%8B"><span class="toc-text">RAG 的主要流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%BC%89%E6%89%BE%EF%BC%9A%E5%85%88%E6%A3%80%E7%B4%A2%E7%9B%B8%E5%85%B3%E8%B5%84%E6%96%99"><span class="toc-text">1）找：先检索相关资料</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89%E7%BC%9D%EF%BC%9A%E6%8A%8A%E8%B5%84%E6%96%99%E5%92%8C%E9%97%AE%E9%A2%98%E6%8B%BC%E6%88%90-Prompt"><span class="toc-text">2）缝：把资料和问题拼成 Prompt</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%EF%BC%89%E5%86%99%EF%BC%9A%E8%AE%A9%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9F%BA%E4%BA%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E7%94%9F%E6%88%90%E7%AD%94%E6%A1%88"><span class="toc-text">3）写：让大模型基于上下文生成答案</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAG-%E7%9A%84%E5%AE%8C%E6%95%B4%E5%B7%A5%E7%A8%8B%E9%93%BE%E8%B7%AF"><span class="toc-text">RAG 的完整工程链路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%8F%90%E9%86%92-1"><span class="toc-text">核心提醒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#30%E7%A7%92%E5%8F%A3%E8%BF%B0%E7%89%88-1"><span class="toc-text">30秒口述版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question008-%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96-RAG-%E7%9A%84%E6%A3%80%E7%B4%A2%E6%95%88%E6%9E%9C%EF%BC%9F"><span class="toc-text">Question008: 如何优化 RAG 的检索效果？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E8%A7%A3-2"><span class="toc-text">知识点详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E6%96%87%E6%A1%A3%E9%A2%84%E5%A4%84%E7%90%86%EF%BC%9A%E4%BB%8E%E6%BA%90%E5%A4%B4%E6%8F%90%E9%AB%98%E7%9F%A5%E8%AF%86%E5%BA%93%E8%B4%A8%E9%87%8F"><span class="toc-text">1）文档预处理：从源头提高知识库质量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%9A%E8%AF%AD%E4%B9%89%E9%80%92%E5%BD%92%E5%88%86%E5%9D%97"><span class="toc-text">代码示例：语义递归分块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89%E6%9F%A5%E8%AF%A2%E5%A2%9E%E5%BC%BA%EF%BC%9A%E8%AE%A9%E7%94%A8%E6%88%B7%E9%97%AE%E9%A2%98%E5%8F%98%E5%BE%97%E6%9B%B4%E9%80%82%E5%90%88%E6%A3%80%E7%B4%A2"><span class="toc-text">2）查询增强：让用户问题变得更适合检索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%9F%A5%E8%AF%A2%E6%89%A9%E5%B1%95%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">代码示例：查询扩展伪代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%E4%B8%8E%E9%87%8D%E6%8E%92%E5%BA%8F%EF%BC%9A%E6%8F%90%E9%AB%98%E5%8F%AC%E5%9B%9E%E5%92%8C%E7%B2%BE%E5%87%86%E5%BA%A6"><span class="toc-text">3）混合检索与重排序：提高召回和精准度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">代码示例：混合检索伪代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%8F%90%E9%86%92-2"><span class="toc-text">核心提醒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#30%E7%A7%92%E5%8F%A3%E8%BF%B0%E7%89%88-2"><span class="toc-text">30秒口述版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question009-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA%EF%BC%9FSpring-AI-%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA%E7%9A%84%EF%BC%9F"><span class="toc-text">Question009: 什么是结构化输出？Spring AI 是怎么实现结构化输出的？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E8%A7%A3-3"><span class="toc-text">知识点详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA%EF%BC%9F"><span class="toc-text">为什么需要结构化输出？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-AI-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA%EF%BC%9F"><span class="toc-text">Spring AI 如何实现结构化输出？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81-Converter"><span class="toc-text">常见 Converter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%9A%E8%A7%A3%E6%9E%90%E5%A4%A9%E6%B0%94%E5%AF%B9%E8%B1%A1"><span class="toc-text">代码示例：解析天气对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E5%9B%9E%E7%AD%94%E9%87%8D%E7%82%B9"><span class="toc-text">面试回答重点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%8F%90%E9%86%92-3"><span class="toc-text">核心提醒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#30%E7%A7%92%E5%8F%A3%E8%BF%B0%E7%89%88-3"><span class="toc-text">30秒口述版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Question010-%E4%BB%80%E4%B9%88%E6%98%AF-MCP-%E6%A8%A1%E5%9E%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8D%8F%E8%AE%AE%EF%BC%9F%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-Spring-AI-%E5%AE%9E%E7%8E%B0-MCP-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%92%8C%E6%9C%8D%E5%8A%A1%E7%AB%AF%EF%BC%9F"><span class="toc-text">Question010: 什么是 MCP 模型上下文协议？如何利用 Spring AI 实现 MCP 客户端和服务端？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E8%A7%A3-4"><span class="toc-text">知识点详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MCP-%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-text">MCP 解决了什么问题？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MCP-%E7%9A%84%E8%A7%92%E8%89%B2%E6%A8%A1%E5%9E%8B"><span class="toc-text">MCP 的角色模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-Spring-AI-%E5%AE%9E%E7%8E%B0-MCP-%E6%9C%8D%E5%8A%A1%E7%AB%AF%EF%BC%9F"><span class="toc-text">如何利用 Spring AI 实现 MCP 服务端？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%9A%B4%E9%9C%B2%E5%A4%A9%E6%B0%94%E6%9F%A5%E8%AF%A2%E5%B7%A5%E5%85%B7"><span class="toc-text">服务端示例：暴露天气查询工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-Spring-AI-%E5%AE%9E%E7%8E%B0-MCP-%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%9F"><span class="toc-text">如何利用 Spring AI 实现 MCP 客户端？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E5%9B%9E%E7%AD%94%E9%87%8D%E7%82%B9-1"><span class="toc-text">面试回答重点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%8F%90%E9%86%92-4"><span class="toc-text">核心提醒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#30%E7%A7%92%E5%8F%A3%E8%BF%B0%E7%89%88-4"><span class="toc-text">30秒口述版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E8%BF%99-5-%E4%B8%AA%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E4%B8%B2%E8%B5%B7%E6%9D%A5%E8%AE%B0%EF%BC%9F"><span class="toc-text">总结：这 5 个问题怎么串起来记？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%8D%E4%B9%A0%E5%8F%A3%E8%AF%80"><span class="toc-text">复习口诀</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/" title="Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）"><img src="https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）"></a><div class="content"><a class="title" href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/" title="Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）">Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）</a><time datetime="2026-05-21T11:03:00.000Z" title="发表于 2026-05-21 19:03:00">2026-05-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）"><img src="https://inews.gtimg.com/om_bt/OL9oOM2ER4X0khjATglEUBzAFWWv8RjcvZIezqJAmcdBIAA/641" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）"></a><div class="content"><a class="title" href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）">Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）</a><time datetime="2026-05-21T09:03:00.000Z" title="发表于 2026-05-21 17:03:00">2026-05-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/21/leetcode/leetcodehot100/date2026_1/study-leetcode-025/" title="Leetcode-025:K个一组翻转链表-分组断链反转详解"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-05-21/20/b4c58cd1a9e3c305.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-025:K个一组翻转链表-分组断链反转详解"></a><div class="content"><a class="title" href="/2026/05/21/leetcode/leetcodehot100/date2026_1/study-leetcode-025/" title="Leetcode-025:K个一组翻转链表-分组断链反转详解">Leetcode-025:K个一组翻转链表-分组断链反转详解</a><time datetime="2026-05-21T02:00:00.000Z" title="发表于 2026-05-21 10:00:00">2026-05-21</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 - 2026 By wxg</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script src="/js/agent-assistant.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>
