@@ -1,0 +1,707 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理 | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本文整理 Blog-writing Skills 工具包的设计与生成流程，重点复盘 Agent 的 Skill 模块作用、设计原则、设计方法、目录结构、使用流程以及我对可复用写作工作流的理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理">
+<meta property="og:url" content="https://wxggo.github.io/2026/06/01/notes/project_1/notes-project-blog-writing-skill-001/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="本文整理 Blog-writing Skills 工具包的设计与生成流程，重点复盘 Agent 的 Skill 模块作用、设计原则、设计方法、目录结构、使用流程以及我对可复用写作工作流的理解。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&amp;fit=crop&amp;w=1200&amp;q=80">
+<meta property="article:published_time" content="2026-06-01T11:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-01T11:30:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="ChatGPT Skills">
+<meta property="article:tag" content="Blog写作">
+<meta property="article:tag" content="自动化工作流">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&amp;fit=crop&amp;w=1200&amp;q=80"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/06/01/notes/project_1/notes-project-blog-writing-skill-001/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-01 19:30:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="/css/agent-assistant.css"><link rel="stylesheet" href="/css/codeblock-fix.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">89</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&amp;fit=crop&amp;w=1200&amp;q=80')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-01T11:30:00.000Z" title="发表于 2026-06-01 19:30:00">2026-06-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-01T11:30:00.000Z" title="更新于 2026-06-01 19:30:00">2026-06-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A1%B9%E7%9B%AE%E5%9B%9E%E9%A1%BE/">项目回顾</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&amp;fit=crop&amp;w=1200&amp;q=80');"></div><article class="post-content" id="article-container"><blockquote>
+<p>本文是对 <strong>Blog-writing Skills 工具包</strong> 设计与生成过程的一次复盘整理。这个工具包的目标不是简单写一篇博客，而是把我常见的学习材料整理流程沉淀成一个可复用的 Agent 能力模块：当我后续输入 LeetCode 代码、八股问题、面经截图、项目链接、Word/PDF 文件或论文文献时，Agent 可以按照固定风格自动生成一篇完整的个人 Blog Markdown 文件。</p>
+<p>这次整理主要记录：Agent 的 Skill 模块有什么作用、为什么要设计成工具包、刚才 Blog-writing Skill 是如何拆分和生成的，以及后续应该如何调用和迭代。</p>
+</blockquote>
+<hr>
+<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>最近我在整理个人学习 Blog 时，遇到一个很明显的问题：不同类型的内容虽然主题不同，但整理方式其实有很多重复部分。</p>
+<p>比如：</p>
+<ul>
+<li>刷 LeetCode 时，需要整理题目、思路、代码、复杂度和边界情况；</li>
+<li>准备面试八股时，需要把问题整理成知识点详解和 30 秒口述版；</li>
+<li>看面经时，需要先提取题目，再整理成简洁回答、重点说明和面试可背版；</li>
+<li>复现项目时，需要写项目背景、技术栈、核心模块、复现过程、调试问题和个人收获；</li>
+<li>阅读论文时，需要关注研究方向、创新点、方法设计、实验结果和后续启发。</li>
+</ul>
+<p>如果每次都从零开始写提示词，不仅效率低，而且很难保证文章风格统一。因此这次我尝试把这些写作规则整理成一个 <strong>Blog-writing Skills 工具包</strong>，让 Agent 在面对类似任务时可以自动加载固定规范，并按照我的个人 Blog 风格输出 Markdown 文件。</p>
+<p>我的理解是：</p>
+<blockquote>
+<p>Skill 的价值不在于“替我写一次文章”，而在于把一套稳定的处理流程沉淀下来，让 Agent 每次都能按相同标准完成任务。</p>
+</blockquote>
+<hr>
+<h2 id="二、Agent-的-Skill-模块是什么"><a href="#二、Agent-的-Skill-模块是什么" class="headerlink" title="二、Agent 的 Skill 模块是什么"></a>二、Agent 的 Skill 模块是什么</h2><h3 id="2-1-Skill-的基本理解"><a href="#2-1-Skill-的基本理解" class="headerlink" title="2.1 Skill 的基本理解"></a>2.1 Skill 的基本理解</h3><p>Skill 可以理解为 Agent 的一个“能力插件”或“任务说明书”。</p>
+<p>普通对话中，我们往往需要在每次提问时重复说明：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">请按照我的博客格式写；</span><br><span class="line">请加 frontmatter；</span><br><span class="line">请用个人学习笔记风格；</span><br><span class="line">请整理成 Markdown；</span><br><span class="line">请加入个人收获和总结；</span><br><span class="line">请按照 LeetCode / 面经 / 论文阅读的格式组织。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>而 Skill 的作用，就是把这些重复要求固化成一个可复用模块。之后只要触发这个 Skill，Agent 就能知道：</p>
+<ol>
+<li>什么时候应该使用这套流程；</li>
+<li>输入内容可能有哪些类型；</li>
+<li>每种类型应该如何处理；</li>
+<li>输出文件应该是什么命名规则；</li>
+<li>Markdown 文章应该包含哪些固定结构；</li>
+<li>哪些情况需要联网、读文件、看图片或检查 PDF；</li>
+<li>最终应该如何交付 <code>.md</code> 文件。</li>
+</ol>
+<p>所以，Skill 不是简单的 Prompt，而是由 <strong>主说明文件 + 参考文档 + 脚本 + 示例样式</strong> 组成的一套小型工作流。</p>
+<hr>
+<h3 id="2-2-Skill-与普通-Prompt-的区别"><a href="#2-2-Skill-与普通-Prompt-的区别" class="headerlink" title="2.2 Skill 与普通 Prompt 的区别"></a>2.2 Skill 与普通 Prompt 的区别</h3><p>我觉得 Skill 和普通 Prompt 最大的区别在于：</p>
+<table>
+<thead>
+<tr>
+<th align="left">对比项</th>
+<th align="left">普通 Prompt</th>
+<th align="left">Skill 工具包</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">使用方式</td>
+<td align="left">每次手动描述需求</td>
+<td align="left">通过名称或触发条件自动调用</td>
+</tr>
+<tr>
+<td align="left">规则保存</td>
+<td align="left">存在于当前对话中</td>
+<td align="left">存在于 Skill 文件结构中</td>
+</tr>
+<tr>
+<td align="left">适合场景</td>
+<td align="left">一次性任务</td>
+<td align="left">高频、重复、风格固定的任务</td>
+</tr>
+<tr>
+<td align="left">输出稳定性</td>
+<td align="left">容易受当次提示影响</td>
+<td align="left">更容易保持统一格式</td>
+</tr>
+<tr>
+<td align="left">可维护性</td>
+<td align="left">修改困难，容易遗漏</td>
+<td align="left">可拆分为多个参考文件迭代</td>
+</tr>
+<tr>
+<td align="left">工程化程度</td>
+<td align="left">偏临时对话</td>
+<td align="left">偏可复用工作流</td>
+</tr>
+</tbody></table>
+<p>因此，如果任务只是临时问答，不一定需要 Skill；但如果任务具有明显的重复性、格式约束和分类流程，就非常适合封装成 Skill。</p>
+<p>这次 Blog-writing 就属于典型的 Skill 场景：它不是只生成一篇文章，而是要长期帮助我整理不同类别的学习 Blog。</p>
+<hr>
+<h2 id="三、Blog-writing-Skill-的设计目标"><a href="#三、Blog-writing-Skill-的设计目标" class="headerlink" title="三、Blog-writing Skill 的设计目标"></a>三、Blog-writing Skill 的设计目标</h2><p>这次工具包的核心目标可以概括为一句话：</p>
+<blockquote>
+<p>当我输入任意学习材料时，Agent 能自动判断材料类型，并按照我的个人博客风格生成一篇完整、可发布、可复习的 Markdown 文章。</p>
+</blockquote>
+<p>具体来说，它需要覆盖七类内容：</p>
+<table>
+<thead>
+<tr>
+<th align="left">类型</th>
+<th align="left">输入内容</th>
+<th align="left">输出目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">LeetCode 刷题类</td>
+<td align="left">题目、代码、解法</td>
+<td align="left">生成算法学习 Blog</td>
+</tr>
+<tr>
+<td align="left">八股问题类</td>
+<td align="left">一组面试问题</td>
+<td align="left">生成知识点总结 + 30 秒口述版</td>
+</tr>
+<tr>
+<td align="left">面经类</td>
+<td align="left">图片、截图、题目列表</td>
+<td align="left">提取问题并整理答案</td>
+</tr>
+<tr>
+<td align="left">链接阅读分析类</td>
+<td align="left">项目文章、公众号链接、网页</td>
+<td align="left">阅读链接并生成项目学习复盘</td>
+</tr>
+<tr>
+<td align="left">文件内容整理类</td>
+<td align="left">Word/PDF/项目报告</td>
+<td align="left">生成项目实验总结 Blog</td>
+</tr>
+<tr>
+<td align="left">文献整理类</td>
+<td align="left">PDF 论文、学位论文</td>
+<td align="left">生成文献阅读笔记</td>
+</tr>
+<tr>
+<td align="left">其他内容</td>
+<td align="left">零散学习材料</td>
+<td align="left">参考最接近模板整理</td>
+</tr>
+</tbody></table>
+<p>这个设计其实很像给 Agent 做一个“个人知识整理助手”。</p>
+<p>它不只是把文字润色一下，而是要完成下面这条链路：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">输入材料</span><br><span class="line">   ↓</span><br><span class="line">判断内容类别</span><br><span class="line">   ↓</span><br><span class="line">选择对应博客模板</span><br><span class="line">   ↓</span><br><span class="line">读取/分析/提取关键信息</span><br><span class="line">   ↓</span><br><span class="line">补充必要的学习理解</span><br><span class="line">   ↓</span><br><span class="line">生成 Hexo/Butterfly 风格 Markdown</span><br><span class="line">   ↓</span><br><span class="line">校验 frontmatter 与文章结构</span><br><span class="line">   ↓</span><br><span class="line">输出可发布的 .md 文件</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="四、Skill-工具包的目录结构"><a href="#四、Skill-工具包的目录结构" class="headerlink" title="四、Skill 工具包的目录结构"></a>四、Skill 工具包的目录结构</h2><p>刚才生成的 Blog-writing Skill 主要包含以下文件：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">blog-writing/</span><br><span class="line">├── SKILL.md</span><br><span class="line">├── agents/</span><br><span class="line">│   └── openai.yaml</span><br><span class="line">├── references/</span><br><span class="line">│   ├── category-workflows.md</span><br><span class="line">│   ├── output-templates.md</span><br><span class="line">│   ├── source-handling.md</span><br><span class="line">│   └── style-guide.md</span><br><span class="line">└── scripts/</span><br><span class="line">    └── check_blog_md.py</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这个结构可以分成四层理解。</p>
+<hr>
+<h3 id="4-1-SKILL-md：入口和总控说明"><a href="#4-1-SKILL-md：入口和总控说明" class="headerlink" title="4.1 SKILL.md：入口和总控说明"></a>4.1 SKILL.md：入口和总控说明</h3><p><code>SKILL.md</code> 是整个 Skill 的入口文件，主要负责告诉 Agent：</p>
+<ol>
+<li>这个 Skill 叫什么；</li>
+<li>什么情况下应该触发；</li>
+<li>总体任务目标是什么；</li>
+<li>应该按什么默认流程执行；</li>
+<li>遇到不同类别内容时应该去看哪些参考文件。</li>
+</ol>
+<p>在 Blog-writing 中，<code>SKILL.md</code> 的触发描述大致覆盖了这些场景：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当用户调用 @Blog-writing，或者要求把所给内容整理成个人 Blog、Markdown 学习文章、面试复习笔记、项目复盘、论文阅读笔记时使用。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这一步很关键，因为 Skill 的触发依赖描述是否清晰。如果描述太泛，Agent 可能误触发；如果描述太窄，又可能在该用的时候没有调用。</p>
+<hr>
+<h3 id="4-2-references：分类规则与写作规范"><a href="#4-2-references：分类规则与写作规范" class="headerlink" title="4.2 references：分类规则与写作规范"></a>4.2 references：分类规则与写作规范</h3><p><code>references</code> 目录是这个 Skill 最核心的知识区，里面放的是写作规则，而不是最终文章。</p>
+<p>我把它拆成了几个文件：</p>
+<table>
+<thead>
+<tr>
+<th align="left">文件</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>style-guide.md</code></td>
+<td align="left">规定整体语气、frontmatter、封面、Markdown 风格</td>
+</tr>
+<tr>
+<td align="left"><code>category-workflows.md</code></td>
+<td align="left">规定不同内容类型的判断逻辑、命名规则和文章结构</td>
+</tr>
+<tr>
+<td align="left"><code>source-handling.md</code></td>
+<td align="left">规定链接、图片、代码、Word/PDF、论文等输入如何处理</td>
+</tr>
+<tr>
+<td align="left"><code>output-templates.md</code></td>
+<td align="left">提供通用模板、八股模板、面经模板、LeetCode 模板等</td>
+</tr>
+</tbody></table>
+<p>这样拆分的好处是：</p>
+<ol>
+<li><code>SKILL.md</code> 不会变得过长；</li>
+<li>Agent 可以按需读取相关规则；</li>
+<li>后续维护时可以只改某一个文件；</li>
+<li>不同类型任务之间不会相互干扰。</li>
+</ol>
+<p>例如，当用户提供的是八股问题时，Agent 重点参考 <code>category-workflows.md</code> 中的“Interview 八股 blog”部分和 <code>output-templates.md</code> 中的“Interview question block”；当用户提供的是论文 PDF 时，则重点参考“Paper / literature reading blog”部分和 <code>source-handling.md</code> 中的论文处理规则。</p>
+<hr>
+<h3 id="4-3-scripts：可执行的辅助校验脚本"><a href="#4-3-scripts：可执行的辅助校验脚本" class="headerlink" title="4.3 scripts：可执行的辅助校验脚本"></a>4.3 scripts：可执行的辅助校验脚本</h3><p>这次工具包里还加入了一个简单脚本：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scripts/check_blog_md.py</span><br></pre></td></tr></tbody></table></figure>
+
+<p>它的作用是对生成的 Markdown 文件做基础检查，例如：</p>
+<ol>
+<li>是否包含 YAML frontmatter；</li>
+<li>frontmatter 中是否包含 <code>title</code>、<code>date</code>、<code>tags</code>、<code>categories</code>、<code>cover</code> 等必要字段；</li>
+<li>如果文章中出现公式，是否添加 <code>mathjax: true</code>；</li>
+<li>是否残留 TODO 或占位内容；</li>
+<li>二级标题数量是否过少；</li>
+<li>代码块符号是否成对出现。</li>
+</ol>
+<p>这个脚本虽然不复杂，但它体现了 Skill 设计里很重要的一点：</p>
+<blockquote>
+<p>能用确定性程序检查的内容，不要完全依赖模型自觉。</p>
+</blockquote>
+<p>比如 frontmatter 缺字段、代码块没闭合、残留 TODO 这类问题，本质上都适合用脚本检查。这样可以降低生成文章时的格式错误率。</p>
+<hr>
+<h2 id="五、刚才-Skill-的生成流程复盘"><a href="#五、刚才-Skill-的生成流程复盘" class="headerlink" title="五、刚才 Skill 的生成流程复盘"></a>五、刚才 Skill 的生成流程复盘</h2><p>整个 Blog-writing Skill 的生成过程可以拆成下面几步。</p>
+<hr>
+<h3 id="5-1-第一步：分析用户需求"><a href="#5-1-第一步：分析用户需求" class="headerlink" title="5.1 第一步：分析用户需求"></a>5.1 第一步：分析用户需求</h3><p>最开始的需求其实比较完整：用户已经明确给出了七类文章场景，并提供了六份参考 Markdown 样式。</p>
+<p>这些样式文件分别对应：</p>
+<ol>
+<li>LeetCode 刷题文章；</li>
+<li>面试八股问题文章；</li>
+<li>面经学习文章；</li>
+<li>链接项目复盘文章；</li>
+<li>文件/课程实验复盘文章；</li>
+<li>论文阅读文章。</li>
+</ol>
+<p>因此这次不需要再反复追问输出格式，而是可以直接从样例中抽取规则，包括：</p>
+<ul>
+<li>frontmatter 字段；</li>
+<li>标题命名方式；</li>
+<li>分类和标签风格；</li>
+<li>正文标题层级；</li>
+<li>代码块和表格使用方式；</li>
+<li>个人学习总结的语气；</li>
+<li>每类文章的固定模块。</li>
+</ul>
+<p>这一步相当于把“隐含在样例中的风格”显式抽象出来。</p>
+<hr>
+<h3 id="5-2-第二步：抽象通用-Blog-风格"><a href="#5-2-第二步：抽象通用-Blog-风格" class="headerlink" title="5.2 第二步：抽象通用 Blog 风格"></a>5.2 第二步：抽象通用 Blog 风格</h3><p>从参考样式中可以看到，所有文章都有类似的基本结构：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">date:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">updated:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">...</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">...</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">...</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">highlight_shrink:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">aside:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">sticky:</span></span><br><span class="line"><span class="attr">cover:</span> <span class="string">...</span></span><br><span class="line"><span class="meta">---</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>正文通常会以一段引用开头，用来说明本文的目的：</p>
+<figure class="highlight markdown"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="quote">&gt; 本文用于<span class="strong">**学习复盘 / 面试复习 / 项目总结 / 文献阅读**</span>。</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后进入主体部分，并在最后加入个人收获、总结或核心流程伪代码。</p>
+<p>这说明 Blog-writing Skill 的底层风格不是“新闻文章”，也不是“百科说明”，而是：</p>
+<blockquote>
+<p>研究生个人学习笔记风格，重点关注理解、复盘、可背诵、可回顾和可迁移。</p>
+</blockquote>
+<p>所以在 <code>style-guide.md</code> 中，我专门强调了这些写作要求：</p>
+<ol>
+<li>用自然的中文解释；</li>
+<li>保留第一人称学习反思；</li>
+<li>不要堆砌原文；</li>
+<li>不要写成过于官方的报告；</li>
+<li>要适当加入学习收获和后续优化方向；</li>
+<li>输出必须是完整 Markdown，而不是大纲。</li>
+</ol>
+<hr>
+<h3 id="5-3-第三步：为不同类别建立工作流"><a href="#5-3-第三步：为不同类别建立工作流" class="headerlink" title="5.3 第三步：为不同类别建立工作流"></a>5.3 第三步：为不同类别建立工作流</h3><p>仅有通用风格还不够，因为不同文章类型的结构差异很大。</p>
+<p>例如 LeetCode 文章应该是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">题目 → 分析 → 程序 → 算法性能 → 测试示例 → 扩展思考</span><br></pre></td></tr></tbody></table></figure>
+
+<p>八股文章应该是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">QuestionXXX → 知识点详解 → 30秒口述版 → 延伸追问</span><br></pre></td></tr></tbody></table></figure>
+
+<p>面经文章应该是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">题目总览 → 简洁回答 → 重点说明 → 面试可背版 → 最后复盘版</span><br></pre></td></tr></tbody></table></figure>
+
+<p>项目复盘文章则更像：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">前言 → 项目目标 → 技术方案 → 核心模块 → 问题处理 → 最终效果 → 个人收获 → 总结</span><br></pre></td></tr></tbody></table></figure>
+
+<p>因此我把这些规则统一放到了 <code>category-workflows.md</code> 中，让 Agent 先判断输入内容属于哪一类，再选择对应模板。</p>
+<p>这一步是整个 Skill 能否稳定工作的关键。</p>
+<p>因为如果没有分类流程，Agent 很可能把论文阅读写成项目复盘，或者把面经题目写成普通八股总结，最终文章就会偏离原本用途。</p>
+<hr>
+<h3 id="5-4-第四步：设计输入处理规则"><a href="#5-4-第四步：设计输入处理规则" class="headerlink" title="5.4 第四步：设计输入处理规则"></a>5.4 第四步：设计输入处理规则</h3><p>Blog-writing 面对的输入并不只有纯文本，还可能包括：</p>
+<ol>
+<li>Java / Python / C++ 代码；</li>
+<li>面经截图；</li>
+<li>公众号链接；</li>
+<li>Word 文档；</li>
+<li>PDF 项目报告；</li>
+<li>PDF 论文；</li>
+<li>混合输入材料。</li>
+</ol>
+<p>所以我又设计了 <code>source-handling.md</code>，专门说明不同输入应该怎么处理。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th align="left">输入类型</th>
+<th align="left">处理方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">代码</td>
+<td align="left">识别题目和算法，优化代码解释，补复杂度和边界情况</td>
+</tr>
+<tr>
+<td align="left">图片</td>
+<td align="left">提取可见题目，不清楚的地方说明不确定性</td>
+</tr>
+<tr>
+<td align="left">链接</td>
+<td align="left">尽量访问链接，若不可访问则提示解析失败，不能编造内容</td>
+</tr>
+<tr>
+<td align="left">Word/PDF</td>
+<td align="left">提取正文，必要时查看图表，改写为个人复盘风格</td>
+</tr>
+<tr>
+<td align="left">论文</td>
+<td align="left">识别研究方向、创新点、方法、实验、局限和参考文献</td>
+</tr>
+</tbody></table>
+<p>这部分规则解决的是“信息从哪里来、可信度如何处理”的问题。</p>
+<p>尤其是链接和图片场景，不能为了生成完整文章而随意补不存在的信息。对于不可访问链接，Skill 明确要求提示：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">链接不可访问或解析失败</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这也是我认为 Agent 写作工具必须具备的边界意识。</p>
+<hr>
+<h3 id="5-5-第五步：加入输出模板与质量校验"><a href="#5-5-第五步：加入输出模板与质量校验" class="headerlink" title="5.5 第五步：加入输出模板与质量校验"></a>5.5 第五步：加入输出模板与质量校验</h3><p>在 <code>output-templates.md</code> 中，我把常用结构整理成了可复用模板，例如：</p>
+<figure class="highlight markdown"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">## QuestionXXX: 这里放具体问题</span></span><br><span class="line"></span><br><span class="line"><span class="section">### 知识点详解</span></span><br><span class="line">这里整理结构化解释</span><br><span class="line"></span><br><span class="line"><span class="section">### 30秒口述版</span></span><br><span class="line">这里整理一段可以直接口述的答案</span><br><span class="line"></span><br><span class="line"><span class="section">### 延伸追问</span></span><br><span class="line"><span class="bullet">-</span> 延伸追问一</span><br><span class="line"><span class="bullet">-</span> 延伸追问二</span><br></pre></td></tr></tbody></table></figure>
+
+<p>面经题目模板则是：</p>
+<figure class="highlight markdown"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">## QuestionXXX：这里放面经中的具体问题</span></span><br><span class="line"></span><br><span class="line"><span class="section">### 简洁回答</span></span><br><span class="line">这里给出简洁回答</span><br><span class="line"></span><br><span class="line"><span class="section">### 重点说明</span></span><br><span class="line">这里整理重点说明</span><br><span class="line"></span><br><span class="line"><span class="section">### 面试可背版</span></span><br><span class="line">这里整理面试可背版</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这些模板的作用不是限制模型只能机械填空，而是给 Agent 一个稳定的输出骨架。</p>
+<p>最后再通过 <code>check_blog_md.py</code> 做基础校验，尽量避免 Markdown 文件在发布前出现明显格式问题。</p>
+<hr>
+<h2 id="六、Skill-设计原则总结"><a href="#六、Skill-设计原则总结" class="headerlink" title="六、Skill 设计原则总结"></a>六、Skill 设计原则总结</h2><p>通过这次 Blog-writing Skill 的设计，我觉得一个好用的 Skill 至少要遵循下面几个原则。</p>
+<hr>
+<h3 id="6-1-触发条件要清晰"><a href="#6-1-触发条件要清晰" class="headerlink" title="6.1 触发条件要清晰"></a>6.1 触发条件要清晰</h3><p>Skill 的描述要明确告诉 Agent：什么时候该用它，什么时候不该用它。</p>
+<p>比如 Blog-writing 的触发场景应该包括：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">个人Blog整理</span><br><span class="line">Markdown学习文章</span><br><span class="line">LeetCode题解</span><br><span class="line">面试八股总结</span><br><span class="line">面经学习</span><br><span class="line">项目复盘</span><br><span class="line">论文阅读总结</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果触发条件写得太抽象，比如只写“帮助写文章”，就可能和普通写作任务混在一起，导致调用不稳定。</p>
+<hr>
+<h3 id="6-2-主文件要短，细节要拆分"><a href="#6-2-主文件要短，细节要拆分" class="headerlink" title="6.2 主文件要短，细节要拆分"></a>6.2 主文件要短，细节要拆分</h3><p><code>SKILL.md</code> 应该像“总控文件”，负责说明整体流程和资源导航，而不是把所有规则都塞进去。</p>
+<p>这次我把细节拆成：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">style-guide.md          → 写作风格</span><br><span class="line">category-workflows.md   → 分类流程</span><br><span class="line">source-handling.md      → 输入处理</span><br><span class="line">output-templates.md     → 输出模板</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这样做的好处是：</p>
+<ol>
+<li>结构更清楚；</li>
+<li>修改更方便；</li>
+<li>Agent 可以按需读取；</li>
+<li>后续扩展新文章类型时不会破坏原规则。</li>
+</ol>
+<hr>
+<h3 id="6-3-样例比抽象描述更重要"><a href="#6-3-样例比抽象描述更重要" class="headerlink" title="6.3 样例比抽象描述更重要"></a>6.3 样例比抽象描述更重要</h3><p>这次 Skill 能设计得比较具体，一个重要原因是有参考 Markdown 文件。</p>
+<p>仅仅说“写成个人博客风格”其实很模糊，但给出 <code>study-leetcode-141.md</code>、<code>notes-project-aicode-001.md</code>、<code>notes-paper-HRL-001.md</code> 这类样例后，就能抽取出非常明确的规则：</p>
+<ol>
+<li>标题怎么写；</li>
+<li>frontmatter 怎么写；</li>
+<li>段落长度如何控制；</li>
+<li>哪些地方用表格；</li>
+<li>哪些地方写个人收获；</li>
+<li>代码和伪代码怎么放；</li>
+<li>总结部分应该写到什么程度。</li>
+</ol>
+<p>所以我理解到：</p>
+<blockquote>
+<p>设计 Skill 时，与其写很多抽象要求，不如提供几个高质量输入输出样例。</p>
+</blockquote>
+<hr>
+<h3 id="6-4-能程序化检查的地方就用脚本"><a href="#6-4-能程序化检查的地方就用脚本" class="headerlink" title="6.4 能程序化检查的地方就用脚本"></a>6.4 能程序化检查的地方就用脚本</h3><p>文章内容质量需要模型判断，但格式完整性可以用程序检查。</p>
+<p>比如：</p>
+<ul>
+<li>frontmatter 是否存在；</li>
+<li>必要字段是否齐全；</li>
+<li>是否有未闭合代码块；</li>
+<li>是否有 TODO 占位；</li>
+<li>公式是否需要 <code>mathjax: true</code>。</li>
+</ul>
+<p>这些检查不复杂，但能明显提升输出稳定性。</p>
+<p>这也是 Skill 和普通 Prompt 的区别之一：Skill 可以携带脚本，把部分不稳定的自然语言任务变成确定性检查。</p>
+<hr>
+<h3 id="6-5-输出必须面向真实使用"><a href="#6-5-输出必须面向真实使用" class="headerlink" title="6.5 输出必须面向真实使用"></a>6.5 输出必须面向真实使用</h3><p>Blog-writing 的最终输出不是“看起来像文章”，而是要能直接用于博客发布。</p>
+<p>因此必须满足：</p>
+<ol>
+<li>文件命名符合习惯；</li>
+<li>frontmatter 完整；</li>
+<li>Markdown 可直接复制；</li>
+<li>文章结构完整；</li>
+<li>没有空标题和 TODO；</li>
+<li>有个人理解和总结；</li>
+<li>如果用户需要，还要生成实际 <code>.md</code> 文件。</li>
+</ol>
+<p>这提醒我：设计 Skill 时要从最终交付物倒推，而不是只关注中间回答过程。</p>
+<hr>
+<h2 id="七、Blog-writing-Skill-的使用方法"><a href="#七、Blog-writing-Skill-的使用方法" class="headerlink" title="七、Blog-writing Skill 的使用方法"></a>七、Blog-writing Skill 的使用方法</h2><p>后续使用这个工具包时，最简单的调用方式是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing 帮我把所给内容整理成一篇个人Blog</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后把输入材料一起发给 Agent。</p>
+<p>根据不同场景，可以这样使用。</p>
+<hr>
+<h3 id="7-1-LeetCode-刷题类"><a href="#7-1-LeetCode-刷题类" class="headerlink" title="7.1 LeetCode 刷题类"></a>7.1 LeetCode 刷题类</h3><p>输入示例：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">这是 LeetCode 206 反转链表的 Java 代码，帮我整理成一篇个人 Blog。</span><br><span class="line">这里粘贴代码</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Skill 会自动生成类似：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">study-leetcode-206.md</span><br></pre></td></tr></tbody></table></figure>
+
+<p>文章结构大致为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">题目</span><br><span class="line">分析</span><br><span class="line">程序</span><br><span class="line">算法性能</span><br><span class="line">测试示例</span><br><span class="line">扩展思考</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="7-2-八股问题类"><a href="#7-2-八股问题类" class="headerlink" title="7.2 八股问题类"></a>7.2 八股问题类</h3><p>输入示例：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">帮我整理以下面试八股问题，每题都要有 30 秒口述版：</span><br><span class="line">1. Redis 为什么快？</span><br><span class="line">2. MySQL 索引失效场景有哪些？</span><br><span class="line">3. JVM 类加载过程是什么？</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Skill 会输出类似：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">study-interview-面试八股问题011-013.md</span><br></pre></td></tr></tbody></table></figure>
+
+<p>每题结构为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">知识点详解</span><br><span class="line">30秒口述版</span><br><span class="line">延伸追问</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="7-3-面经学习类"><a href="#7-3-面经学习类" class="headerlink" title="7.3 面经学习类"></a>7.3 面经学习类</h3><p>输入示例：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">这是一张字节后端一面的面经截图，帮我提取问题并整理成面经学习 Blog。</span><br><span class="line">这里上传图片</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Skill 会先提取图片中的问题，再整理成：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">简洁回答</span><br><span class="line">重点说明</span><br><span class="line">面试可背版</span><br><span class="line">延伸追问</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果图片不清楚，需要明确标记：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">图片中该问题不完全清晰，以下按可辨识内容整理。</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="7-4-链接阅读分析类"><a href="#7-4-链接阅读分析类" class="headerlink" title="7.4 链接阅读分析类"></a>7.4 链接阅读分析类</h3><p>输入示例：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">参考我的项目复盘样式，基于这个链接整理一篇个人 Blog：</span><br><span class="line">https://example.com/project</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Skill 会尝试访问链接，并整理：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">项目目标</span><br><span class="line">整体方案</span><br><span class="line">核心模块</span><br><span class="line">关键技术</span><br><span class="line">复现过程</span><br><span class="line">个人收获</span><br><span class="line">后续优化方向</span><br><span class="line">参考链接</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果链接打不开，就不能编造内容，而是要提示：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">链接不可访问或解析失败</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h3 id="7-5-文件或论文整理类"><a href="#7-5-文件或论文整理类" class="headerlink" title="7.5 文件或论文整理类"></a>7.5 文件或论文整理类</h3><p>输入示例：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">帮我根据这个 PDF 项目报告整理成一篇课程实验复盘 Blog。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>或者：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing</span><br><span class="line">帮我根据这篇论文 PDF 整理一篇文献阅读 Blog，重点关注方法。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>对于论文类，如果文章中有公式，需要在 frontmatter 中加入：</p>
+<figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>这能保证博客渲染时公式正常显示。</p>
+<hr>
+<h2 id="八、Agent-调用-Skill-后的执行流程"><a href="#八、Agent-调用-Skill-后的执行流程" class="headerlink" title="八、Agent 调用 Skill 后的执行流程"></a>八、Agent 调用 Skill 后的执行流程</h2><p>从 Agent 的角度看，使用 Blog-writing Skill 大致会经历下面的流程：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">用户输入 @Blog-writing + 材料</span><br><span class="line">        ↓</span><br><span class="line">Agent 根据 Skill 描述判断需要调用 blog-writing</span><br><span class="line">        ↓</span><br><span class="line">读取 SKILL.md 总控说明</span><br><span class="line">        ↓</span><br><span class="line">判断材料类型</span><br><span class="line">        ↓</span><br><span class="line">按需读取 references 中的分类流程、风格指南和输入处理规则</span><br><span class="line">        ↓</span><br><span class="line">分析用户材料</span><br><span class="line">        ↓</span><br><span class="line">生成 Markdown 正文</span><br><span class="line">        ↓</span><br><span class="line">保存为推荐文件名</span><br><span class="line">        ↓</span><br><span class="line">运行 check_blog_md.py 做基础检查</span><br><span class="line">        ↓</span><br><span class="line">返回 .md 文件链接和必要说明</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果把它抽象成 Agent 能力链路，可以写成：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">用户需求</span><br><span class="line">  → Skill 触发</span><br><span class="line">  → 规则加载</span><br><span class="line">  → 输入解析</span><br><span class="line">  → 类型分类</span><br><span class="line">  → 模板选择</span><br><span class="line">  → 内容生成</span><br><span class="line">  → 文件校验</span><br><span class="line">  → 结果交付</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这和普通聊天最大的区别在于：Agent 不只是“回答问题”，而是在执行一个带规则、带资源、带校验的工作流。</p>
+<hr>
+<h2 id="九、这次设计中的个人理解"><a href="#九、这次设计中的个人理解" class="headerlink" title="九、这次设计中的个人理解"></a>九、这次设计中的个人理解</h2><h3 id="9-1-Skill-是把经验沉淀成流程"><a href="#9-1-Skill-是把经验沉淀成流程" class="headerlink" title="9.1 Skill 是把经验沉淀成流程"></a>9.1 Skill 是把经验沉淀成流程</h3><p>以前写 Blog 时，我更多依赖临时 Prompt。现在通过 Skill，我能把自己的写作经验拆成稳定流程。</p>
+<p>例如：</p>
+<ul>
+<li>八股必须有 30 秒口述版；</li>
+<li>面经必须有面试可背版；</li>
+<li>项目复盘必须有个人收获；</li>
+<li>论文阅读必须重点关注方法；</li>
+<li>链接不可访问时不能编造；</li>
+<li>公式出现时要加 <code>mathjax: true</code>。</li>
+</ul>
+<p>这些规则如果每次手动提醒，很容易遗漏；但放进 Skill 后，就可以长期复用。</p>
+<hr>
+<h3 id="9-2-Skill-让-Agent-更像一个专用助手"><a href="#9-2-Skill-让-Agent-更像一个专用助手" class="headerlink" title="9.2 Skill 让 Agent 更像一个专用助手"></a>9.2 Skill 让 Agent 更像一个专用助手</h3><p>没有 Skill 时，Agent 更像一个通用聊天模型；有了 Skill 后，它会更像一个专门负责某类任务的助手。</p>
+<p>Blog-writing Skill 的角色就是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">个人学习材料整理助手</span><br></pre></td></tr></tbody></table></figure>
+
+<p>它不需要解决所有问题，只需要把“学习材料 → 个人 Blog”这件事做好。</p>
+<p>这种思路也可以迁移到其他方向，比如：</p>
+<ol>
+<li>论文精读 Skill；</li>
+<li>面试复习 Skill；</li>
+<li>项目 README 生成 Skill；</li>
+<li>实验报告复盘 Skill；</li>
+<li>代码仓库分析 Skill。</li>
+</ol>
+<hr>
+<h3 id="9-3-好的-Skill-需要不断迭代"><a href="#9-3-好的-Skill-需要不断迭代" class="headerlink" title="9.3 好的 Skill 需要不断迭代"></a>9.3 好的 Skill 需要不断迭代</h3><p>这次生成的 Blog-writing 只是第一版。真正好用的 Skill 应该在后续使用中继续调整。</p>
+<p>比如我后面可能会发现：</p>
+<ol>
+<li>某类文章标题还不够统一；</li>
+<li>论文阅读部分需要增加“方法流程图”；</li>
+<li>八股题需要增加“易错点”；</li>
+<li>面经题需要增加“追问概率”；</li>
+<li>项目复盘需要增加“可放进简历的项目亮点”；</li>
+<li>Markdown 校验脚本还可以检查图片路径是否为空。</li>
+</ol>
+<p>这些都可以继续修改 Skill 的 reference 文件或脚本，而不用每次重新写一长串提示词。</p>
+<hr>
+<h2 id="十、后续优化方向"><a href="#十、后续优化方向" class="headerlink" title="十、后续优化方向"></a>十、后续优化方向</h2><p>后续如果继续完善 Blog-writing Skill，我觉得可以从以下方向扩展。</p>
+<h3 id="10-1-增加更多文章模板"><a href="#10-1-增加更多文章模板" class="headerlink" title="10.1 增加更多文章模板"></a>10.1 增加更多文章模板</h3><p>目前主要覆盖 LeetCode、八股、面经、项目、文件、论文六类。后续还可以增加：</p>
+<ol>
+<li>源码阅读类；</li>
+<li>开源项目学习类；</li>
+<li>课程笔记类；</li>
+<li>工具使用教程类；</li>
+<li>实验结果分析类；</li>
+<li>简历项目包装类。</li>
+</ol>
+<hr>
+<h3 id="10-2-增强-Markdown-校验脚本"><a href="#10-2-增强-Markdown-校验脚本" class="headerlink" title="10.2 增强 Markdown 校验脚本"></a>10.2 增强 Markdown 校验脚本</h3><p>当前脚本主要检查基础格式，后续可以继续检查：</p>
+<ol>
+<li>标题编号是否连续；</li>
+<li>是否存在空链接；</li>
+<li>图片路径是否缺失；</li>
+<li>代码块语言是否标注；</li>
+<li>frontmatter 日期格式是否正确；</li>
+<li>是否符合对应类别的必选章节。</li>
+</ol>
+<p>这样可以让生成结果更接近真正可发布状态。</p>
+<hr>
+<h3 id="10-3-加入个人知识库规范"><a href="#10-3-加入个人知识库规范" class="headerlink" title="10.3 加入个人知识库规范"></a>10.3 加入个人知识库规范</h3><p>目前 Skill 主要学习的是文章样式，后续还可以加入个人知识库规范，例如：</p>
+<ol>
+<li>常用技术栈名称；</li>
+<li>常用分类目录；</li>
+<li>图片存放路径规则；</li>
+<li>Blog 编号递增规则；</li>
+<li>常用参考链接来源；</li>
+<li>不同研究方向的关键词库。</li>
+</ol>
+<p>这样生成的 Blog 会更贴合我自己的长期写作体系。</p>
+<hr>
+<h3 id="10-4-与文件管理流程结合"><a href="#10-4-与文件管理流程结合" class="headerlink" title="10.4 与文件管理流程结合"></a>10.4 与文件管理流程结合</h3><p>后续还可以让 Skill 在生成文章后自动给出：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">建议文件名</span><br><span class="line">建议图片目录</span><br><span class="line">建议分类目录</span><br><span class="line">建议 Git 提交信息</span><br></pre></td></tr></tbody></table></figure>
+
+<p>例如：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">文件名：notes-project-blog-writing-skill-001.md</span><br><span class="line">图片目录：/images/photo2024/notes_project/blog-writing-skill-001/</span><br><span class="line">Git Commit：docs(blog): add blog-writing skill review note</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这样就不只是生成文章，而是接近一个完整的 Blog 发布助手。</p>
+<hr>
+<h2 id="十一、总结"><a href="#十一、总结" class="headerlink" title="十一、总结"></a>十一、总结</h2><p>这次 Blog-writing Skills 工具包的设计，让我对 Agent 的 Skill 模块有了更清晰的认识。</p>
+<p>如果用一句话总结：</p>
+<blockquote>
+<p>Skill 是把高频任务中的经验、规则、模板和校验流程打包起来，让 Agent 可以稳定复用的一种能力模块。</p>
+</blockquote>
+<p>对我来说，这次最大的收获不是生成了一个压缩包，而是理解了如何把“我平时怎么写 Blog”这件事拆解成可执行流程：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">样例分析</span><br><span class="line">  → 风格提炼</span><br><span class="line">  → 分类建模</span><br><span class="line">  → 输入处理</span><br><span class="line">  → 模板设计</span><br><span class="line">  → 脚本校验</span><br><span class="line">  → 打包交付</span><br><span class="line">  → 后续迭代</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这和做普通 Prompt 最大的区别在于：Prompt 更像一次性指令，而 Skill 更像长期维护的小工具。</p>
+<p>后续我在整理 LeetCode、面试题、面经、项目复盘和论文阅读时，就可以直接调用：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@Blog-writing 帮我把所给内容整理成一篇个人Blog</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后让 Agent 按照固定风格生成完整 Markdown 文件。</p>
+<p>这也是我理解中 Agent 工具化的一个重要方向：</p>
+<blockquote>
+<p>不只是让模型回答得更好，而是让模型按照可复用流程，把具体任务稳定地完成。</p>
+</blockquote>
+<hr>
+<h2 id="十二、核心流程伪代码"><a href="#十二、核心流程伪代码" class="headerlink" title="十二、核心流程伪代码"></a>十二、核心流程伪代码</h2><p>最后用一段伪代码概括 Blog-writing Skill 的工作方式。</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">用户输入：@Blog-writing + 学习材料</span><br><span class="line">        ↓</span><br><span class="line">触发 Blog-writing Skill</span><br><span class="line">        ↓</span><br><span class="line">读取 SKILL.md</span><br><span class="line">        ↓</span><br><span class="line">判断输入类型：</span><br><span class="line">    - LeetCode</span><br><span class="line">    - 八股问题</span><br><span class="line">    - 面经</span><br><span class="line">    - 链接文章</span><br><span class="line">    - Word/PDF 项目文件</span><br><span class="line">    - PDF 论文</span><br><span class="line">    - 其他学习材料</span><br><span class="line">        ↓</span><br><span class="line">加载对应 reference：</span><br><span class="line">    - style-guide.md</span><br><span class="line">    - category-workflows.md</span><br><span class="line">    - source-handling.md</span><br><span class="line">    - output-templates.md</span><br><span class="line">        ↓</span><br><span class="line">提取关键信息</span><br><span class="line">        ↓</span><br><span class="line">按照模板生成 Markdown</span><br><span class="line">        ↓</span><br><span class="line">补充个人理解、学习收获、总结</span><br><span class="line">        ↓</span><br><span class="line">保存为推荐文件名</span><br><span class="line">        ↓</span><br><span class="line">运行 check_blog_md.py</span><br><span class="line">        ↓</span><br><span class="line">返回 .md 文件</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Blog-writing Skill 简化执行逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">blog_writing_skill</span>(<span class="params">user_input</span>):</span><br><span class="line">    source_type = classify_source(user_input)</span><br><span class="line"></span><br><span class="line">    style_rules = load_reference(<span class="string">"style-guide.md"</span>)</span><br><span class="line">    category_rules = load_reference(<span class="string">"category-workflows.md"</span>, source_type)</span><br><span class="line">    source_rules = load_reference(<span class="string">"source-handling.md"</span>, source_type)</span><br><span class="line">    template = load_template(<span class="string">"output-templates.md"</span>, source_type)</span><br><span class="line"></span><br><span class="line">    extracted_content = analyze_source(user_input, source_rules)</span><br><span class="line"></span><br><span class="line">    markdown = generate_blog(</span><br><span class="line">        content=extracted_content,</span><br><span class="line">        style=style_rules,</span><br><span class="line">        category=category_rules,</span><br><span class="line">        template=template,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    filename = recommend_filename(source_type, markdown)</span><br><span class="line">    save_file(filename, markdown)</span><br><span class="line"></span><br><span class="line">    check_result = run_check(<span class="string">"scripts/check_blog_md.py"</span>, filename)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> check_result.has_warning:</span><br><span class="line">        fix_markdown(markdown, check_result)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> filename</span><br></pre></td></tr></tbody></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/06/01/notes/project_1/notes-project-blog-writing-skill-001/">https://wxggo.github.io/2026/06/01/notes/project_1/notes-project-blog-writing-skill-001/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://wxggo.github.io" target="_blank">WXGのBlog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/ChatGPT-Skills/">ChatGPT Skills</a><a class="post-meta__tags" href="/tags/Blog%E5%86%99%E4%BD%9C/">Blog写作</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81/">自动化工作流</a></div><div class="post_share"><div class="social-share" data-image="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/02/leetcode/leetcode_else/study-leetcode-088/" title="Leetcode-088:合并两个有序数组-从后往前双指针原地合并"><img class="cover" src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Leetcode-088:合并两个有序数组-从后往前双指针原地合并</div></div></a></div><div class="next-post pull-right"><a href="/2026/05/23/leetcode/leetcode_else/study-leetcode-102/" title="Leetcode-102:二叉树的层序遍历-BFS逐层遍历详解"><img class="cover" src="/images/photo2024/study_java/leetcode.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Leetcode-102:二叉树的层序遍历-BFS逐层遍历详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）"><img class="cover" src="https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-21</div><div class="title">Interview-Agent智能体设计：Question 001-005（AI超级智能体架构+Skills+OpenClaw+Agent核心）</div></div></a></div><div><a href="/2026/05/21/interview/LLM_1/study-OpenClaw-Agent%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98006-010/" title="Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）"><img class="cover" src="https://q0.itc.cn/images01/20251022/eb83b2180c3b4d0787afe626eca359d4.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-21</div><div class="title">Interview-Agent智能体设计：Question 006-010（SSE流式输出+RAG复习+结构化输出+MCP）</div></div></a></div><div><a href="/2026/05/05/notes/project_1/notes-project-agent-001/" title="Notes-项目复盘：把 AI 编程小助手改造成博客数字人面试 Agent"><img class="cover" src="/images/photo2024/notes_project/notes-project-agent-001/wxggo_blog.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-05</div><div class="title">Notes-项目复盘：把 AI 编程小助手改造成博客数字人面试 Agent</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">89</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Agent-%E7%9A%84-Skill-%E6%A8%A1%E5%9D%97%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-text">二、Agent 的 Skill 模块是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Skill-%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%90%86%E8%A7%A3"><span class="toc-text">2.1 Skill 的基本理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Skill-%E4%B8%8E%E6%99%AE%E9%80%9A-Prompt-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">2.2 Skill 与普通 Prompt 的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Blog-writing-Skill-%E7%9A%84%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="toc-text">三、Blog-writing Skill 的设计目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Skill-%E5%B7%A5%E5%85%B7%E5%8C%85%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-text">四、Skill 工具包的目录结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-SKILL-md%EF%BC%9A%E5%85%A5%E5%8F%A3%E5%92%8C%E6%80%BB%E6%8E%A7%E8%AF%B4%E6%98%8E"><span class="toc-text">4.1 SKILL.md：入口和总控说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-references%EF%BC%9A%E5%88%86%E7%B1%BB%E8%A7%84%E5%88%99%E4%B8%8E%E5%86%99%E4%BD%9C%E8%A7%84%E8%8C%83"><span class="toc-text">4.2 references：分类规则与写作规范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-scripts%EF%BC%9A%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E8%BE%85%E5%8A%A9%E6%A0%A1%E9%AA%8C%E8%84%9A%E6%9C%AC"><span class="toc-text">4.3 scripts：可执行的辅助校验脚本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%9A%E6%89%8D-Skill-%E7%9A%84%E7%94%9F%E6%88%90%E6%B5%81%E7%A8%8B%E5%A4%8D%E7%9B%98"><span class="toc-text">五、刚才 Skill 的生成流程复盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%88%86%E6%9E%90%E7%94%A8%E6%88%B7%E9%9C%80%E6%B1%82"><span class="toc-text">5.1 第一步：分析用户需求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E6%8A%BD%E8%B1%A1%E9%80%9A%E7%94%A8-Blog-%E9%A3%8E%E6%A0%BC"><span class="toc-text">5.2 第二步：抽象通用 Blog 风格</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E4%B8%BA%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%88%AB%E5%BB%BA%E7%AB%8B%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-text">5.3 第三步：为不同类别建立工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E8%AE%BE%E8%AE%A1%E8%BE%93%E5%85%A5%E5%A4%84%E7%90%86%E8%A7%84%E5%88%99"><span class="toc-text">5.4 第四步：设计输入处理规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9A%E5%8A%A0%E5%85%A5%E8%BE%93%E5%87%BA%E6%A8%A1%E6%9D%BF%E4%B8%8E%E8%B4%A8%E9%87%8F%E6%A0%A1%E9%AA%8C"><span class="toc-text">5.5 第五步：加入输出模板与质量校验</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81Skill-%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%E6%80%BB%E7%BB%93"><span class="toc-text">六、Skill 设计原则总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E8%A7%A6%E5%8F%91%E6%9D%A1%E4%BB%B6%E8%A6%81%E6%B8%85%E6%99%B0"><span class="toc-text">6.1 触发条件要清晰</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E4%B8%BB%E6%96%87%E4%BB%B6%E8%A6%81%E7%9F%AD%EF%BC%8C%E7%BB%86%E8%8A%82%E8%A6%81%E6%8B%86%E5%88%86"><span class="toc-text">6.2 主文件要短，细节要拆分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E6%A0%B7%E4%BE%8B%E6%AF%94%E6%8A%BD%E8%B1%A1%E6%8F%8F%E8%BF%B0%E6%9B%B4%E9%87%8D%E8%A6%81"><span class="toc-text">6.3 样例比抽象描述更重要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E8%83%BD%E7%A8%8B%E5%BA%8F%E5%8C%96%E6%A3%80%E6%9F%A5%E7%9A%84%E5%9C%B0%E6%96%B9%E5%B0%B1%E7%94%A8%E8%84%9A%E6%9C%AC"><span class="toc-text">6.4 能程序化检查的地方就用脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E8%BE%93%E5%87%BA%E5%BF%85%E9%A1%BB%E9%9D%A2%E5%90%91%E7%9C%9F%E5%AE%9E%E4%BD%BF%E7%94%A8"><span class="toc-text">6.5 输出必须面向真实使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81Blog-writing-Skill-%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-text">七、Blog-writing Skill 的使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-LeetCode-%E5%88%B7%E9%A2%98%E7%B1%BB"><span class="toc-text">7.1 LeetCode 刷题类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E5%85%AB%E8%82%A1%E9%97%AE%E9%A2%98%E7%B1%BB"><span class="toc-text">7.2 八股问题类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E9%9D%A2%E7%BB%8F%E5%AD%A6%E4%B9%A0%E7%B1%BB"><span class="toc-text">7.3 面经学习类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E9%93%BE%E6%8E%A5%E9%98%85%E8%AF%BB%E5%88%86%E6%9E%90%E7%B1%BB"><span class="toc-text">7.4 链接阅读分析类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E6%96%87%E4%BB%B6%E6%88%96%E8%AE%BA%E6%96%87%E6%95%B4%E7%90%86%E7%B1%BB"><span class="toc-text">7.5 文件或论文整理类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81Agent-%E8%B0%83%E7%94%A8-Skill-%E5%90%8E%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">八、Agent 调用 Skill 后的执行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E8%BF%99%E6%AC%A1%E8%AE%BE%E8%AE%A1%E4%B8%AD%E7%9A%84%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3"><span class="toc-text">九、这次设计中的个人理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-Skill-%E6%98%AF%E6%8A%8A%E7%BB%8F%E9%AA%8C%E6%B2%89%E6%B7%80%E6%88%90%E6%B5%81%E7%A8%8B"><span class="toc-text">9.1 Skill 是把经验沉淀成流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-Skill-%E8%AE%A9-Agent-%E6%9B%B4%E5%83%8F%E4%B8%80%E4%B8%AA%E4%B8%93%E7%94%A8%E5%8A%A9%E6%89%8B"><span class="toc-text">9.2 Skill 让 Agent 更像一个专用助手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E5%A5%BD%E7%9A%84-Skill-%E9%9C%80%E8%A6%81%E4%B8%8D%E6%96%AD%E8%BF%AD%E4%BB%A3"><span class="toc-text">9.3 好的 Skill 需要不断迭代</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%90%8E%E7%BB%AD%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91"><span class="toc-text">十、后续优化方向</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E5%A2%9E%E5%8A%A0%E6%9B%B4%E5%A4%9A%E6%96%87%E7%AB%A0%E6%A8%A1%E6%9D%BF"><span class="toc-text">10.1 增加更多文章模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E5%A2%9E%E5%BC%BA-Markdown-%E6%A0%A1%E9%AA%8C%E8%84%9A%E6%9C%AC"><span class="toc-text">10.2 增强 Markdown 校验脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E5%8A%A0%E5%85%A5%E4%B8%AA%E4%BA%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E8%A7%84%E8%8C%83"><span class="toc-text">10.3 加入个人知识库规范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E4%B8%8E%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E6%B5%81%E7%A8%8B%E7%BB%93%E5%90%88"><span class="toc-text">10.4 与文件管理流程结合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">十一、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">十二、核心流程伪代码</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/02/leetcode/leetcode_else/study-leetcode-088/" title="Leetcode-088:合并两个有序数组-从后往前双指针原地合并"><img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-088:合并两个有序数组-从后往前双指针原地合并"></a><div class="content"><a class="title" href="/2026/06/02/leetcode/leetcode_else/study-leetcode-088/" title="Leetcode-088:合并两个有序数组-从后往前双指针原地合并">Leetcode-088:合并两个有序数组-从后往前双指针原地合并</a><time datetime="2026-06-02T11:30:00.000Z" title="发表于 2026-06-02 19:30:00">2026-06-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/01/notes/project_1/notes-project-blog-writing-skill-001/" title="Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理"><img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理"></a><div class="content"><a class="title" href="/2026/06/01/notes/project_1/notes-project-blog-writing-skill-001/" title="Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理">Notes-项目复盘:Blog-writing Skills工具包设计与生成流程整理</a><time datetime="2026-06-01T11:30:00.000Z" title="发表于 2026-06-01 19:30:00">2026-06-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/23/leetcode/leetcode_else/study-leetcode-102/" title="Leetcode-102:二叉树的层序遍历-BFS逐层遍历详解"><img src="/images/photo2024/study_java/leetcode.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-102:二叉树的层序遍历-BFS逐层遍历详解"></a><div class="content"><a class="title" href="/2026/05/23/leetcode/leetcode_else/study-leetcode-102/" title="Leetcode-102:二叉树的层序遍历-BFS逐层遍历详解">Leetcode-102:二叉树的层序遍历-BFS逐层遍历详解</a><time datetime="2026-05-23T09:00:00.000Z" title="发表于 2026-05-23 17:00:00">2026-05-23</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 - 2026 By wxg</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="/js/snowflake.js"></script><script src="/js/agent-assistant.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>

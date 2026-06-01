@@ -1,0 +1,41 @@
+:root {
+  --hl-bg: #1e1e1e;
+  --hl-color: #d4d4d4;
+  --hltools-bg: #242424;
+  --hltools-color: #eeeeee;
+  --hlnumber-bg: #1e1e1e;
+  --hlnumber-color: #858585;
+}
+
+/* 代码块整体背景 */
+#article-container figure.highlight,
+#article-container figure.highlight table,
+#article-container figure.highlight .code pre,
+#article-container figure.highlight .gutter pre,
+#article-container figure.highlight .hljs,
+#article-container pre,
+#article-container pre code {
+  background: #1e1e1e !important;
+  color: #d4d4d4 !important;
+}
+
+/* 行号 */
+#article-container figure.highlight .gutter pre span {
+  color: #858585 !important;
+}
+
+/* 注释：兼容 Hexo highlight、hljs、Prism 三种 class */
+#article-container figure.highlight .comment,
+#article-container figure.highlight .hljs-comment,
+#article-container pre code .hljs-comment,
+#article-container pre[class*='language-'] .token.comment,
+#article-container code[class*='language-'] .token.comment {
+  color: #9cdc7c !important;
+  font-style: italic;
+}
+
+/* 顶部工具栏 */
+#article-container figure.highlight .highlight-tools {
+  background: #242424 !important;
+  color: #eeeeee !important;
+}
