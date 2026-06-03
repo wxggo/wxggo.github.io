@@ -1,0 +1,861 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习 | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本文系统整理 PPO、GRPO、DPO 与 DQN 的核心区别，解释大语言模型中常见的强化学习训练流程，并对比控制领域强化学习与 LLM 对齐训练的差异。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习">
+<meta property="og:url" content="https://wxggo.github.io/2026/06/03/notes/study_1/notes-study-LLM-GRPO-001/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="本文系统整理 PPO、GRPO、DPO 与 DQN 的核心区别，解释大语言模型中常见的强化学习训练流程，并对比控制领域强化学习与 LLM 对齐训练的差异。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wx2.sinaimg.cn/large/ee3b7d6cly1i9sw110auvj20zj0k0gqc.jpg">
+<meta property="article:published_time" content="2026-06-03T13:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-03T13:30:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="GRPO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wx2.sinaimg.cn/large/ee3b7d6cly1i9sw110auvj20zj0k0gqc.jpg"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/06/03/notes/study_1/notes-study-LLM-GRPO-001/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-03 21:30:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="/css/agent-assistant.css"><link rel="stylesheet" href="/css/codeblock-fix.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://wx2.sinaimg.cn/large/ee3b7d6cly1i9sw110auvj20zj0k0gqc.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-03T13:30:00.000Z" title="发表于 2026-06-03 21:30:00">2026-06-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-03T13:30:00.000Z" title="更新于 2026-06-03 21:30:00">2026-06-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%E5%A4%A7%E6%A8%A1%E5%9E%8B/">AI大模型</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">7.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>25分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('https://wx2.sinaimg.cn/large/ee3b7d6cly1i9sw110auvj20zj0k0gqc.jpg');"></div><article class="post-content" id="article-container"><blockquote>
+<p>本文用于<strong>强化学习算法与大模型对齐训练复习</strong>。我主要整理 PPO、GRPO、DPO、DQN 四类方法的区别，并回答几个容易混淆的问题：大模型最常用的强化学习算法是什么？为什么不是 DQN？DPO 算不算强化学习？GRPO 相比 PPO 改了什么？控制领域的任务分配、路径规划强化学习，和 LLM 领域的强化学习到底差在哪里？</p>
+<p>这篇笔记会尽量把公式、流程和直觉放在一起。因为只背算法名字很容易混乱，真正需要抓住的是：<strong>状态是什么、动作是什么、奖励怎么来、策略怎么更新、训练时是否需要在线采样。</strong></p>
+</blockquote>
+<hr>
+<h2 id="一、先给结论：四个算法分别适合什么"><a href="#一、先给结论：四个算法分别适合什么" class="headerlink" title="一、先给结论：四个算法分别适合什么"></a>一、先给结论：四个算法分别适合什么</h2><p>如果先不展开公式，可以这样粗略理解：</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>类型</th>
+<th>核心思想</th>
+<th>在 LLM 中的典型用途</th>
+<th>是否需要在线采样</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DQN</td>
+<td>Value-based RL</td>
+<td>学习 $Q(s,a)$，选择价值最高的动作</td>
+<td>一般不直接用于 LLM 对齐</td>
+<td>需要与环境交互</td>
+</tr>
+<tr>
+<td>PPO</td>
+<td>Policy-based / Actor-Critic</td>
+<td>限制策略更新幅度，稳定优化策略</td>
+<td>经典 RLHF 主流算法</td>
+<td>需要模型采样 response</td>
+</tr>
+<tr>
+<td>GRPO</td>
+<td>PPO 变体</td>
+<td>去掉 critic，用同一 prompt 的多组输出做相对优势估计</td>
+<td>推理模型、数学/代码强化学习常见</td>
+<td>需要模型采样 response</td>
+</tr>
+<tr>
+<td>DPO</td>
+<td>Preference optimization</td>
+<td>用偏好数据直接优化策略，不显式训练 reward model 和 RL loop</td>
+<td>轻量级偏好对齐常用</td>
+<td>通常不需要在线采样</td>
+</tr>
+</tbody></table>
+<p>一句话版本：</p>
+<blockquote>
+<p>DQN 适合动作空间相对明确的控制问题；PPO 是经典 RLHF 中最常见的策略优化算法；GRPO 是更适合大模型推理强化学习的一类 PPO 变体；DPO 则是把偏好对齐转成监督式分类损失的“非在线 RL”方法。</p>
+</blockquote>
+<hr>
+<h2 id="二、强化学习的基本框架"><a href="#二、强化学习的基本框架" class="headerlink" title="二、强化学习的基本框架"></a>二、强化学习的基本框架</h2><p>强化学习一般可以抽象成一个智能体与环境交互的过程：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state s_t</span><br><span class="line">  -&gt; agent 选择 action a_t</span><br><span class="line">  -&gt; environment 返回 reward r_t 和下一个 state s_{t+1}</span><br><span class="line">  -&gt; agent 根据经验更新策略</span><br></pre></td></tr></tbody></table></figure>
+
+<p>核心变量包括：</p>
+<ul>
+<li><strong>状态 $s$</strong> ：当前环境信息；</li>
+<li><strong>动作 $a$</strong> ：智能体能做出的选择；</li>
+<li><strong>奖励 $r$</strong> ：动作好坏的反馈；</li>
+<li><strong>策略 $\pi(a|s)$</strong> ：在状态 $s$ 下选择动作 $a$ 的概率；</li>
+<li><strong>价值函数 $V(s)$ 或 $Q(s,a)$</strong> ：估计未来累计回报；</li>
+<li><strong>折扣因子 $\gamma$</strong> ：控制未来奖励的重要程度。</li>
+</ul>
+<p>目标一般是最大化期望累计回报:<br><code>$$ J(\theta)=\mathbb{E}_{\pi_\theta}\left[\sum_{t=0}^{T}\gamma^t r_t\right] $$</code><br>对于控制领域，这个框架非常直观：机器人移动一步、无人机选择一个任务、车辆选择一段路径，环境就会反馈代价或奖励。<br>对于 LLM，框架会变得抽象一些：prompt 是状态，生成 token 或完整 response 是动作，奖励往往来自人类偏好模型、规则验证器或 AI 反馈。</p>
+<hr>
+<h2 id="三、DQN：从价值函数出发的深度强化学习"><a href="#三、DQN：从价值函数出发的深度强化学习" class="headerlink" title="三、DQN：从价值函数出发的深度强化学习"></a>三、DQN：从价值函数出发的深度强化学习</h2><p>DQN，全称 Deep Q-Network，是 DeepMind 提出的经典深度强化学习算法，最著名的应用是 Atari 游戏。</p>
+<h3 id="3-1-DQN-的核心思想"><a href="#3-1-DQN-的核心思想" class="headerlink" title="3.1 DQN 的核心思想"></a>3.1 DQN 的核心思想</h3><p>DQN 要学习的是动作价值函数：</p>
+<p>$$<br>Q(s,a)<br>$$</p>
+<p>它表示在状态 $s$ 下执行动作 $a$，之后继续按照某种策略行动，最终能获得多少累计回报。</p>
+<p>DQN 的动作选择通常是：</p>
+<p>$$<br>a=\arg\max_a Q(s,a)<br>$$</p>
+<p>也就是选择当前估计价值最高的动作。</p>
+<h3 id="3-2-Bellman-更新"><a href="#3-2-Bellman-更新" class="headerlink" title="3.2 Bellman 更新"></a>3.2 Bellman 更新</h3><p>DQN 的训练目标来自 Bellman 方程：</p>
+<p>$$<br>y=r+\gamma \max_{a’}Q_{\text{target}}(s’,a’)<br>$$</p>
+<p>损失函数为：</p>
+<p>$$<br>L=(Q_{\theta}(s,a)-y)^2<br>$$</p>
+<p>其中：</p>
+<ul>
+<li>$Q_{\theta}$ 是当前 Q 网络；</li>
+<li>$Q_{\text{target}}$ 是目标网络；</li>
+<li>$r$ 是当前奖励；</li>
+<li>$s’$ 是下一个状态；</li>
+<li>$\gamma$ 是折扣因子。</li>
+</ul>
+<h3 id="3-3-DQN-的两个关键技巧"><a href="#3-3-DQN-的两个关键技巧" class="headerlink" title="3.3 DQN 的两个关键技巧"></a>3.3 DQN 的两个关键技巧</h3><table>
+<thead>
+<tr>
+<th>技巧</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Experience Replay</td>
+<td>把交互经验存入 replay buffer，随机采样训练，降低样本相关性</td>
+</tr>
+<tr>
+<td>Target Network</td>
+<td>用一个较慢更新的目标网络计算 target，提升训练稳定性</td>
+</tr>
+</tbody></table>
+<p>DQN 的典型训练流程是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">初始化 Q 网络和 target Q 网络</span><br><span class="line">for episode in episodes:</span><br><span class="line">    获取初始状态 s</span><br><span class="line">    while episode 未结束:</span><br><span class="line">        用 epsilon-greedy 选择动作 a</span><br><span class="line">        执行动作，得到 r, s'</span><br><span class="line">        存储 (s, a, r, s') 到 replay buffer</span><br><span class="line">        从 replay buffer 采样 batch</span><br><span class="line">        计算 target y = r + gamma * max Q_target(s', a')</span><br><span class="line">        最小化 (Q(s,a) - y)^2</span><br><span class="line">        定期更新 target network</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="3-4-为什么-DQN-不适合直接做-LLM-对齐"><a href="#3-4-为什么-DQN-不适合直接做-LLM-对齐" class="headerlink" title="3.4 为什么 DQN 不适合直接做 LLM 对齐"></a>3.4 为什么 DQN 不适合直接做 LLM 对齐</h3><p>LLM 的动作空间太大了。<br>在 DQN 中，动作通常是有限离散动作，例如 Atari 游戏中的“上、下、左、右、开火”。但 LLM 生成时，动作至少是词表中的下一个 token，词表可能有几万到几十万个 token；如果把完整回答看成动作，动作空间更是指数级。</p>
+<p>主要困难包括：</p>
+<ol>
+<li><strong>动作空间巨大</strong>：对每个状态枚举所有动作并估计 $Q(s,a)$ 很难；</li>
+<li><strong>序列长度长</strong>：一个回答由很多 token 组成，信用分配困难；</li>
+<li><strong>奖励稀疏</strong>：通常整个 response 结束后才有偏好奖励；</li>
+<li><strong>环境不明确</strong>：LLM 的“环境”不像游戏或机器人那样有稳定物理规则；</li>
+<li><strong>语言质量需要约束</strong>：不能只追求 reward，还要避免偏离原模型语言分布。</li>
+</ol>
+<p>所以，LLM 对齐更常用直接优化策略的 policy gradient 方法，例如 PPO、GRPO，或者使用偏好数据直接训练的 DPO。</p>
+<hr>
+<h2 id="四、PPO：经典-RLHF-最常见的策略优化算法"><a href="#四、PPO：经典-RLHF-最常见的策略优化算法" class="headerlink" title="四、PPO：经典 RLHF 最常见的策略优化算法"></a>四、PPO：经典 RLHF 最常见的策略优化算法</h2><p>PPO，全称 Proximal Policy Optimization，是 OpenAI 提出的经典策略优化算法。它的核心目标是：</p>
+<blockquote>
+<p>让策略变好，但每次更新不要变得太猛。</p>
+</blockquote>
+<h3 id="4-1-为什么策略更新不能太猛"><a href="#4-1-为什么策略更新不能太猛" class="headerlink" title="4.1 为什么策略更新不能太猛"></a>4.1 为什么策略更新不能太猛</h3><p>在强化学习中，如果新策略和旧策略差异太大，训练很容易不稳定。<br>比如模型一开始还能正常回答，优化几步后突然学会钻 reward model 的空子，输出奇怪但高分的内容，这就是 RLHF 中常见的风险。</p>
+<p>PPO 通过 clipped objective 限制策略更新幅度：</p>
+<p>$$<br>r_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}<br>$$</p>
+<p>$$<br>L^{CLIP}(\theta)=\mathbb{E}_t[\min(r_t(\theta)A_t, clip(r_t(\theta),1-\epsilon,1+\epsilon)A_t)]<br>$$</p>
+<p>其中：</p>
+<ul>
+<li>$r_t(\theta)$ 表示新旧策略概率比；</li>
+<li>$A_t$ 是优势函数，表示这个动作比平均水平好多少；</li>
+<li>$\epsilon$ 控制更新幅度；</li>
+<li><code>clip</code> 会防止新策略相对旧策略变化过大。</li>
+</ul>
+<h3 id="4-2-PPO-在-RLHF-中怎么用"><a href="#4-2-PPO-在-RLHF-中怎么用" class="headerlink" title="4.2 PPO 在 RLHF 中怎么用"></a>4.2 PPO 在 RLHF 中怎么用</h3><p>经典 RLHF 流程可以概括为三步：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Step 1: SFT</span><br><span class="line">  用人工示范数据微调基础模型，让模型学会基本指令跟随。</span><br><span class="line"></span><br><span class="line">Step 2: Reward Model</span><br><span class="line">  对同一个 prompt 采样多个回答，让标注者排序。</span><br><span class="line">  用偏好数据训练奖励模型 RM(x, y)。</span><br><span class="line"></span><br><span class="line">Step 3: PPO</span><br><span class="line">  让当前策略模型生成回答 y。</span><br><span class="line">  用奖励模型打分，同时加入 KL 惩罚。</span><br><span class="line">  用 PPO 更新策略，避免偏离参考模型太远。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>在 InstructGPT 论文中，作者采用的就是类似流程：先监督微调 GPT-3，再用人类偏好训练 reward model，最后用 PPO 做 RLHF。</p>
+<h3 id="4-3-LLM-中的-PPO-奖励通常长什么样"><a href="#4-3-LLM-中的-PPO-奖励通常长什么样" class="headerlink" title="4.3 LLM 中的 PPO 奖励通常长什么样"></a>4.3 LLM 中的 PPO 奖励通常长什么样</h3><p>LLM 对齐时的奖励不只是 reward model 分数，还会加上 KL 惩罚：</p>
+<p>$$<br>R(x,y)=RM(x,y)-\beta KL(\pi_\theta(y|x)||\pi_{\text{ref}}(y|x))<br>$$</p>
+<p>其中：</p>
+<ul>
+<li>$RM(x,y)$ 表示奖励模型对回答的打分；</li>
+<li>$\pi_\theta$ 是当前训练策略；</li>
+<li>$\pi_{\text{ref}}$ 是参考模型，通常是 SFT 模型；</li>
+<li>KL 惩罚用于约束当前模型不要偏离参考模型太远；</li>
+<li>$\beta$ 控制约束强度。</li>
+</ul>
+<p>这个 KL 项非常关键。<br>如果没有它，模型可能为了 reward model 分数而牺牲语言质量，甚至出现 reward hacking。</p>
+<h3 id="4-4-为什么-PPO-成为经典-LLM-强化学习算法"><a href="#4-4-为什么-PPO-成为经典-LLM-强化学习算法" class="headerlink" title="4.4 为什么 PPO 成为经典 LLM 强化学习算法"></a>4.4 为什么 PPO 成为经典 LLM 强化学习算法</h3><p>PPO 在 LLM 中常见，主要因为它有几个优点：</p>
+<ol>
+<li><strong>稳定性较好</strong>：相比普通 policy gradient，PPO 的 clipped objective 更稳；</li>
+<li><strong>适合大动作空间策略优化</strong>：不需要像 DQN 一样枚举所有动作；</li>
+<li><strong>可以自然加入 KL 约束</strong>：适合防止模型偏离 SFT 分布；</li>
+<li><strong>工程经验成熟</strong>：RLHF 早期成功案例很多基于 PPO；</li>
+<li><strong>能优化非可微奖励</strong>：人类偏好模型、规则打分、环境反馈都可以作为 reward。</li>
+</ol>
+<p>但 PPO 的缺点也明显：</p>
+<ol>
+<li>要训练 reward model；</li>
+<li>要维护 actor、critic、reference model，有时还有 reward model；</li>
+<li>显存和算力开销大；</li>
+<li>训练不稳定，需要调 KL、学习率、采样长度等超参数；</li>
+<li>reward model 可能被策略模型利用。</li>
+</ol>
+<hr>
+<h2 id="五、GRPO：更适合大模型推理训练的-PPO-变体"><a href="#五、GRPO：更适合大模型推理训练的-PPO-变体" class="headerlink" title="五、GRPO：更适合大模型推理训练的 PPO 变体"></a>五、GRPO：更适合大模型推理训练的 PPO 变体</h2><p>GRPO，全称 Group Relative Policy Optimization，是 DeepSeekMath 中提出并推广的一类 PPO 变体。它可以理解为：</p>
+<blockquote>
+<p>用同一个 prompt 下的一组回答做相对比较，从而估计 advantage，减少对 critic/value model 的依赖。</p>
+</blockquote>
+<h3 id="5-1-GRPO-为什么出现"><a href="#5-1-GRPO-为什么出现" class="headerlink" title="5.1 GRPO 为什么出现"></a>5.1 GRPO 为什么出现</h3><p>PPO 在 LLM 中的问题之一是需要 critic。<br>critic 要估计 $V(s)$，也就是当前状态的未来价值。对于 LLM 来说，这意味着还要训练或维护一个价值模型，成本很高。</p>
+<p>GRPO 的动机是：</p>
+<blockquote>
+<p>能不能不用单独的 critic，而是让同一个问题生成多个回答，通过组内相对分数来判断哪个回答更好？</p>
+</blockquote>
+<h3 id="5-2-GRPO-的基本流程"><a href="#5-2-GRPO-的基本流程" class="headerlink" title="5.2 GRPO 的基本流程"></a>5.2 GRPO 的基本流程</h3><p>对于同一个 prompt $q$，模型采样 $G$ 个回答：</p>
+<p>$$<br>{o_1,o_2,\dots,o_G}<br>$$</p>
+<p>然后用 reward model 或规则验证器给每个回答打分：</p>
+<p>$$<br>{r_1,r_2,\dots,r_G}<br>$$</p>
+<p>再计算组内相对 advantage：</p>
+<p>$$<br>A_i=\frac{r_i-mean(r_1,\dots,r_G)}{std(r_1,\dots,r_G)}<br>$$</p>
+<p>直观理解：</p>
+<ul>
+<li>如果某个回答比同组平均水平好，$A_i&gt;0$；</li>
+<li>如果某个回答比同组平均水平差，$A_i&lt;0$；</li>
+<li>模型会提高好回答的概率，降低差回答的概率。</li>
+</ul>
+<h3 id="5-3-GRPO-和-PPO-的区别"><a href="#5-3-GRPO-和-PPO-的区别" class="headerlink" title="5.3 GRPO 和 PPO 的区别"></a>5.3 GRPO 和 PPO 的区别</h3><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>PPO</th>
+<th>GRPO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>advantage 来源</td>
+<td>通常依赖 critic/value model</td>
+<td>依赖同一 prompt 的组内相对奖励</td>
+</tr>
+<tr>
+<td>额外模型</td>
+<td>actor、critic、reference、reward model</td>
+<td>通常省去 critic</td>
+</tr>
+<tr>
+<td>训练成本</td>
+<td>较高</td>
+<td>相对更低</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>通用 RLHF</td>
+<td>数学、代码、推理等可验证任务更常见</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>成熟但调参复杂</td>
+<td>减少 critic 开销，但依赖 group 采样质量</td>
+</tr>
+</tbody></table>
+<h3 id="5-4-GRPO-为什么适合推理任务"><a href="#5-4-GRPO-为什么适合推理任务" class="headerlink" title="5.4 GRPO 为什么适合推理任务"></a>5.4 GRPO 为什么适合推理任务</h3><p>数学、代码、逻辑推理任务有一个特点：<br>很多时候可以用规则验证器判断结果对不对，比如答案是否匹配、代码是否通过测试、数学结果是否正确。</p>
+<p>这时 reward 不一定完全依赖人类偏好，而可以来自自动验证：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">prompt: 数学题 / 代码题 / 规划题</span><br><span class="line">  -&gt; 模型生成多个解答</span><br><span class="line">  -&gt; verifier 或 reward model 打分</span><br><span class="line">  -&gt; 组内比较得到 advantage</span><br><span class="line">  -&gt; GRPO 更新模型</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这非常适合训练 reasoning model。<br>相比传统 RLHF 的人类偏好奖励，推理任务奖励更明确，也更容易大规模自动化。</p>
+<hr>
+<h2 id="六、DPO：偏好优化，不是传统在线强化学习"><a href="#六、DPO：偏好优化，不是传统在线强化学习" class="headerlink" title="六、DPO：偏好优化，不是传统在线强化学习"></a>六、DPO：偏好优化，不是传统在线强化学习</h2><p>DPO，全称 Direct Preference Optimization。它的思想很漂亮：</p>
+<blockquote>
+<p>不显式训练 reward model，也不跑 PPO，而是直接用偏好对训练模型。</p>
+</blockquote>
+<h3 id="6-1-DPO-的数据形式"><a href="#6-1-DPO-的数据形式" class="headerlink" title="6.1 DPO 的数据形式"></a>6.1 DPO 的数据形式</h3><p>DPO 需要的数据通常是偏好对：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">prompt x</span><br><span class="line">chosen response y_w</span><br><span class="line">rejected response y_l</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其中：</p>
+<ul>
+<li>$y_w$ 是更好的回答；</li>
+<li>$y_l$ 是更差的回答。</li>
+</ul>
+<h3 id="6-2-DPO-的损失函数"><a href="#6-2-DPO-的损失函数" class="headerlink" title="6.2 DPO 的损失函数"></a>6.2 DPO 的损失函数</h3><p>DPO 的目标可以写成：</p>
+<p>$$<br>L_{DPO}=-\mathbb{E}[\log \sigma(\beta(\log \pi_\theta(y_w|x)-\log \pi_{ref}(y_w|x))-\beta(\log \pi_\theta(y_l|x)-\log \pi_{ref}(y_l|x)))]<br>$$</p>
+<p>这个公式看起来长，但直觉很简单：</p>
+<blockquote>
+<p>相对于参考模型，当前模型应该更倾向 chosen response，而不是 rejected response。</p>
+</blockquote>
+<p>其中：</p>
+<ul>
+<li>$\pi_\theta$ 是当前训练模型；</li>
+<li>$\pi_{ref}$ 是参考模型；</li>
+<li>$\beta$ 控制偏离参考模型的程度；</li>
+<li>$\sigma$ 是 sigmoid 函数。</li>
+</ul>
+<h3 id="6-3-DPO-和-PPO-RLHF-的区别"><a href="#6-3-DPO-和-PPO-RLHF-的区别" class="headerlink" title="6.3 DPO 和 PPO-RLHF 的区别"></a>6.3 DPO 和 PPO-RLHF 的区别</h3><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>PPO-RLHF</th>
+<th>DPO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否训练 reward model</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否在线采样</td>
+<td>是</td>
+<td>通常否</td>
+</tr>
+<tr>
+<td>是否需要 critic</td>
+<td>通常需要</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td>训练复杂度</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>需要较多调参</td>
+<td>相对稳定</td>
+</tr>
+<tr>
+<td>本质</td>
+<td>强化学习策略优化</td>
+<td>偏好分类式优化</td>
+</tr>
+</tbody></table>
+<p>DPO 的优势是工程简单、稳定、成本较低，所以在很多开源模型偏好对齐中非常常见。</p>
+<p>但要注意：</p>
+<blockquote>
+<p>DPO 不等同于传统强化学习。它来自 RLHF 目标的重新参数化，可以看作偏好优化方法，而不是需要环境交互的在线 RL 算法。</p>
+</blockquote>
+<h3 id="6-4-DPO-的局限"><a href="#6-4-DPO-的局限" class="headerlink" title="6.4 DPO 的局限"></a>6.4 DPO 的局限</h3><p>DPO 也不是万能的：</p>
+<ol>
+<li>依赖偏好数据质量；</li>
+<li>不能像在线 RL 那样主动探索新输出；</li>
+<li>对复杂长链推理任务，单纯 chosen/rejected 可能不够细；</li>
+<li>如果偏好数据覆盖不足，模型提升会受限；</li>
+<li>不适合需要实时环境反馈的控制任务。</li>
+</ol>
+<hr>
+<h2 id="七、大模型最常用的强化学习算法是什么"><a href="#七、大模型最常用的强化学习算法是什么" class="headerlink" title="七、大模型最常用的强化学习算法是什么"></a>七、大模型最常用的强化学习算法是什么</h2><p>这个问题要分场景回答。</p>
+<h3 id="7-1-如果严格说“经典-RLHF-强化学习算法”：PPO-最经典、最常见"><a href="#7-1-如果严格说“经典-RLHF-强化学习算法”：PPO-最经典、最常见" class="headerlink" title="7.1 如果严格说“经典 RLHF 强化学习算法”：PPO 最经典、最常见"></a>7.1 如果严格说“经典 RLHF 强化学习算法”：PPO 最经典、最常见</h3><p>从 InstructGPT、ChatGPT 早期 RLHF 路线看，PPO 是最经典、影响最大的 LLM 强化学习算法。</p>
+<p>原因是：</p>
+<ol>
+<li>它直接优化策略模型；</li>
+<li>能处理大规模随机策略；</li>
+<li>可以结合 reward model；</li>
+<li>可以用 KL 约束保持语言模型能力；</li>
+<li>相比更早的 policy gradient 方法更稳定。</li>
+</ol>
+<p>所以面试里如果问：</p>
+<blockquote>
+<p>大模型 RLHF 最常用的强化学习算法是什么？</p>
+</blockquote>
+<p>比较稳妥的回答是：</p>
+<blockquote>
+<p>经典 RLHF 中最常用、最有代表性的算法是 PPO。它通过 clipped objective 限制策略更新幅度，并结合 reward model 与 KL 惩罚，使模型在优化人类偏好奖励的同时尽量不偏离原始语言模型。</p>
+</blockquote>
+<h3 id="7-2-如果说“当前开源偏好对齐训练”：DPO-也非常常见"><a href="#7-2-如果说“当前开源偏好对齐训练”：DPO-也非常常见" class="headerlink" title="7.2 如果说“当前开源偏好对齐训练”：DPO 也非常常见"></a>7.2 如果说“当前开源偏好对齐训练”：DPO 也非常常见</h3><p>很多开源模型并不一定跑完整 PPO-RLHF，而是使用 DPO 或其变体。原因是 DPO 更容易实现：</p>
+<ol>
+<li>不需要训练独立 reward model；</li>
+<li>不需要在线 rollout；</li>
+<li>不需要 critic；</li>
+<li>显存和调参成本低；</li>
+<li>可以直接使用偏好数据。</li>
+</ol>
+<p>但严格来说，DPO 更像“偏好优化”，不是传统意义上的在线强化学习。</p>
+<h3 id="7-3-如果说“推理模型强化学习”：GRPO-近几年很常见"><a href="#7-3-如果说“推理模型强化学习”：GRPO-近几年很常见" class="headerlink" title="7.3 如果说“推理模型强化学习”：GRPO 近几年很常见"></a>7.3 如果说“推理模型强化学习”：GRPO 近几年很常见</h3><p>在数学、代码、推理模型中，GRPO 这类方法越来越常见。原因是：</p>
+<ol>
+<li>可以利用规则奖励或 verifier；</li>
+<li>去掉 critic 后训练成本更低；</li>
+<li>同一 prompt 多采样适合推理任务；</li>
+<li>组内相对奖励可以减少 reward scale 问题；</li>
+<li>更适合长 CoT、多答案探索的训练场景。</li>
+</ol>
+<p>所以我自己的总结是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">经典 RLHF 代表算法：PPO</span><br><span class="line">开源偏好对齐常用方法：DPO</span><br><span class="line">推理模型 RL 训练常见方法：GRPO</span><br><span class="line">传统控制/游戏代表算法：DQN</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="八、LLM-强化学习训练到底怎么实现"><a href="#八、LLM-强化学习训练到底怎么实现" class="headerlink" title="八、LLM 强化学习训练到底怎么实现"></a>八、LLM 强化学习训练到底怎么实现</h2><p>以 PPO-RLHF 为例，完整训练流程可以拆成下面几个阶段。</p>
+<h3 id="8-1-阶段一：预训练"><a href="#8-1-阶段一：预训练" class="headerlink" title="8.1 阶段一：预训练"></a>8.1 阶段一：预训练</h3><p>先用大规模文本训练基础语言模型：</p>
+<p>$$<br>\max_\theta \sum_t \log P_\theta(x_t|x_{&lt;t})<br>$$</p>
+<p>这个阶段学到的是语言建模能力、知识、语法、代码模式、世界知识等。</p>
+<h3 id="8-2-阶段二：监督微调-SFT"><a href="#8-2-阶段二：监督微调-SFT" class="headerlink" title="8.2 阶段二：监督微调 SFT"></a>8.2 阶段二：监督微调 SFT</h3><p>用人工写好的指令-回答数据训练模型：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">instruction -&gt; ideal answer</span><br></pre></td></tr></tbody></table></figure>
+
+<p>目标是让模型学会基本指令跟随，而不是只做下一个 token 预测。</p>
+<h3 id="8-3-阶段三：训练-Reward-Model"><a href="#8-3-阶段三：训练-Reward-Model" class="headerlink" title="8.3 阶段三：训练 Reward Model"></a>8.3 阶段三：训练 Reward Model</h3><p>对同一个 prompt 采样多个回答，让人类或 AI 标注偏好排序：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">prompt x</span><br><span class="line">answer A</span><br><span class="line">answer B</span><br><span class="line">标注：A 比 B 好</span><br></pre></td></tr></tbody></table></figure>
+
+<p>训练 reward model：</p>
+<p>$$<br>RM(x,y)<br>$$</p>
+<p>让它能给回答打分。</p>
+<p>常见偏好损失可以写成：</p>
+<p>$$<br>L_{RM}=-\log \sigma(RM(x,y_w)-RM(x,y_l))<br>$$</p>
+<p>其中 $y_w$ 是 chosen response，$y_l$ 是 rejected response。</p>
+<h3 id="8-4-阶段四：PPO-强化学习更新"><a href="#8-4-阶段四：PPO-强化学习更新" class="headerlink" title="8.4 阶段四：PPO 强化学习更新"></a>8.4 阶段四：PPO 强化学习更新</h3><p>当前模型对 prompt 生成回答：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prompt -&gt; policy model -&gt; response</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后 reward model 打分：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response -&gt; reward model -&gt; reward</span><br></pre></td></tr></tbody></table></figure>
+
+<p>同时计算 KL 惩罚：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当前模型 vs 参考模型</span><br></pre></td></tr></tbody></table></figure>
+
+<p>最终 reward 可能是：</p>
+<p>$$<br>reward=RM(x,y)-\beta KL(\pi_\theta||\pi_{ref})<br>$$</p>
+<p>然后用 PPO 更新策略模型。</p>
+<h3 id="8-5-PPO-RLHF-简化伪代码"><a href="#8-5-PPO-RLHF-简化伪代码" class="headerlink" title="8.5 PPO-RLHF 简化伪代码"></a>8.5 PPO-RLHF 简化伪代码</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">准备:</span><br><span class="line">  policy_model = SFT 模型</span><br><span class="line">  ref_model = 冻结的 SFT 模型</span><br><span class="line">  reward_model = 用偏好数据训练得到</span><br><span class="line">  value_model = critic，用于估计 advantage</span><br><span class="line"></span><br><span class="line">for batch in prompts:</span><br><span class="line">    responses = policy_model.generate(prompts)</span><br><span class="line"></span><br><span class="line">    rm_scores = reward_model(prompts, responses)</span><br><span class="line">    kl_penalty = KL(policy_model, ref_model, prompts, responses)</span><br><span class="line">    rewards = rm_scores - beta * kl_penalty</span><br><span class="line"></span><br><span class="line">    values = value_model(prompts, responses)</span><br><span class="line">    advantages = compute_advantage(rewards, values)</span><br><span class="line"></span><br><span class="line">    old_log_probs = policy_model.logprob(responses)</span><br><span class="line"></span><br><span class="line">    for ppo_epoch in range(K):</span><br><span class="line">        new_log_probs = policy_model.logprob(responses)</span><br><span class="line">        ratio = exp(new_log_probs - old_log_probs)</span><br><span class="line">        loss = -min(ratio * advantages,</span><br><span class="line">                    clip(ratio, 1-eps, 1+eps) * advantages)</span><br><span class="line">        update(policy_model, value_model)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="8-6-GRPO-训练伪代码"><a href="#8-6-GRPO-训练伪代码" class="headerlink" title="8.6 GRPO 训练伪代码"></a>8.6 GRPO 训练伪代码</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">准备:</span><br><span class="line">  policy_model</span><br><span class="line">  ref_model</span><br><span class="line">  reward_function / verifier</span><br><span class="line"></span><br><span class="line">for batch in prompts:</span><br><span class="line">    for each prompt:</span><br><span class="line">        group_responses = sample G responses</span><br><span class="line">        rewards = reward_function(prompt, group_responses)</span><br><span class="line">        advantages = normalize(rewards within group)</span><br><span class="line"></span><br><span class="line">    old_log_probs = policy_model.logprob(group_responses)</span><br><span class="line"></span><br><span class="line">    for update_step:</span><br><span class="line">        new_log_probs = policy_model.logprob(group_responses)</span><br><span class="line">        ratio = exp(new_log_probs - old_log_probs)</span><br><span class="line">        policy_loss = clipped_objective(ratio, advantages)</span><br><span class="line">        kl_loss = KL(policy_model, ref_model)</span><br><span class="line">        update(policy_model, policy_loss + beta * kl_loss)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这个流程里没有单独 critic，优势来自组内相对奖励。</p>
+<h3 id="8-7-DPO-训练伪代码"><a href="#8-7-DPO-训练伪代码" class="headerlink" title="8.7 DPO 训练伪代码"></a>8.7 DPO 训练伪代码</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">准备:</span><br><span class="line">  policy_model</span><br><span class="line">  ref_model</span><br><span class="line">  preference_dataset = (prompt, chosen, rejected)</span><br><span class="line"></span><br><span class="line">for batch in preference_dataset:</span><br><span class="line">    pi_chosen = policy_model.logprob(chosen | prompt)</span><br><span class="line">    pi_rejected = policy_model.logprob(rejected | prompt)</span><br><span class="line"></span><br><span class="line">    ref_chosen = ref_model.logprob(chosen | prompt)</span><br><span class="line">    ref_rejected = ref_model.logprob(rejected | prompt)</span><br><span class="line"></span><br><span class="line">    chosen_margin = pi_chosen - ref_chosen</span><br><span class="line">    rejected_margin = pi_rejected - ref_rejected</span><br><span class="line"></span><br><span class="line">    loss = -log sigmoid(beta * (chosen_margin - rejected_margin))</span><br><span class="line">    update(policy_model)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>DPO 更像普通监督训练，所以工程复杂度明显低于 PPO。</p>
+<hr>
+<h2 id="九、控制领域强化学习与-LLM-强化学习的区别"><a href="#九、控制领域强化学习与-LLM-强化学习的区别" class="headerlink" title="九、控制领域强化学习与 LLM 强化学习的区别"></a>九、控制领域强化学习与 LLM 强化学习的区别</h2><p>控制领域包括任务分配、路径规划、机器人控制、无人机调度等。它们和 LLM 的强化学习都叫 RL，但问题形态差异很大。</p>
+<h3 id="9-1-状态不同"><a href="#9-1-状态不同" class="headerlink" title="9.1 状态不同"></a>9.1 状态不同</h3><table>
+<thead>
+<tr>
+<th>领域</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制领域</td>
+<td>位置、速度、电量、地图、障碍物、任务队列、资源状态</td>
+</tr>
+<tr>
+<td>LLM 领域</td>
+<td>prompt、已生成 token、上下文、对话历史</td>
+</tr>
+</tbody></table>
+<p>控制领域的状态通常来自物理环境或仿真器，更接近连续空间或图结构。<br>LLM 的状态是文本上下文，本质上是离散 token 序列。</p>
+<h3 id="9-2-动作不同"><a href="#9-2-动作不同" class="headerlink" title="9.2 动作不同"></a>9.2 动作不同</h3><table>
+<thead>
+<tr>
+<th>领域</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路径规划</td>
+<td>上下左右、速度、航向角、下一个路点</td>
+</tr>
+<tr>
+<td>任务分配</td>
+<td>给某个智能体分配某个任务</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td>生成下一个 token，或生成完整 response</td>
+</tr>
+</tbody></table>
+<p>控制领域动作可以是低维连续动作，也可以是有限离散动作。<br>LLM 的 token 动作空间巨大，而且一个完整 response 是长序列动作。</p>
+<h3 id="9-3-奖励不同"><a href="#9-3-奖励不同" class="headerlink" title="9.3 奖励不同"></a>9.3 奖励不同</h3><table>
+<thead>
+<tr>
+<th>领域</th>
+<th>奖励来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制领域</td>
+<td>距离、时间、能耗、碰撞、任务完成率、约束违背惩罚</td>
+</tr>
+<tr>
+<td>LLM 领域</td>
+<td>人类偏好、AI 偏好、reward model、规则验证器、安全约束</td>
+</tr>
+</tbody></table>
+<p>控制领域奖励通常更容易设计成明确数学指标。<br>LLM 的奖励更主观，特别是“有帮助、真实、安全、符合人类意图”这些标准很难完全公式化。</p>
+<h3 id="9-4-环境交互不同"><a href="#9-4-环境交互不同" class="headerlink" title="9.4 环境交互不同"></a>9.4 环境交互不同</h3><p>控制领域一般有环境：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">agent action -&gt; simulator / real world -&gt; next state, reward</span><br></pre></td></tr></tbody></table></figure>
+
+<p>LLM 对齐里的“环境”很多时候不是物理环境，而是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prompt -&gt; model response -&gt; reward model / human preference -&gt; reward</span><br></pre></td></tr></tbody></table></figure>
+
+<p>也就是说，LLM 的强化学习常常是在文本分布和偏好模型上优化，不一定有真实环境动态。</p>
+<h3 id="9-5-训练目标不同"><a href="#9-5-训练目标不同" class="headerlink" title="9.5 训练目标不同"></a>9.5 训练目标不同</h3><p>控制领域更关注：</p>
+<ol>
+<li>完成任务；</li>
+<li>最短路径；</li>
+<li>最小能耗；</li>
+<li>避障安全；</li>
+<li>多智能体协同；</li>
+<li>实时决策。</li>
+</ol>
+<p>LLM 更关注：</p>
+<ol>
+<li>指令跟随；</li>
+<li>回答有帮助；</li>
+<li>减少有害输出；</li>
+<li>提升推理正确率；</li>
+<li>保持语言自然；</li>
+<li>不偏离预训练能力。</li>
+</ol>
+<h3 id="9-6-约束方式不同"><a href="#9-6-约束方式不同" class="headerlink" title="9.6 约束方式不同"></a>9.6 约束方式不同</h3><p>控制领域常见硬约束：</p>
+<ul>
+<li>不能撞障碍物；</li>
+<li>电量不能低于阈值；</li>
+<li>无人机不能超出航程；</li>
+<li>每个任务只能被执行一次；</li>
+<li>时间窗必须满足。</li>
+</ul>
+<p>LLM 领域常见软约束：</p>
+<ul>
+<li>不要生成有害内容；</li>
+<li>不要胡编事实；</li>
+<li>不要偏离用户指令；</li>
+<li>不要为了 reward 生成重复模板；</li>
+<li>不要损失通用语言能力。</li>
+</ul>
+<p>因此 LLM 中 KL penalty 很重要，它相当于给策略加上“别偏离原模型太远”的约束。</p>
+<hr>
+<h2 id="十、以任务分配和路径规划为例理解差异"><a href="#十、以任务分配和路径规划为例理解差异" class="headerlink" title="十、以任务分配和路径规划为例理解差异"></a>十、以任务分配和路径规划为例理解差异</h2><h3 id="10-1-任务分配中的-RL"><a href="#10-1-任务分配中的-RL" class="headerlink" title="10.1 任务分配中的 RL"></a>10.1 任务分配中的 RL</h3><p>假设有多架无人机和多个任务点，目标是最小化总飞行成本并完成全部任务。</p>
+<p>状态可以包括：</p>
+<ul>
+<li>无人机当前位置；</li>
+<li>剩余电量；</li>
+<li>已完成任务集合；</li>
+<li>未完成任务集合；</li>
+<li>任务优先级；</li>
+<li>距离矩阵；</li>
+<li>载重能力。</li>
+</ul>
+<p>动作可以是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">给无人机 i 分配任务 j</span><br></pre></td></tr></tbody></table></figure>
+
+<p>奖励可以是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">任务完成奖励</span><br><span class="line">- 飞行距离惩罚</span><br><span class="line">- 电量不足惩罚</span><br><span class="line">- 超时惩罚</span><br><span class="line">- 任务冲突惩罚</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里的 RL 更像组合优化和序列决策。</p>
+<h3 id="10-2-路径规划中的-RL"><a href="#10-2-路径规划中的-RL" class="headerlink" title="10.2 路径规划中的 RL"></a>10.2 路径规划中的 RL</h3><p>路径规划中，状态可能是地图、当前位置、目标点、障碍物分布。动作可能是移动方向或速度控制。</p>
+<p>奖励可以是：</p>
+<ul>
+<li>靠近目标给正奖励；</li>
+<li>碰撞给大负奖励；</li>
+<li>路径变短给正奖励；</li>
+<li>能耗增加给负奖励；</li>
+<li>到达目标给终止奖励。</li>
+</ul>
+<p>这种问题有明确环境反馈，也可以在仿真器中反复试错。</p>
+<h3 id="10-3-LLM-中的-RL"><a href="#10-3-LLM-中的-RL" class="headerlink" title="10.3 LLM 中的 RL"></a>10.3 LLM 中的 RL</h3><p>LLM 中，状态是 prompt 和上下文：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户问题 + 已生成 token</span><br></pre></td></tr></tbody></table></figure>
+
+<p>动作是下一个 token：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">从 vocabulary 中选择一个 token</span><br></pre></td></tr></tbody></table></figure>
+
+<p>奖励可能在完整回答结束后才出现：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reward_model(prompt, response)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这会导致信用分配困难：<br>如果一个 1000 token 的回答最终得分低，到底是哪几个 token 导致的？这比路径规划中的“撞墙扣分”更难定位。</p>
+<hr>
+<h2 id="十一、PPO、GRPO、DPO、DQN-横向对比"><a href="#十一、PPO、GRPO、DPO、DQN-横向对比" class="headerlink" title="十一、PPO、GRPO、DPO、DQN 横向对比"></a>十一、PPO、GRPO、DPO、DQN 横向对比</h2><h3 id="11-1-从算法范式看"><a href="#11-1-从算法范式看" class="headerlink" title="11.1 从算法范式看"></a>11.1 从算法范式看</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>学什么</th>
+<th>优化对象</th>
+<th>典型公式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DQN</td>
+<td>$Q(s,a)$</td>
+<td>动作价值函数</td>
+<td>Bellman MSE</td>
+</tr>
+<tr>
+<td>PPO</td>
+<td>$\pi(a</td>
+<td>s)$ + $V(s)$</td>
+<td>策略与价值函数</td>
+</tr>
+<tr>
+<td>GRPO</td>
+<td>$\pi(o</td>
+<td>q)$</td>
+<td>策略</td>
+</tr>
+<tr>
+<td>DPO</td>
+<td>$\pi(y</td>
+<td>x)$</td>
+<td>偏好概率</td>
+</tr>
+</tbody></table>
+<h3 id="11-2-从-LLM-适配性看"><a href="#11-2-从-LLM-适配性看" class="headerlink" title="11.2 从 LLM 适配性看"></a>11.2 从 LLM 适配性看</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>LLM 适配性</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DQN</td>
+<td>低</td>
+<td>动作空间太大，序列太长，Q 值难估计</td>
+</tr>
+<tr>
+<td>PPO</td>
+<td>高</td>
+<td>直接优化生成策略，能结合 reward model 和 KL</td>
+</tr>
+<tr>
+<td>GRPO</td>
+<td>高</td>
+<td>适合多采样推理任务，省去 critic</td>
+</tr>
+<tr>
+<td>DPO</td>
+<td>高</td>
+<td>训练简单，适合偏好数据对齐</td>
+</tr>
+</tbody></table>
+<h3 id="11-3-从工程成本看"><a href="#11-3-从工程成本看" class="headerlink" title="11.3 从工程成本看"></a>11.3 从工程成本看</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>工程复杂度</th>
+<th>主要成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DQN</td>
+<td>中</td>
+<td>环境交互、replay buffer、target network</td>
+</tr>
+<tr>
+<td>PPO</td>
+<td>高</td>
+<td>rollout、reward model、critic、KL、调参</td>
+</tr>
+<tr>
+<td>GRPO</td>
+<td>中高</td>
+<td>多采样、reward/verifier、KL、批量生成</td>
+</tr>
+<tr>
+<td>DPO</td>
+<td>低</td>
+<td>偏好数据质量、reference logprob</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="十二、常见误区整理"><a href="#十二、常见误区整理" class="headerlink" title="十二、常见误区整理"></a>十二、常见误区整理</h2><h3 id="12-1-误区一：DPO-是-PPO-的简化版"><a href="#12-1-误区一：DPO-是-PPO-的简化版" class="headerlink" title="12.1 误区一：DPO 是 PPO 的简化版"></a>12.1 误区一：DPO 是 PPO 的简化版</h3><p>不准确。<br>DPO 不是把 PPO 少写几步，而是从 RLHF 目标推导出一个可以直接用偏好对优化的损失。它绕过了显式 reward model 和在线 RL 采样。</p>
+<h3 id="12-2-误区二：GRPO-等于不用奖励模型"><a href="#12-2-误区二：GRPO-等于不用奖励模型" class="headerlink" title="12.2 误区二：GRPO 等于不用奖励模型"></a>12.2 误区二：GRPO 等于不用奖励模型</h3><p>也不准确。<br>GRPO 不用 critic，但仍然需要 reward 来源。这个 reward 可以来自：</p>
+<ol>
+<li>reward model；</li>
+<li>规则验证器；</li>
+<li>单元测试；</li>
+<li>数学答案匹配；</li>
+<li>AI judge。</li>
+</ol>
+<h3 id="12-3-误区三：PPO-一定比-DPO-更好"><a href="#12-3-误区三：PPO-一定比-DPO-更好" class="headerlink" title="12.3 误区三：PPO 一定比 DPO 更好"></a>12.3 误区三：PPO 一定比 DPO 更好</h3><p>不一定。<br>PPO 有在线探索能力，可以直接优化 reward，但成本高、调参难。DPO 稳定简单，在很多偏好对齐任务上效果很好。选择哪个方法取决于数据、算力、奖励质量和任务目标。</p>
+<h3 id="12-4-误区四：控制领域-RL-可以直接搬到-LLM"><a href="#12-4-误区四：控制领域-RL-可以直接搬到-LLM" class="headerlink" title="12.4 误区四：控制领域 RL 可以直接搬到 LLM"></a>12.4 误区四：控制领域 RL 可以直接搬到 LLM</h3><p>不能简单照搬。<br>控制领域强调环境动态和动作反馈，LLM 强调语言分布、偏好对齐和长序列生成。虽然数学框架都叫 MDP 或策略优化，但工程实现和失败模式完全不同。</p>
+<hr>
+<h2 id="十三、面试可背版本"><a href="#十三、面试可背版本" class="headerlink" title="十三、面试可背版本"></a>十三、面试可背版本</h2><h3 id="13-1-PPO、GRPO、DPO、DQN-的区别"><a href="#13-1-PPO、GRPO、DPO、DQN-的区别" class="headerlink" title="13.1 PPO、GRPO、DPO、DQN 的区别"></a>13.1 PPO、GRPO、DPO、DQN 的区别</h3><blockquote>
+<p>DQN 是 value-based 方法，学习 $Q(s,a)$，适合动作空间较明确的控制或游戏任务，但不适合直接处理 LLM 的巨大词表动作空间。PPO 是 policy optimization 方法，通过 clipped objective 限制策略更新幅度，是经典 RLHF 中最常用的算法。GRPO 是 PPO 的变体，它用同一 prompt 下多条输出的组内相对奖励估计 advantage，减少 critic 开销，适合数学、代码等推理训练。DPO 则是基于偏好数据的直接优化方法，不显式训练 reward model，也不进行在线 RL rollout，工程上更简单稳定。</p>
+</blockquote>
+<h3 id="13-2-大模型最常用的强化学习算法是什么"><a href="#13-2-大模型最常用的强化学习算法是什么" class="headerlink" title="13.2 大模型最常用的强化学习算法是什么"></a>13.2 大模型最常用的强化学习算法是什么</h3><blockquote>
+<p>如果严格说经典 RLHF，最有代表性、最常用的是 PPO，因为它能稳定优化策略模型，并通过 KL 惩罚防止模型偏离 SFT 模型。近年来，DPO 在开源偏好对齐中也非常常见，因为它更简单、成本更低；GRPO 则在推理模型强化学习中越来越常见，因为它省去 critic，并适合基于 verifier 的多采样训练。</p>
+</blockquote>
+<h3 id="13-3-LLM-强化学习怎么实现"><a href="#13-3-LLM-强化学习怎么实现" class="headerlink" title="13.3 LLM 强化学习怎么实现"></a>13.3 LLM 强化学习怎么实现</h3><blockquote>
+<p>通常先预训练基础模型，再做 SFT，让模型具备指令跟随能力。之后收集人类或 AI 偏好数据训练 reward model，或者直接构造偏好对。PPO-RLHF 会让模型生成回答，用 reward model 打分并加入 KL 惩罚，再用 PPO 更新策略；DPO 则直接最大化 chosen response 相对 rejected response 的概率优势；GRPO 会对同一 prompt 采样多个回答，用组内相对奖励更新策略。</p>
+</blockquote>
+<h3 id="13-4-控制领域-RL-与-LLM-RL-的区别"><a href="#13-4-控制领域-RL-与-LLM-RL-的区别" class="headerlink" title="13.4 控制领域 RL 与 LLM RL 的区别"></a>13.4 控制领域 RL 与 LLM RL 的区别</h3><blockquote>
+<p>控制领域的状态通常是物理环境状态，动作是移动、控制量或任务选择，奖励来自距离、能耗、碰撞、任务完成率等明确指标；LLM 的状态是文本上下文，动作是 token 或完整回答，奖励来自人类偏好、reward model 或 verifier。控制领域有明确环境动态和实时交互，LLM 则更关注语言质量、偏好对齐、KL 约束和长序列信用分配。</p>
+</blockquote>
+<hr>
+<h2 id="十四、个人理解与学习收获"><a href="#十四、个人理解与学习收获" class="headerlink" title="十四、个人理解与学习收获"></a>十四、个人理解与学习收获</h2><p>这几个算法放在一起看，最容易混乱的是“它们都和强化学习有关”，但其实出发点很不同。</p>
+<p>DQN 的世界里，智能体面对的是一个相对明确的环境，它需要学会每个动作的长期价值。<br>PPO 的世界里，智能体直接优化策略，但每次更新要克制，不能一步跨太大。<br>GRPO 的世界里，同一个问题的多个回答互相比较，谁更好谁就得到更高 advantage。<br>DPO 的世界里，强化学习目标被改写成偏好分类目标，训练过程更像监督学习。</p>
+<p>我觉得学习 LLM 强化学习时，最重要的是不要只问“用了哪个算法”，而要继续追问：</p>
+<ol>
+<li>奖励来自哪里？</li>
+<li>有没有在线采样？</li>
+<li>有没有 reward model？</li>
+<li>有没有 critic？</li>
+<li>有没有 KL 约束？</li>
+<li>优化的是 token 级别，还是 response 级别？</li>
+<li>任务是否有可验证答案？</li>
+</ol>
+<p>这些问题比单纯背 PPO、DPO、GRPO 的名字更有用。</p>
+<hr>
+<h2 id="十五、总结"><a href="#十五、总结" class="headerlink" title="十五、总结"></a>十五、总结</h2><p>本文可以总结为：</p>
+<ol>
+<li><strong>DQN</strong> 是 value-based 深度强化学习代表方法，适合游戏和控制任务，但不适合直接做 LLM 对齐；</li>
+<li><strong>PPO</strong> 是经典 RLHF 中最有代表性的强化学习算法，优点是稳定、成熟、能结合 reward model 和 KL 约束；</li>
+<li><strong>GRPO</strong> 是 PPO 的大模型推理训练变体，用组内相对奖励替代 critic，降低训练成本；</li>
+<li><strong>DPO</strong> 是偏好优化方法，不跑传统在线 RL，适合用 chosen/rejected 数据进行高效对齐；</li>
+<li><strong>LLM 强化学习与控制 RL 最大区别</strong>在于状态、动作、奖励和环境都不同：LLM 面对的是文本序列和偏好奖励，控制领域面对的是物理或仿真环境和明确任务指标；</li>
+<li><strong>大模型最常用算法要分语境回答</strong>：经典 RLHF 说 PPO，开源偏好对齐常说 DPO，推理强化学习常见 GRPO。</li>
+</ol>
+<p>最终我自己的理解是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">控制领域 RL:</span><br><span class="line">  在环境中试错，学习完成任务的策略。</span><br><span class="line"></span><br><span class="line">LLM 领域 RL:</span><br><span class="line">  在语言空间中采样，利用偏好/规则奖励，让模型生成更符合人类目标的回答。</span><br></pre></td></tr></tbody></table></figure>
+
+<p>两者共享强化学习的数学语言，但面对的问题、数据来源、训练稳定性和工程难点都有明显差别。</p>
+<hr>
+<h2 id="十六、参考文献"><a href="#十六、参考文献" class="headerlink" title="十六、参考文献"></a>十六、参考文献</h2><ol>
+<li>Schulman J, Wolski F, Dhariwal P, et al. Proximal Policy Optimization Algorithms[J]. arXiv:1707.06347, 2017. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1707.06347">https://arxiv.org/abs/1707.06347</a></li>
+<li>Ouyang L, Wu J, Jiang X, et al. Training language models to follow instructions with human feedback[J]. arXiv:2203.02155, 2022. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a></li>
+<li>Rafailov R, Sharma A, Mitchell E, et al. Direct Preference Optimization: Your Language Model is Secretly a Reward Model[J]. arXiv:2305.18290, 2023. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.18290">https://arxiv.org/abs/2305.18290</a></li>
+<li>Shao Z, Wang P, Zhu Q, et al. DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models[J]. arXiv:2402.03300, 2024. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2402.03300">https://arxiv.org/abs/2402.03300</a></li>
+<li>Mnih V, Kavukcuoglu K, Silver D, et al. Playing Atari with Deep Reinforcement Learning[J]. arXiv:1312.5602, 2013. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1312.5602">https://arxiv.org/abs/1312.5602</a></li>
+<li>Mnih V, Kavukcuoglu K, Silver D, et al. Human-level control through deep reinforcement learning[J]. Nature, 2015. <a target="_blank" rel="noopener" href="https://www.nature.com/articles/nature14236">https://www.nature.com/articles/nature14236</a></li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/06/03/notes/study_1/notes-study-LLM-GRPO-001/">https://wxggo.github.io/2026/06/03/notes/study_1/notes-study-LLM-GRPO-001/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://wxggo.github.io" target="_blank">WXGのBlog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">大模型</a><a class="post-meta__tags" href="/tags/GRPO/">GRPO</a></div><div class="post_share"><div class="social-share" data-image="https://wx2.sinaimg.cn/large/ee3b7d6cly1i9sw110auvj20zj0k0gqc.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2026/06/03/notes/paper_1/notes-paper-transformer-001/" title="Notes-文献阅读:Transformer架构与大模型理论基础"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-06-03/21/0909a535115af6a6.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Notes-文献阅读:Transformer架构与大模型理论基础</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2025/04/30/notes/paper_1/notes-paper-HRL-001/" title="Notes-文献阅读:救灾环境下异构无人机集群任务规划与动态调度"><img class="cover" src="/images/photo2024/notes_paper/notes-paper-HRL-001.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-30</div><div class="title">Notes-文献阅读:救灾环境下异构无人机集群任务规划与动态调度</div></div></a></div><div><a href="/2025/04/30/notes/paper_1/notes-paper-HRL-002/" title="Notes-文献阅读:基于分层深度强化学习的无人机集群异构多任务攻击规划研究"><img class="cover" src="/images/photo2024/notes_paper/notes-paper-HRL-002.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-30</div><div class="title">Notes-文献阅读:基于分层深度强化学习的无人机集群异构多任务攻击规划研究</div></div></a></div><div><a href="/2025/04/30/notes/paper_1/notes-paper-RL-001/" title="Notes-文献阅读:基于强化学习的多无人机任务分配方法研究"><img class="cover" src="/images/photo2024/notes_paper/notes-paper-RL-001/task01.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-30</div><div class="title">Notes-文献阅读:基于强化学习的多无人机任务分配方法研究</div></div></a></div><div><a href="/2026/03/13/notes/study_1/notes-study-LLM-001/" title="Notes-大模型学习:LLM介绍与基础概念讲解"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-13/21/c2bd5da81cb95f66.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-13</div><div class="title">Notes-大模型学习:LLM介绍与基础概念讲解</div></div></a></div><div><a href="/2026/03/13/notes/study_1/notes-study-LLM-002/" title="Notes-大模型学习:了解LLM中的RAG技术"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-13/21/27dc6c70466a6fba.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-13</div><div class="title">Notes-大模型学习:了解LLM中的RAG技术</div></div></a></div><div><a href="/2026/03/13/interview/LLM_1/study-LLM-AI%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98001-005/" title="Interview-AI大模型问题：Question 001-005（大模型微调+RAG核心）"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-03-13/21/088bb8e4543af9ec.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-13</div><div class="title">Interview-AI大模型问题：Question 001-005（大模型微调+RAG核心）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%88%E7%BB%99%E7%BB%93%E8%AE%BA%EF%BC%9A%E5%9B%9B%E4%B8%AA%E7%AE%97%E6%B3%95%E5%88%86%E5%88%AB%E9%80%82%E5%90%88%E4%BB%80%E4%B9%88"><span class="toc-text">一、先给结论：四个算法分别适合什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A1%86%E6%9E%B6"><span class="toc-text">二、强化学习的基本框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81DQN%EF%BC%9A%E4%BB%8E%E4%BB%B7%E5%80%BC%E5%87%BD%E6%95%B0%E5%87%BA%E5%8F%91%E7%9A%84%E6%B7%B1%E5%BA%A6%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0"><span class="toc-text">三、DQN：从价值函数出发的深度强化学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-DQN-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-text">3.1 DQN 的核心思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Bellman-%E6%9B%B4%E6%96%B0"><span class="toc-text">3.2 Bellman 更新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-DQN-%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%85%B3%E9%94%AE%E6%8A%80%E5%B7%A7"><span class="toc-text">3.3 DQN 的两个关键技巧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E4%B8%BA%E4%BB%80%E4%B9%88-DQN-%E4%B8%8D%E9%80%82%E5%90%88%E7%9B%B4%E6%8E%A5%E5%81%9A-LLM-%E5%AF%B9%E9%BD%90"><span class="toc-text">3.4 为什么 DQN 不适合直接做 LLM 对齐</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81PPO%EF%BC%9A%E7%BB%8F%E5%85%B8-RLHF-%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95"><span class="toc-text">四、PPO：经典 RLHF 最常见的策略优化算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%AD%96%E7%95%A5%E6%9B%B4%E6%96%B0%E4%B8%8D%E8%83%BD%E5%A4%AA%E7%8C%9B"><span class="toc-text">4.1 为什么策略更新不能太猛</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-PPO-%E5%9C%A8-RLHF-%E4%B8%AD%E6%80%8E%E4%B9%88%E7%94%A8"><span class="toc-text">4.2 PPO 在 RLHF 中怎么用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-LLM-%E4%B8%AD%E7%9A%84-PPO-%E5%A5%96%E5%8A%B1%E9%80%9A%E5%B8%B8%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-text">4.3 LLM 中的 PPO 奖励通常长什么样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%B8%BA%E4%BB%80%E4%B9%88-PPO-%E6%88%90%E4%B8%BA%E7%BB%8F%E5%85%B8-LLM-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AE%97%E6%B3%95"><span class="toc-text">4.4 为什么 PPO 成为经典 LLM 强化学习算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81GRPO%EF%BC%9A%E6%9B%B4%E9%80%82%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E8%AE%AD%E7%BB%83%E7%9A%84-PPO-%E5%8F%98%E4%BD%93"><span class="toc-text">五、GRPO：更适合大模型推理训练的 PPO 变体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-GRPO-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%87%BA%E7%8E%B0"><span class="toc-text">5.1 GRPO 为什么出现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-GRPO-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="toc-text">5.2 GRPO 的基本流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-GRPO-%E5%92%8C-PPO-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">5.3 GRPO 和 PPO 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-GRPO-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E6%8E%A8%E7%90%86%E4%BB%BB%E5%8A%A1"><span class="toc-text">5.4 GRPO 为什么适合推理任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81DPO%EF%BC%9A%E5%81%8F%E5%A5%BD%E4%BC%98%E5%8C%96%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BC%A0%E7%BB%9F%E5%9C%A8%E7%BA%BF%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0"><span class="toc-text">六、DPO：偏好优化，不是传统在线强化学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-DPO-%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BD%A2%E5%BC%8F"><span class="toc-text">6.1 DPO 的数据形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-DPO-%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="toc-text">6.2 DPO 的损失函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-DPO-%E5%92%8C-PPO-RLHF-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">6.3 DPO 和 PPO-RLHF 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-DPO-%E7%9A%84%E5%B1%80%E9%99%90"><span class="toc-text">6.4 DPO 的局限</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AE%97%E6%B3%95%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-text">七、大模型最常用的强化学习算法是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E5%A6%82%E6%9E%9C%E4%B8%A5%E6%A0%BC%E8%AF%B4%E2%80%9C%E7%BB%8F%E5%85%B8-RLHF-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AE%97%E6%B3%95%E2%80%9D%EF%BC%9APPO-%E6%9C%80%E7%BB%8F%E5%85%B8%E3%80%81%E6%9C%80%E5%B8%B8%E8%A7%81"><span class="toc-text">7.1 如果严格说“经典 RLHF 强化学习算法”：PPO 最经典、最常见</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E5%A6%82%E6%9E%9C%E8%AF%B4%E2%80%9C%E5%BD%93%E5%89%8D%E5%BC%80%E6%BA%90%E5%81%8F%E5%A5%BD%E5%AF%B9%E9%BD%90%E8%AE%AD%E7%BB%83%E2%80%9D%EF%BC%9ADPO-%E4%B9%9F%E9%9D%9E%E5%B8%B8%E5%B8%B8%E8%A7%81"><span class="toc-text">7.2 如果说“当前开源偏好对齐训练”：DPO 也非常常见</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E5%A6%82%E6%9E%9C%E8%AF%B4%E2%80%9C%E6%8E%A8%E7%90%86%E6%A8%A1%E5%9E%8B%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E2%80%9D%EF%BC%9AGRPO-%E8%BF%91%E5%87%A0%E5%B9%B4%E5%BE%88%E5%B8%B8%E8%A7%81"><span class="toc-text">7.3 如果说“推理模型强化学习”：GRPO 近几年很常见</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81LLM-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E8%AE%AD%E7%BB%83%E5%88%B0%E5%BA%95%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="toc-text">八、LLM 强化学习训练到底怎么实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E9%A2%84%E8%AE%AD%E7%BB%83"><span class="toc-text">8.1 阶段一：预训练</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E7%9B%91%E7%9D%A3%E5%BE%AE%E8%B0%83-SFT"><span class="toc-text">8.2 阶段二：监督微调 SFT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E8%AE%AD%E7%BB%83-Reward-Model"><span class="toc-text">8.3 阶段三：训练 Reward Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E9%98%B6%E6%AE%B5%E5%9B%9B%EF%BC%9APPO-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%9B%B4%E6%96%B0"><span class="toc-text">8.4 阶段四：PPO 强化学习更新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-PPO-RLHF-%E7%AE%80%E5%8C%96%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">8.5 PPO-RLHF 简化伪代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-6-GRPO-%E8%AE%AD%E7%BB%83%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">8.6 GRPO 训练伪代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-7-DPO-%E8%AE%AD%E7%BB%83%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="toc-text">8.7 DPO 训练伪代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%8E%A7%E5%88%B6%E9%A2%86%E5%9F%9F%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E-LLM-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">九、控制领域强化学习与 LLM 强化学习的区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E7%8A%B6%E6%80%81%E4%B8%8D%E5%90%8C"><span class="toc-text">9.1 状态不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E5%8A%A8%E4%BD%9C%E4%B8%8D%E5%90%8C"><span class="toc-text">9.2 动作不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E5%A5%96%E5%8A%B1%E4%B8%8D%E5%90%8C"><span class="toc-text">9.3 奖励不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-%E7%8E%AF%E5%A2%83%E4%BA%A4%E4%BA%92%E4%B8%8D%E5%90%8C"><span class="toc-text">9.4 环境交互不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-5-%E8%AE%AD%E7%BB%83%E7%9B%AE%E6%A0%87%E4%B8%8D%E5%90%8C"><span class="toc-text">9.5 训练目标不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-6-%E7%BA%A6%E6%9D%9F%E6%96%B9%E5%BC%8F%E4%B8%8D%E5%90%8C"><span class="toc-text">9.6 约束方式不同</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%BB%A5%E4%BB%BB%E5%8A%A1%E5%88%86%E9%85%8D%E5%92%8C%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92%E4%B8%BA%E4%BE%8B%E7%90%86%E8%A7%A3%E5%B7%AE%E5%BC%82"><span class="toc-text">十、以任务分配和路径规划为例理解差异</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E4%BB%BB%E5%8A%A1%E5%88%86%E9%85%8D%E4%B8%AD%E7%9A%84-RL"><span class="toc-text">10.1 任务分配中的 RL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92%E4%B8%AD%E7%9A%84-RL"><span class="toc-text">10.2 路径规划中的 RL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-LLM-%E4%B8%AD%E7%9A%84-RL"><span class="toc-text">10.3 LLM 中的 RL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81PPO%E3%80%81GRPO%E3%80%81DPO%E3%80%81DQN-%E6%A8%AA%E5%90%91%E5%AF%B9%E6%AF%94"><span class="toc-text">十一、PPO、GRPO、DPO、DQN 横向对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E4%BB%8E%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F%E7%9C%8B"><span class="toc-text">11.1 从算法范式看</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E4%BB%8E-LLM-%E9%80%82%E9%85%8D%E6%80%A7%E7%9C%8B"><span class="toc-text">11.2 从 LLM 适配性看</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E4%BB%8E%E5%B7%A5%E7%A8%8B%E6%88%90%E6%9C%AC%E7%9C%8B"><span class="toc-text">11.3 从工程成本看</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA%E6%95%B4%E7%90%86"><span class="toc-text">十二、常见误区整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E8%AF%AF%E5%8C%BA%E4%B8%80%EF%BC%9ADPO-%E6%98%AF-PPO-%E7%9A%84%E7%AE%80%E5%8C%96%E7%89%88"><span class="toc-text">12.1 误区一：DPO 是 PPO 的简化版</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-%E8%AF%AF%E5%8C%BA%E4%BA%8C%EF%BC%9AGRPO-%E7%AD%89%E4%BA%8E%E4%B8%8D%E7%94%A8%E5%A5%96%E5%8A%B1%E6%A8%A1%E5%9E%8B"><span class="toc-text">12.2 误区二：GRPO 等于不用奖励模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-%E8%AF%AF%E5%8C%BA%E4%B8%89%EF%BC%9APPO-%E4%B8%80%E5%AE%9A%E6%AF%94-DPO-%E6%9B%B4%E5%A5%BD"><span class="toc-text">12.3 误区三：PPO 一定比 DPO 更好</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-4-%E8%AF%AF%E5%8C%BA%E5%9B%9B%EF%BC%9A%E6%8E%A7%E5%88%B6%E9%A2%86%E5%9F%9F-RL-%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E6%90%AC%E5%88%B0-LLM"><span class="toc-text">12.4 误区四：控制领域 RL 可以直接搬到 LLM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E9%9D%A2%E8%AF%95%E5%8F%AF%E8%83%8C%E7%89%88%E6%9C%AC"><span class="toc-text">十三、面试可背版本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-PPO%E3%80%81GRPO%E3%80%81DPO%E3%80%81DQN-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">13.1 PPO、GRPO、DPO、DQN 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AE%97%E6%B3%95%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-text">13.2 大模型最常用的强化学习算法是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-LLM-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="toc-text">13.3 LLM 强化学习怎么实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-4-%E6%8E%A7%E5%88%B6%E9%A2%86%E5%9F%9F-RL-%E4%B8%8E-LLM-RL-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">13.4 控制领域 RL 与 LLM RL 的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E5%9B%9B%E3%80%81%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3%E4%B8%8E%E5%AD%A6%E4%B9%A0%E6%94%B6%E8%8E%B7"><span class="toc-text">十四、个人理解与学习收获</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">十五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">十六、参考文献</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/03/notes/study_1/notes-study-LLM-GRPO-001/" title="Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习"><img src="https://wx2.sinaimg.cn/large/ee3b7d6cly1i9sw110auvj20zj0k0gqc.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习"></a><div class="content"><a class="title" href="/2026/06/03/notes/study_1/notes-study-LLM-GRPO-001/" title="Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习">Notes-大模型学习:PPO、GRPO 与 DQN 的区别-从控制任务到大模型强化学习</a><time datetime="2026-06-03T13:30:00.000Z" title="发表于 2026-06-03 21:30:00">2026-06-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/03/notes/paper_1/notes-paper-transformer-001/" title="Notes-文献阅读:Transformer架构与大模型理论基础"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-06-03/21/0909a535115af6a6.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Notes-文献阅读:Transformer架构与大模型理论基础"></a><div class="content"><a class="title" href="/2026/06/03/notes/paper_1/notes-paper-transformer-001/" title="Notes-文献阅读:Transformer架构与大模型理论基础">Notes-文献阅读:Transformer架构与大模型理论基础</a><time datetime="2026-06-03T12:30:00.000Z" title="发表于 2026-06-03 20:30:00">2026-06-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/02/leetcode/leetcode_else/study-leetcode-088/" title="Leetcode-088:合并两个有序数组-从后往前双指针原地合并"><img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-088:合并两个有序数组-从后往前双指针原地合并"></a><div class="content"><a class="title" href="/2026/06/02/leetcode/leetcode_else/study-leetcode-088/" title="Leetcode-088:合并两个有序数组-从后往前双指针原地合并">Leetcode-088:合并两个有序数组-从后往前双指针原地合并</a><time datetime="2026-06-02T11:30:00.000Z" title="发表于 2026-06-02 19:30:00">2026-06-02</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 - 2026 By wxg</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script src="/js/snowflake.js"></script><script src="/js/agent-assistant.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>
