@@ -1,0 +1,409 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Leetcode-1143:最长公共子序列-二维动态规划 | WXGのBlog</title><meta name="author" content="wxg"><meta name="copyright" content="wxg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本文整理 LeetCode 1143 最长公共子序列问题，重点复盘二维动态规划的状态定义、转移逻辑、边界处理与面试表达。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leetcode-1143:最长公共子序列-二维动态规划">
+<meta property="og:url" content="https://wxggo.github.io/2026/06/07/leetcode/leetcode_else/study-leetcode-1143/index.html">
+<meta property="og:site_name" content="WXGのBlog">
+<meta property="og:description" content="本文整理 LeetCode 1143 最长公共子序列问题，重点复盘二维动态规划的状态定义、转移逻辑、边界处理与面试表达。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic.leetcode.cn/1630136588-izNOVn-file_1630136588899">
+<meta property="article:published_time" content="2026-06-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-06T16:00:00.000Z">
+<meta property="article:author" content="wxg">
+<meta property="article:tag" content="Leetcode">
+<meta property="article:tag" content="动态规划">
+<meta property="article:tag" content="字符串">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic.leetcode.cn/1630136588-izNOVn-file_1630136588899"><link rel="shortcut icon" href="/img/favicon1.jpg"><link rel="canonical" href="https://wxggo.github.io/2026/06/07/leetcode/leetcode_else/study-leetcode-1143/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Leetcode-1143:最长公共子序列-二维动态规划',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-07 00:00:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/transparent.css"><link rel="stylesheet" href="/css/modify.css"><link rel="stylesheet" href="/css/collections.css"><link rel="stylesheet" href="/css/agent-assistant.css"><link rel="stylesheet" href="/css/codeblock-fix.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon1.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">98</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">58</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pic.leetcode.cn/1630136588-izNOVn-file_1630136588899')"><nav id="nav"><span id="blog-info"><a href="/" title="WXGのBlog"><img class="site-icon" src="/img/favicon1.jpg"><span class="site-name">WXGのBlog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 兴趣</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/download/"><i class="fa-fw fa-solid fa-download"></i><span> 分享</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Leetcode-1143:最长公共子序列-二维动态规划</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-06T16:00:00.000Z" title="发表于 2026-06-07 00:00:00">2026-06-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-06T16:00:00.000Z" title="更新于 2026-06-07 00:00:00">2026-06-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Java学习笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Leetcode%E8%87%AA%E7%94%B1%E5%88%B7/">Leetcode自由刷</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Leetcode-1143:最长公共子序列-二维动态规划"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('https://pic.leetcode.cn/1630136588-izNOVn-file_1630136588899');"></div><article class="post-content" id="article-container"><blockquote>
+<p>最近复习动态规划时，我发现「最长公共子序列」是一道非常适合作为 DP 入门和面试复盘的题。它的难点不在代码很长，而在于能不能清楚定义状态、理解下标偏移，并把“当前字符相等/不相等”两种情况讲明白。</p>
+</blockquote>
+<h2 id="1、题目"><a href="#1、题目" class="headerlink" title="1、题目"></a>1、题目</h2><p>题目链接：<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/longest-common-subsequence/">LeetCode 1143. 最长公共子序列</a></p>
+<p>给定两个字符串 <code>text1</code> 和 <code>text2</code>，返回这两个字符串的最长公共子序列的长度。</p>
+<p>子序列是指：在不改变原字符串字符相对顺序的情况下，删除某些字符（也可以不删除）后得到的新字符串。</p>
+<p>需要注意：</p>
+<ul>
+<li>子序列不要求连续；</li>
+<li>子串要求连续；</li>
+<li>本题求的是两个字符串共同拥有的最长子序列长度。</li>
+</ul>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：text1 = "abcde", text2 = "ace"</span><br><span class="line">输出：3</span><br><span class="line">解释：最长公共子序列是 "ace"，长度为 3。</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：text1 = "abc", text2 = "abc"</span><br><span class="line">输出：3</span><br><span class="line">解释：两个字符串完全相同，最长公共子序列是 "abc"。</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：text1 = "abc", text2 = "def"</span><br><span class="line">输出：0</span><br><span class="line">解释：两个字符串没有公共字符。</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h2 id="2、分析"><a href="#2、分析" class="headerlink" title="2、分析"></a>2、分析</h2><p>这道题是经典的二维动态规划问题，也就是 Longest Common Subsequence，简称 LCS。</p>
+<p>如果直接暴力枚举两个字符串的所有子序列，再判断是否相同，复杂度会非常高，因为一个长度为 $n$ 的字符串最多有 $2^n$ 个子序列。因此，本题更适合用动态规划来避免重复计算。</p>
+<h3 id="2-1-状态定义"><a href="#2-1-状态定义" class="headerlink" title="2.1 状态定义"></a>2.1 状态定义</h3><p>设：</p>
+<p>$$<br>dp[i][j]<br>$$</p>
+<p>表示：<code>text1</code> 的前 <code>i</code> 个字符和 <code>text2</code> 的前 <code>j</code> 个字符的最长公共子序列长度。</p>
+<p>这里的“前 <code>i</code> 个字符”不是下标 <code>i</code>，而是长度为 <code>i</code> 的前缀：</p>
+<ul>
+<li><code>i = 0</code> 表示 <code>text1</code> 的空字符串；</li>
+<li><code>i = 1</code> 表示 <code>text1</code> 的第一个字符，也就是 <code>text1.charAt(0)</code>；</li>
+<li><code>j</code> 同理。</li>
+</ul>
+<p>所以真正比较当前字符时，应该比较：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text1.charAt(i - <span class="number">1</span>)</span><br><span class="line">text2.charAt(j - <span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这也是本题最容易写错的地方之一。</p>
+<h3 id="2-2-初始化"><a href="#2-2-初始化" class="headerlink" title="2.2 初始化"></a>2.2 初始化</h3><p>当其中一个字符串为空时，最长公共子序列长度一定为 0：</p>
+<p>$$<br>dp[0][j] = 0<br>$$</p>
+<p>$$<br>dp[i][0] = 0<br>$$</p>
+<p>在 Java 中，<code>int</code> 类型二维数组默认初始化为 0，因此不需要手动赋值。</p>
+<h3 id="2-3-状态转移"><a href="#2-3-状态转移" class="headerlink" title="2.3 状态转移"></a>2.3 状态转移</h3><p>遍历到 <code>text1</code> 的第 <code>i</code> 个字符和 <code>text2</code> 的第 <code>j</code> 个字符时，有两种情况。</p>
+<h4 id="情况一：当前字符相等"><a href="#情况一：当前字符相等" class="headerlink" title="情况一：当前字符相等"></a>情况一：当前字符相等</h4><p>如果：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">text1.charAt(i - <span class="number">1</span>) == text2.charAt(j - <span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>说明这两个字符可以共同加入公共子序列，那么答案就来自两个字符串都去掉当前字符之前的状态，再加上当前这个匹配字符：</p>
+<p>$$<br>dp[i][j] = dp[i - 1][j - 1] + 1<br>$$</p>
+<p>例如 <code>abcde</code> 和 <code>ace</code> 在比较到字符 <code>e</code> 时，两个字符相等，就可以在之前 <code>abc d</code> 与 <code>ac</code> 的 LCS 基础上再加 1。</p>
+<h4 id="情况二：当前字符不相等"><a href="#情况二：当前字符不相等" class="headerlink" title="情况二：当前字符不相等"></a>情况二：当前字符不相等</h4><p>如果当前字符不相等，那么这两个字符不能同时作为公共子序列的最后一个字符。此时需要做选择：</p>
+<ol>
+<li>不使用 <code>text1</code> 当前字符，看 <code>dp[i - 1][j]</code>；</li>
+<li>不使用 <code>text2</code> 当前字符，看 <code>dp[i][j - 1]</code>。</li>
+</ol>
+<p>取两者最大值：</p>
+<p>$$<br>dp[i][j] = \max(dp[i - 1][j], dp[i][j - 1])<br>$$</p>
+<p>这一步的本质是：当前两个字符匹配不上，那就分别尝试丢掉其中一个字符，看哪种选择能保留更长的公共子序列。</p>
+<h3 id="2-4-为什么最后返回-dp-m-n"><a href="#2-4-为什么最后返回-dp-m-n" class="headerlink" title="2.4 为什么最后返回 dp[m][n]"></a>2.4 为什么最后返回 <code>dp[m][n]</code></h3><p>因为 <code>dp[i][j]</code> 表示两个前缀的最长公共子序列长度，所以当 <code>i = m</code>、<code>j = n</code> 时，刚好表示完整的 <code>text1</code> 和完整的 <code>text2</code> 的答案。</p>
+<hr>
+<h2 id="3、程序"><a href="#3、程序" class="headerlink" title="3、程序"></a>3、程序</h2><figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">longestCommonSubsequence</span><span class="params">(String text1, String text2)</span> {</span><br><span class="line">        <span class="comment">// m、n 分别是两个字符串的长度</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> text1.length();</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> text2.length();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// dp[i][j] 表示：text1 的前 i 个字符 与 text2 的前 j 个字符 的最长公共子序列长度</span></span><br><span class="line">        <span class="comment">// 注意：i 和 j 从 0 开始，对应空字符串；i = 1 对应 text1 的第 1 个字符（索引 0）</span></span><br><span class="line">        <span class="type">int</span>[][] dp = <span class="keyword">new</span> <span class="title class_">int</span>[m + <span class="number">1</span>][n + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 初始化：dp[0][j] 和 dp[i][0] 都是 0，Java 中 int 数组默认就是 0，不用手动赋值</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历填充 dp 表</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= m; i++) {</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; j &lt;= n; j++) {</span><br><span class="line">                <span class="comment">// 当前两个字符相等：公共子序列长度 + 1</span></span><br><span class="line">                <span class="keyword">if</span> (text1.charAt(i - <span class="number">1</span>) == text2.charAt(j - <span class="number">1</span>)) {</span><br><span class="line">                    dp[i][j] = dp[i - <span class="number">1</span>][j - <span class="number">1</span>] + <span class="number">1</span>;</span><br><span class="line">                } <span class="keyword">else</span> {</span><br><span class="line">                    <span class="comment">// 当前字符不相等：取「去掉 text1 当前字符」或「去掉 text2 当前字符」的最大值</span></span><br><span class="line">                    dp[i][j] = Math.max(dp[i - <span class="number">1</span>][j], dp[i][j - <span class="number">1</span>]);</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 最终结果就是两个完整字符串的最长公共子序列长度</span></span><br><span class="line">        <span class="keyword">return</span> dp[m][n];</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="3-1-关键代码解释"><a href="#3-1-关键代码解释" class="headerlink" title="3.1 关键代码解释"></a>3.1 关键代码解释</h3><h4 id="1）为什么数组大小是-m-1-和-n-1"><a href="#1）为什么数组大小是-m-1-和-n-1" class="headerlink" title="1）为什么数组大小是 m + 1 和 n + 1"></a>1）为什么数组大小是 <code>m + 1</code> 和 <code>n + 1</code></h4><p>因为我们需要额外保留一行和一列来表示空字符串状态。</p>
+<p>如果不加这一行一列，就需要对 <code>i = 0</code> 或 <code>j = 0</code> 的情况写很多边界判断。使用 <code>m + 1</code> 和 <code>n + 1</code> 后，状态转移会更统一。</p>
+<h4 id="2）为什么比较-charAt-i-1-和-charAt-j-1"><a href="#2）为什么比较-charAt-i-1-和-charAt-j-1" class="headerlink" title="2）为什么比较 charAt(i - 1) 和 charAt(j - 1)"></a>2）为什么比较 <code>charAt(i - 1)</code> 和 <code>charAt(j - 1)</code></h4><p>因为 <code>dp[i][j]</code> 中的 <code>i</code> 和 <code>j</code> 表示长度，不是字符串下标。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">i = 1 表示前 1 个字符，对应下标 0</span><br><span class="line">j = 1 表示前 1 个字符，对应下标 0</span><br></pre></td></tr></tbody></table></figure>
+
+<p>所以代码中必须写成：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text1.charAt(i - <span class="number">1</span>)</span><br><span class="line">text2.charAt(j - <span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="3）为什么字符相等时来自-dp-i-1-j-1"><a href="#3）为什么字符相等时来自-dp-i-1-j-1" class="headerlink" title="3）为什么字符相等时来自 dp[i - 1][j - 1]"></a>3）为什么字符相等时来自 <code>dp[i - 1][j - 1]</code></h4><p>因为当前两个字符已经匹配上了，就相当于从两个字符串中都拿掉当前字符，看前面的最长公共子序列长度，再加上当前这一个公共字符。</p>
+<h4 id="4）为什么字符不相等时不考虑-dp-i-1-j-1"><a href="#4）为什么字符不相等时不考虑-dp-i-1-j-1" class="headerlink" title="4）为什么字符不相等时不考虑 dp[i - 1][j - 1]"></a>4）为什么字符不相等时不考虑 <code>dp[i - 1][j - 1]</code></h4><p>当当前字符不相等时，不能同时把它们加入同一个公共子序列。此时最优解一定来自：</p>
+<ul>
+<li>去掉 <code>text1</code> 当前字符；</li>
+<li>或者去掉 <code>text2</code> 当前字符。</li>
+</ul>
+<p>因此只需要比较 <code>dp[i - 1][j]</code> 和 <code>dp[i][j - 1]</code>。</p>
+<hr>
+<h2 id="4、算法性能"><a href="#4、算法性能" class="headerlink" title="4、算法性能"></a>4、算法性能</h2><p>设 <code>m = text1.length()</code>，<code>n = text2.length()</code>。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>复杂度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时间复杂度</td>
+<td>$O(mn)$</td>
+<td>需要填完整个二维 DP 表</td>
+</tr>
+<tr>
+<td>空间复杂度</td>
+<td>$O(mn)$</td>
+<td>使用了大小为 <code>(m + 1) * (n + 1)</code> 的二维数组</td>
+</tr>
+</tbody></table>
+<p>这份代码的优点是逻辑清晰，非常适合第一次学习和面试时讲解。</p>
+<p>如果进一步优化空间，可以使用一维滚动数组，将空间复杂度优化到 $O(n)$。不过一维写法对遍历顺序和临时变量要求更高，第一次学习时我更推荐先掌握二维版本。</p>
+<hr>
+<h2 id="5、测试示例"><a href="#5、测试示例" class="headerlink" title="5、测试示例"></a>5、测试示例</h2><h3 id="5-1-示例：abcde-和-ace"><a href="#5-1-示例：abcde-和-ace" class="headerlink" title="5.1 示例：abcde 和 ace"></a>5.1 示例：<code>abcde</code> 和 <code>ace</code></h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text1 = "abcde"</span><br><span class="line">text2 = "ace"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>公共子序列可以是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"a"、"c"、"e"、"ac"、"ae"、"ce"、"ace"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其中最长的是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"ace"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>所以返回：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="5-2-示例：两个字符串完全相同"><a href="#5-2-示例：两个字符串完全相同" class="headerlink" title="5.2 示例：两个字符串完全相同"></a>5.2 示例：两个字符串完全相同</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text1 = "abc"</span><br><span class="line">text2 = "abc"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>每个字符都可以按顺序匹配，因此最长公共子序列就是整个字符串：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"abc"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>返回：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="5-3-示例：没有公共字符"><a href="#5-3-示例：没有公共字符" class="headerlink" title="5.3 示例：没有公共字符"></a>5.3 示例：没有公共字符</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text1 = "abc"</span><br><span class="line">text2 = "def"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>任意字符都无法匹配，DP 表中除了初始化以外也不会出现增长，因此返回：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="5-4-一个更容易看出“不连续”的例子"><a href="#5-4-一个更容易看出“不连续”的例子" class="headerlink" title="5.4 一个更容易看出“不连续”的例子"></a>5.4 一个更容易看出“不连续”的例子</h3><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text1 = "abcbdab"</span><br><span class="line">text2 = "bdcaba"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其中一个最长公共子序列可以是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"bcba"</span><br></pre></td></tr></tbody></table></figure>
+
+<p>它在原字符串中不要求连续，只要求相对顺序一致。</p>
+<p>这能帮助我区分：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>是否要求连续</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>子序列</td>
+<td>不要求连续</td>
+<td><code>ace</code> 是 <code>abcde</code> 的子序列</td>
+</tr>
+<tr>
+<td>子串</td>
+<td>要求连续</td>
+<td><code>bcd</code> 是 <code>abcde</code> 的子串</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="6、扩展思考"><a href="#6、扩展思考" class="headerlink" title="6、扩展思考"></a>6、扩展思考</h2><h3 id="6-1-和最长公共子串的区别"><a href="#6-1-和最长公共子串的区别" class="headerlink" title="6.1 和最长公共子串的区别"></a>6.1 和最长公共子串的区别</h3><p>最长公共子序列不要求字符连续，因此当字符不相等时，可以继承前面状态的最大值：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = Math.max(dp[i - <span class="number">1</span>][j], dp[i][j - <span class="number">1</span>]);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>但如果是最长公共子串，字符必须连续。一旦当前字符不相等，当前连续长度就会断掉，通常需要置为 0。</p>
+<p>所以这两类题的 DP 转移差别很大，面试时一定要先确认题目要求的是“子序列”还是“子串”。</p>
+<h3 id="6-2-空间优化思路"><a href="#6-2-空间优化思路" class="headerlink" title="6.2 空间优化思路"></a>6.2 空间优化思路</h3><p>二维 DP 中，<code>dp[i][j]</code> 只依赖：</p>
+<ul>
+<li><code>dp[i - 1][j]</code>：上一行同一列；</li>
+<li><code>dp[i][j - 1]</code>：当前行前一列；</li>
+<li><code>dp[i - 1][j - 1]</code>：上一行前一列。</li>
+</ul>
+<p>因此可以使用一维数组保存上一行状态，再用一个变量记录左上角的值。</p>
+<p>一维优化版本大致如下：</p>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">longestCommonSubsequence</span><span class="params">(String text1, String text2)</span> {</span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> text1.length();</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> text2.length();</span><br><span class="line">        <span class="type">int</span>[] dp = <span class="keyword">new</span> <span class="title class_">int</span>[n + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= m; i++) {</span><br><span class="line">            <span class="type">int</span> <span class="variable">prev</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// 表示二维 DP 中的 dp[i - 1][j - 1]</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; j &lt;= n; j++) {</span><br><span class="line">                <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> dp[j]; <span class="comment">// 更新前的 dp[j] 表示 dp[i - 1][j]</span></span><br><span class="line">                <span class="keyword">if</span> (text1.charAt(i - <span class="number">1</span>) == text2.charAt(j - <span class="number">1</span>)) {</span><br><span class="line">                    dp[j] = prev + <span class="number">1</span>;</span><br><span class="line">                } <span class="keyword">else</span> {</span><br><span class="line">                    dp[j] = Math.max(dp[j], dp[j - <span class="number">1</span>]);</span><br><span class="line">                }</span><br><span class="line">                prev = temp;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[n];</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>不过从复习角度来说，二维版本更适合先建立完整的动态规划思维；一维版本适合在已经理解状态转移后再补充。</p>
+<h3 id="6-3-常见易错点"><a href="#6-3-常见易错点" class="headerlink" title="6.3 常见易错点"></a>6.3 常见易错点</h3><table>
+<thead>
+<tr>
+<th>易错点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>把子序列误认为子串</td>
+<td>子序列不要求连续，子串要求连续</td>
+</tr>
+<tr>
+<td><code>dp</code> 下标和字符串下标混淆</td>
+<td><code>dp[i][j]</code> 的 <code>i/j</code> 是长度，字符串访问要 <code>i - 1/j - 1</code></td>
+</tr>
+<tr>
+<td>忘记空字符串状态</td>
+<td>使用 <code>m + 1</code> 和 <code>n + 1</code> 可以统一处理边界</td>
+</tr>
+<tr>
+<td>字符不相等时转移写错</td>
+<td>应该取 <code>dp[i - 1][j]</code> 和 <code>dp[i][j - 1]</code> 的最大值</td>
+</tr>
+<tr>
+<td>只背代码，不会解释状态含义</td>
+<td>面试时重点是讲清楚为什么这样转移</td>
+</tr>
+</tbody></table>
+<h3 id="6-4-面试口述版"><a href="#6-4-面试口述版" class="headerlink" title="6.4 面试口述版"></a>6.4 面试口述版</h3><p>如果面试中让我讲这道题，我会这样回答：</p>
+<blockquote>
+<p>这道题可以用二维动态规划。定义 <code>dp[i][j]</code> 表示 <code>text1</code> 的前 <code>i</code> 个字符和 <code>text2</code> 的前 <code>j</code> 个字符的最长公共子序列长度。初始化时，如果任意一个字符串为空，结果就是 0，所以第一行和第一列都是 0。然后遍历两个字符串，如果当前字符相等，就说明这个字符可以加入公共子序列，状态转移为 <code>dp[i][j] = dp[i - 1][j - 1] + 1</code>；如果当前字符不相等，就分别尝试丢掉其中一个当前字符，取 <code>dp[i - 1][j]</code> 和 <code>dp[i][j - 1]</code> 的最大值。最后返回 <code>dp[m][n]</code>。时间复杂度是 $O(mn)$，空间复杂度是 $O(mn)$。</p>
+</blockquote>
+<h3 id="6-5-相关题目"><a href="#6-5-相关题目" class="headerlink" title="6.5 相关题目"></a>6.5 相关题目</h3><p>这道题是很多字符串 DP 问题的基础，后续可以继续复习：</p>
+<ul>
+<li>最长公共子串；</li>
+<li>编辑距离；</li>
+<li>不同的子序列；</li>
+<li>两个字符串的删除操作；</li>
+<li>判断一个字符串是否是另一个字符串的子序列。</li>
+</ul>
+<p>这些题都和“前缀状态”“字符是否匹配”“删除或保留字符”有关，可以放在一起做专题复盘。</p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这道题给我最大的收获是：动态规划题目并不是一上来就写转移方程，而是要先把状态定义想清楚。</p>
+<p>对于最长公共子序列：</p>
+<ol>
+<li><code>dp[i][j]</code> 表示两个前缀的 LCS 长度；</li>
+<li>多开一行一列表示空字符串，方便处理边界；</li>
+<li>当前字符相等时，来自左上角加 1；</li>
+<li>当前字符不相等时，来自上方或左方最大值；</li>
+<li>最终返回 <code>dp[m][n]</code>。</li>
+</ol>
+<p>这道题非常适合用来训练二维 DP 的基本套路。只要能把状态定义、初始化、转移逻辑和复杂度讲清楚，面试中遇到同类字符串 DP 问题时就会更有底气。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://wxggo.github.io">wxg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://wxggo.github.io/2026/06/07/leetcode/leetcode_else/study-leetcode-1143/">https://wxggo.github.io/2026/06/07/leetcode/leetcode_else/study-leetcode-1143/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://wxggo.github.io" target="_blank">WXGのBlog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Leetcode/">Leetcode</a><a class="post-meta__tags" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a><a class="post-meta__tags" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/">字符串</a></div><div class="post_share"><div class="social-share" data-image="https://pic.leetcode.cn/1630136588-izNOVn-file_1630136588899" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/07/leetcode/leetcode_else/study-leetcode-092/" title="Leetcode-092:反转链表 II-一次遍历区间反转"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-06-08/00/b157b274ff63350b.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Leetcode-092:反转链表 II-一次遍历区间反转</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/06/interview/experience_1/study-interview-%E9%9D%A2%E7%BB%8F%E5%AD%A6%E4%B9%A0_002/" title="Interview-面经学习:安克创新后端开发实习生面试复盘"><img class="cover" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Interview-面经学习:安克创新后端开发实习生面试复盘</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2026/06/06/leetcode/leetcode_else/study-leetcode-300/" title="Leetcode-300:最长递增子序列-动态规划与贪心二分"><img class="cover" src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-06</div><div class="title">Leetcode-300:最长递增子序列-动态规划与贪心二分</div></div></a></div><div><a href="/2026/06/06/leetcode/leetcode_else/study-leetcode-415/" title="Leetcode-415:字符串相加-模拟竖式加法"><img class="cover" src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&amp;fit=crop&amp;w=1200&amp;q=80" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-06</div><div class="title">Leetcode-415:字符串相加-模拟竖式加法</div></div></a></div><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-003/" title="Leetcode-003:无重复字符的最长子串-滑动窗口极简实现"><img class="cover" src="https://img2.baidu.com/it/u=883228725,2281386555&amp;fm=253&amp;fmt=auto&amp;app=138&amp;f=JPEG?w=552&amp;h=406" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-003:无重复字符的最长子串-滑动窗口极简实现</div></div></a></div><div><a href="/2026/02/02/leetcode/leetcodehot100/date2026_1/study-leetcode-005/" title="Leetcode-005:最长回文子串-中心扩展法极简实现"><img class="cover" src="https://aisearch.cdn.bcebos.com/pic_create/2026-02-02/15/3443dab7b8dca2d7.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="title">Leetcode-005:最长回文子串-中心扩展法极简实现</div></div></a></div><div><a href="/2026/02/04/leetcode/leetcodehot100/date2026_1/study-leetcode-020/" title="Leetcode-020:有效的括号-栈经典解法（HashMap+Deque版）"><img class="cover" src="/images/photo2024/study_python/python002.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-04</div><div class="title">Leetcode-020:有效的括号-栈经典解法（HashMap+Deque版）</div></div></a></div><div><a href="/2026/02/05/leetcode/leetcodehot100/date2026_1/study-leetcode-022/" title="Leetcode-022:生成括号-DFS回溯经典解法（路径优化版）"><img class="cover" src="https://img0.baidu.com/it/u=1500041089,493836404&amp;fm=253&amp;fmt=auto&amp;app=138&amp;f=JPEG?w=836&amp;h=244" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-05</div><div class="title">Leetcode-022:生成括号-DFS回溯经典解法（路径优化版）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">wxg</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">98</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">58</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wxggo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wxggo" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://qm.qq.com/q/u0jITXdGF2" target="_blank" title="QQ"><i class="fa-brands fa-qq" style="color: #0052d9;"></i></a><a class="social-icon" href="mailto:2638471200@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><div> Seek truth, be magnanimous.</div> <div> 求实求真，大气大为。</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%A2%98%E7%9B%AE"><span class="toc-text">1、题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-text">示例 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-2"><span class="toc-text">示例 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-3"><span class="toc-text">示例 3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-text">2、分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%8A%B6%E6%80%81%E5%AE%9A%E4%B9%89"><span class="toc-text">2.1 状态定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">2.2 初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB"><span class="toc-text">2.3 状态转移</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%83%85%E5%86%B5%E4%B8%80%EF%BC%9A%E5%BD%93%E5%89%8D%E5%AD%97%E7%AC%A6%E7%9B%B8%E7%AD%89"><span class="toc-text">情况一：当前字符相等</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%83%85%E5%86%B5%E4%BA%8C%EF%BC%9A%E5%BD%93%E5%89%8D%E5%AD%97%E7%AC%A6%E4%B8%8D%E7%9B%B8%E7%AD%89"><span class="toc-text">情况二：当前字符不相等</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9C%80%E5%90%8E%E8%BF%94%E5%9B%9E-dp-m-n"><span class="toc-text">2.4 为什么最后返回 dp[m][n]</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%A8%8B%E5%BA%8F"><span class="toc-text">3、程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E8%A7%A3%E9%87%8A"><span class="toc-text">3.1 关键代码解释</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E6%95%B0%E7%BB%84%E5%A4%A7%E5%B0%8F%E6%98%AF-m-1-%E5%92%8C-n-1"><span class="toc-text">1）为什么数组大小是 m + 1 和 n + 1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E6%AF%94%E8%BE%83-charAt-i-1-%E5%92%8C-charAt-j-1"><span class="toc-text">2）为什么比较 charAt(i - 1) 和 charAt(j - 1)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%97%E7%AC%A6%E7%9B%B8%E7%AD%89%E6%97%B6%E6%9D%A5%E8%87%AA-dp-i-1-j-1"><span class="toc-text">3）为什么字符相等时来自 dp[i - 1][j - 1]</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%97%E7%AC%A6%E4%B8%8D%E7%9B%B8%E7%AD%89%E6%97%B6%E4%B8%8D%E8%80%83%E8%99%91-dp-i-1-j-1"><span class="toc-text">4）为什么字符不相等时不考虑 dp[i - 1][j - 1]</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%AE%97%E6%B3%95%E6%80%A7%E8%83%BD"><span class="toc-text">4、算法性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%B5%8B%E8%AF%95%E7%A4%BA%E4%BE%8B"><span class="toc-text">5、测试示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E7%A4%BA%E4%BE%8B%EF%BC%9Aabcde-%E5%92%8C-ace"><span class="toc-text">5.1 示例：abcde 和 ace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E4%B8%A4%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8C%E5%85%A8%E7%9B%B8%E5%90%8C"><span class="toc-text">5.2 示例：两个字符串完全相同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%B2%A1%E6%9C%89%E5%85%AC%E5%85%B1%E5%AD%97%E7%AC%A6"><span class="toc-text">5.3 示例：没有公共字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%AE%B9%E6%98%93%E7%9C%8B%E5%87%BA%E2%80%9C%E4%B8%8D%E8%BF%9E%E7%BB%AD%E2%80%9D%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-text">5.4 一个更容易看出“不连续”的例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="toc-text">6、扩展思考</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E5%92%8C%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E4%B8%B2%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">6.1 和最长公共子串的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E7%A9%BA%E9%97%B4%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF"><span class="toc-text">6.2 空间优化思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%B8%B8%E8%A7%81%E6%98%93%E9%94%99%E7%82%B9"><span class="toc-text">6.3 常见易错点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E9%9D%A2%E8%AF%95%E5%8F%A3%E8%BF%B0%E7%89%88"><span class="toc-text">6.4 面试口述版</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E7%9B%B8%E5%85%B3%E9%A2%98%E7%9B%AE"><span class="toc-text">6.5 相关题目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/07/leetcode/leetcode_else/study-leetcode-092/" title="Leetcode-092:反转链表 II-一次遍历区间反转"><img src="https://aisearch.cdn.bcebos.com/pic_create/2026-06-08/00/b157b274ff63350b.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-092:反转链表 II-一次遍历区间反转"></a><div class="content"><a class="title" href="/2026/06/07/leetcode/leetcode_else/study-leetcode-092/" title="Leetcode-092:反转链表 II-一次遍历区间反转">Leetcode-092:反转链表 II-一次遍历区间反转</a><time datetime="2026-06-06T16:00:00.000Z" title="发表于 2026-06-07 00:00:00">2026-06-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/07/leetcode/leetcode_else/study-leetcode-1143/" title="Leetcode-1143:最长公共子序列-二维动态规划"><img src="https://pic.leetcode.cn/1630136588-izNOVn-file_1630136588899" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Leetcode-1143:最长公共子序列-二维动态规划"></a><div class="content"><a class="title" href="/2026/06/07/leetcode/leetcode_else/study-leetcode-1143/" title="Leetcode-1143:最长公共子序列-二维动态规划">Leetcode-1143:最长公共子序列-二维动态规划</a><time datetime="2026-06-06T16:00:00.000Z" title="发表于 2026-06-07 00:00:00">2026-06-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/06/interview/experience_1/study-interview-%E9%9D%A2%E7%BB%8F%E5%AD%A6%E4%B9%A0_002/" title="Interview-面经学习:安克创新后端开发实习生面试复盘"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interview-面经学习:安克创新后端开发实习生面试复盘"></a><div class="content"><a class="title" href="/2026/06/06/interview/experience_1/study-interview-%E9%9D%A2%E7%BB%8F%E5%AD%A6%E4%B9%A0_002/" title="Interview-面经学习:安克创新后端开发实习生面试复盘">Interview-面经学习:安克创新后端开发实习生面试复盘</a><time datetime="2026-06-06T02:00:00.000Z" title="发表于 2026-06-06 10:00:00">2026-06-06</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 - 2026 By wxg</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script src="/js/snowflake.js"></script><script src="/js/agent-assistant.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>
